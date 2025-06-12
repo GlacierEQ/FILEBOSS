@@ -1,0 +1,35 @@
+# SMIE - Supernova Memory Integration Engine Requirements
+# 777 Iteration Mastery Dependencies
+
+# Core async and data handling
+aiofiles>=23.0.0
+aiohttp>=3.8.0
+asyncio-mqtt>=0.13.0
+
+# Memory and embedding systems
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Data structures and serialization
+pydantic>=2.0.0
+orjson>=3.9.0
+
+# Logging and monitoring
+loguru>=0.7.0
+rich>=13.0.0
+
+# Optional integrations (based on existing warp.toml)
+# Uncomment as needed:
+# redis>=4.6.0
+# supabase>=1.0.0
+# openai>=0.27.0
+# chromadb>=0.4.0
+# sentence-transformers>=2.2.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+mypy>=1.5.0
+
