@@ -1,0 +1,61 @@
+# Supabase config.toml for Config as Code feature
+# https://supabase.com/docs/guides/cli/config-as-code
+
+project_id = "ai-warp-cli"
+
+[api]
+# Port for the API server
+port = 54321
+# Enable/disable APIs
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+# PostgreSQL major version
+major_version = 15
+port = 54322
+shadow_port = 54320
+
+[db.pooler]
+enabled = false
+port = 54319
+pool_mode = "transaction"
+default_pool_size = 15
+max_client_conn = 30
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost"
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+host = "0.0.0.0"
+port = 54324
+additional_redirect_urls = ["https://localhost:3000"]
+email_template_directory = "supabase/templates/emails"
+
+[auth.sms]
+enabled = false
+
+[analytics]
+enabled = false
+port = 54325
+vector_port = 54326
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[edge_functions]
+enabled = true

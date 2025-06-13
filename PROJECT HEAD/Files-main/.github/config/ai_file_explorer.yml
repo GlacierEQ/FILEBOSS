@@ -1,0 +1,418 @@
+# CodexFlō: AI-Driven Strategic File Nexus Configuration
+# Version: 1.0.0
+
+app:
+  name: "CodexFlō"
+  version: "1.0.0"
+  description: "AI-Driven Strategic File Nexus for Legal Document Management"
+  mode: "production" # development, production
+  log_level: "INFO" # DEBUG, INFO, WARNING, ERROR
+
+# AI Provider Configuration
+ai:
+  # Primary provider: openai, gemini, anthropic, local
+  primary_provider: "openai"
+
+  # Provider configurations
+  providers:
+    openai:
+      enabled: true
+      api_key: "${OPENAI_API_KEY}" # Environment variable
+      model: "gpt-4-turbo-preview"
+      embedding_model: "text-embedding-3-small"
+      temperature: 0.3
+      max_tokens: 4000
+      timeout: 30
+
+    gemini:
+      enabled: true
+      api_key: "${GEMINI_API_KEY}"
+      model: "gemini-pro"
+      temperature: 0.3
+      max_tokens: 4000
+
+    anthropic:
+      enabled: false
+      api_key: "${ANTHROPIC_API_KEY}"
+      model: "claude-3-opus-20240229"
+      temperature: 0.3
+      max_tokens: 4000
+
+    local:
+      enabled: true
+      model_path: "./models/llama-2-7b-chat.gguf"
+      model_type: "llama" # llama, mistral, phi
+      n_ctx: 2048
+      n_batch: 8
+      temperature: 0.3
+
+  # Whisper configuration for audio transcription
+  whisper:
+    enabled: true
+    model: "base" # tiny, base, small, medium, large
+    language: "en"
+
+  # NLP models
+  nlp:
+    spacy_model: "en_core_web_lg"
+    sentiment_model: "nlptown/bert-base-multilingual-uncased-sentiment"
+    embedding_model: "all-MiniLM-L6-v2"
+
+# File Processing Configuration
+file_processing:
+  # Supported file types
+  supported_extensions:
+    documents: [".pdf", ".docx", ".doc", ".txt", ".rtf", ".odt", ".md"]
+    images: [".jpg", ".jpeg", ".png", ".tiff", ".bmp", ".gif"]
+    audio: [".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac"]
+    video: [".mp4", ".avi", ".mov", ".wmv", ".flv"]
+    archives: [".zip", ".rar", ".7z", ".tar", ".gz"]
+
+  # OCR settings
+  ocr:
+    enabled: true
+    language: "eng"
+    dpi: 300
+    preprocessing: true
+
+  # Content extraction
+  extraction:
+    max_file_size: 104857600 # 100MB
+    chunk_size: 1000
+    chunk_overlap: 200
+
+  # File watching
+  file_watcher:
+    enabled: true
+    poll_interval: 1 # seconds
+    recursive: true
+    ignore_patterns:
+      - "*.tmp"
+      - "~*"
+      - ".DS_Store"
+      - "Thumbs.db"
+      - "__pycache__"
+      - ".git"
+
+# Vector Store Configuration
+vector_store:
+  type: "chroma" # chroma, weaviate, faiss, simple
+
+  chroma:
+    persist_directory: "./chroma_db"
+    collection_name: "codexflo_documents"
+    embedding_function: "openai" # openai, sentence-transformers
+
+  weaviate:
+    url: "http://localhost:8080"
+    auth_key: "${WEAVIATE_API_KEY}"
+
+  faiss:
+    index_path: "./faiss_index"
+    dimension: 384
+
+# Database Configuration
+database:
+  type: "sqlite" # sqlite, postgresql
+
+  sqlite:
+    path: "./codexflo.db"
+
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "codexflo"
+    user: "${DB_USER}"
+    password: "${DB_PASSWORD}"
+
+# Modules Configuration
+modules:
+  # Core modules
+  contradiction_sweeper:
+    enabled: true
+    confidence_threshold: 0.7
+    max_comparison_docs: 50
+
+  voice_vision:
+    enabled: true
+    auto_transcribe: true
+    timestamp_format: "[%H:%M:%S]"
+    speaker_diarization: false
+
+  chrona_sync:
+    enabled: true
+    timeline_resolution: "day" # minute, hour, day, week
+    gap_detection_threshold: 7 # days
+
+  lawspine_binder:
+    enabled: true
+    templates:
+      - "motion_to_dismiss"
+      - "summary_judgment"
+      - "discovery_request"
+      - "affidavit"
+    citation_style: "bluebook"
+
+  codex_weaver:
+    enabled: true
+    visualization_type: "timeline" # timeline, network, hierarchical
+
+  gui_copilot:
+    enabled: true
+    suggestions_enabled: true
+    auto_complete: true
+    context_window: 5 # files
+
+# GUI Configuration
+gui:
+  theme: "dark" # light, dark, auto
+
+  layout:
+    sidebar_width: 280
+    preview_panel: true
+    ai_chat_panel: true
+    timeline_view: true
+
+  features:
+    drag_drop: true
+    multi_select: true
+    context_menu: true
+    keyboard_shortcuts: true
+
+  preview:
+    max_file_size: 10485760 # 10MB
+    syntax_highlighting: true
+    pdf_viewer: true
+
+  notifications:
+    enabled: true
+    position: "bottom-right"
+    duration: 5000 # ms
+
+# Export Configuration
+export:
+  formats:
+    pdf:
+      enabled: true
+      include_metadata: true
+      include_annotations: true
+
+    notion:
+      enabled: true
+      api_key: "${NOTION_API_KEY}"
+      database_id: "${NOTION_DATABASE_ID}"
+
+    obsidian:
+      enabled: true
+      vault_path: "./obsidian_vault"
+
+    github:
+      enabled: true
+      token: "${GITHUB_TOKEN}"
+      repo: "username/case-files"
+
+  defaults:
+    include_timeline: true
+    include_summary: true
+    include_evidence_index: true
+
+# Integration Configuration
+integrations:
+  # Legal database integrations
+  courtlistener:
+    enabled: false
+    api_key: "${COURTLISTENER_API_KEY}"
+    auto_sync: false
+
+  pacer:
+    enabled: false
+    username: "${PACER_USERNAME}"
+    password: "${PACER_PASSWORD}"
+
+  recap:
+    enabled: false
+
+  # Task management
+  notion:
+    enabled: true
+    workspace_id: "${NOTION_WORKSPACE_ID}"
+
+  taskade:
+    enabled: false
+    api_key: "${TASKADE_API_KEY}"
+
+  # Communication
+  slack:
+    enabled: false
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+
+  email:
+    enabled: true
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "${EMAIL_USERNAME}"
+    password: "${EMAIL_PASSWORD}"
+
+# Security Configuration
+security:
+  encryption:
+    enabled: true
+    algorithm: "AES-256"
+
+  authentication:
+    enabled: false
+    method: "local" # local, oauth, saml
+
+  file_permissions:
+    readonly_extensions: [".pdf"]
+
+  audit_log:
+    enabled: true
+    retention_days: 90
+
+# Performance Configuration
+performance:
+  # Threading
+  max_workers: 8
+  max_processes: 4
+
+  # Caching
+  cache:
+    enabled: true
+    max_size: 1073741824 # 1GB
+    ttl: 3600 # seconds
+
+  # Batch processing
+  batch_size: 10
+
+  # Rate limiting
+  rate_limits:
+    api_calls_per_minute: 60
+    file_processing_per_minute: 30
+
+# Learning System Configuration
+learning:
+  enabled: true
+
+  # Pattern recognition
+  pattern_recognition:
+    min_confidence: 0.8
+    min_samples: 5
+
+  # Auto-categorization
+  auto_categorization:
+    enabled: true
+    confidence_threshold: 0.85
+
+  # Feedback loop
+  user_feedback:
+    enabled: true
+    improve_threshold: 10 # feedback instances
+
+# Advanced Features
+advanced:
+  # Timeline heatmap
+  timeline_heatmap:
+    enabled: true
+    resolution: "day"
+    color_scheme: "viridis"
+
+  # Contradiction detection
+  contradiction_detection:
+    deep_analysis: true
+    cross_reference: true
+
+  # Auto case building
+  auto_case_builder:
+    enabled: true
+    templates:
+      - "standard_motion"
+      - "evidence_bundle"
+      - "timeline_report"
+
+  # Document redlining
+  redlining:
+    enabled: true
+    track_changes: true
+    version_control: true
+
+# Development Configuration
+development:
+  debug: false
+  hot_reload: true
+  mock_ai: false
+  test_mode: false
+
+# Startup Configuration
+startup:
+  # Auto-start modules
+  auto_start:
+    - "file_watcher"
+    - "ai_engine"
+    - "vector_store"
+
+  # Initial scan
+  initial_scan:
+    enabled: true
+    directories:
+      - "./MyEvidenceFolder"
+
+  # Health checks
+  health_check:
+    enabled: true
+    interval: 60 # seconds
+
+# CLI Configuration
+cli:
+  colors: true
+  verbose: false
+  interactive: true
+
+  # Default commands
+  aliases:
+    scan: "codexflo scan --recursive"
+    analyze: "codexflo analyze --deep"
+    organize: "codexflo organize --strategy smart"
+
+# Logging Configuration
+logging:
+  # Log files
+  file:
+    enabled: true
+    path: "./logs/codexflo.log"
+    max_size: 10485760 # 10MB
+    backup_count: 5
+
+  # Console logging
+  console:
+    enabled: true
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # Log levels per module
+  levels:
+    ai_engine: "INFO"
+    file_processor: "INFO"
+    vector_store: "WARNING"
+    gui: "INFO"
+
+# Notification Settings
+notifications:
+  # System notifications
+  system:
+    enabled: true
+    types:
+      - "file_processed"
+      - "contradiction_found"
+      - "case_complete"
+
+  # Email notifications
+  email:
+    enabled: false
+    recipients:
+      - "user@example.com"
+
+  # In-app notifications
+  in_app:
+    enabled: true
+    duration: 5000 # ms
+    position: "top-right"

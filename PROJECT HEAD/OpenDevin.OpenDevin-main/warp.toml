@@ -1,0 +1,42 @@
+[memory]
+# Memory system configuration
+memory_enabled = true
+memory_provider = "hybrid"  # Options: "mem0", "chromadb", "hybrid", "supabase"
+max_memory_items = 10000
+memory_persistence = true
+session_memory_enabled = true
+cross_session_memory = true
+memory_consolidation_threshold = 1000
+
+# Mem0 configuration
+mem0_api_key = "${MEM0_API_KEY}"
+mem0_organization_id = "${MEM0_ORG_ID}"
+mem0_project_id = "${MEM0_PROJECT_ID}"
+
+# Memory storage backends
+[memory.storage]
+redis_url = "${REDIS_URL}"
+sqlite_path = "./data/memory.db"
+supabase_url = "${SUPABASE_URL}"
+supabase_key = "${SUPABASE_ANON_KEY}"
+
+# Memory embedding configuration
+[memory.embeddings]
+embedding_model = "BAAI/bge-small-en-v1.5"
+embedding_dimension = 384
+chunk_size = 512
+chunk_overlap = 50
+
+# Memory search configuration
+[memory.search]
+similarity_threshold = 0.7
+max_results = 10
+use_hybrid_search = true
+rerank_results = true
+
+# Memory plugin configuration
+[memory.plugins]
+auto_summarization = true
+contextual_recall = true
+learning_adaptation = true
+memory_consolidation = true

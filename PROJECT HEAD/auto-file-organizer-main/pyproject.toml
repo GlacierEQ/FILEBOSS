@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "auto-file-organizer"
+version = "1.0.0"
+description = "A smart Python script to automatically organize files by type, date, and more with undo and ignore support."
+authors = ["Yash Kassa"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "auto_file_organizer" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.scripts]
+organize = "auto_file_organizer.main:cli"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

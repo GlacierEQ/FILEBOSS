@@ -1,0 +1,194 @@
+[
+    {
+        "id": "64c5120bcce38659fc9e4bb1",
+        "html": "<div><p><strong>&#167; 259.1 Purpose.</strong></p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb2",
+        "html": "<p>The Guide in this part contains administrative interpretations of laws enforced by the Federal Trade Commission. Specifically, the Guide addresses the application of Section 5 of the FTC Act (15 U.S.C. 45) to the use of fuel economy information in advertising for new automobiles. This guidance provides the basis for voluntary compliance with the law by advertisers and endorsers. Practices inconsistent with this Guide may result in corrective action by the Commission under Section 5 if, after investigation, the Commission has reason to believe that the practices fall within the scope of conduct declared unlawful by the statute. The Guide sets forth the general principles that the Commission will use in such an investigation together with examples illustrating the application of those principles. The Guide does not purport to cover every possible use of fuel economy in advertising. Whether a particular advertisement is deceptive will depend on the specific advertisement at issue.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb3",
+        "html": "<div><p><strong>&#167; 259.2 Definitions.</strong></p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb4",
+        "html": "<p>For the purposes of this part, the following definitions shall apply:</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb5",
+        "html": "<p><em>Alternative fueled vehicle.</em> Any vehicle that qualifies as a covered vehicle under part 309 of this chapter.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb6",
+        "html": "<p><em>Automobile.</em> Any new passenger automobile, medium duty passenger vehicle, or light truck for which a fuel economy label is required under the Energy Policy and Conservation Act (42 U.S.C. 32901 <em>et seq.</em>) or rules promulgated thereunder, the equitable or legal title to which has never been transferred by a manufacturer, distributor, or dealer to an ultimate purchaser or lessee. For the purposes of this part, the terms \u201cvehicle\u201d and \u201ccar\u201d have the same meaning as \u201cautomobile.\u201d</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb7",
+        "html": "<p><em>Dealer.</em> Any person located in the United States or any territory thereof engaged in the sale or distribution of new automobiles to the ultimate purchaser.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb8",
+        "html": "<div><p><em>EPA.</em> The U.S. Environmental Protection Agency.</p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bb9",
+        "html": "<p><em>EPA city fuel economy estimate.</em> The city fuel economy determined in accordance with the city test procedure as defined and determined pursuant to 40 CFR part 600, subpart D.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bba",
+        "html": "<p><em>EPA combined fuel economy estimate.</em> The fuel economy value determined for a vehicle (or vehicles) by harmonically averaging the city and highway fuel economy values, weighted 0.55 and 0.45 respectively, determined pursuant to 40 CFR part 600, subpart D.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bbb",
+        "html": "<p><em>EPA driving range estimate.</em> An estimate of the number of miles a vehicle will travel between refueling as defined and determined pursuant to 40 CFR part 600, subpart D.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bbc",
+        "html": "<p><em>EPA fuel economy estimate.</em> The average number of miles traveled by an automobile per volume of fuel consumed (<em>i.e.,</em> Miles-Per-Gallon (\u201cMPG\u201d) rating) as calculated under 40 CFR part 600, subpart D.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bbd",
+        "html": "<p><em>EPA highway fuel economy estimate.</em> The highway fuel economy determined in accordance with the highway test procedure as defined and determined pursuant to 40 CFR part 600, subpart D.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bbe",
+        "html": "<p><em>Flexible fueled vehicle.</em> Any motor vehicle (or motor vehicle engine) engineered and designed to be operated on any mixture of two or more different fuels.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bbf",
+        "html": "<p><em>Fuel.</em></p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc0",
+        "html": "<div><p>(1) Gasoline and diesel fuel for gasoline- or diesel-powered automobiles;</p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc1",
+        "html": "<div><p>(2) Electricity for electrically-powered automobiles;</p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc2",
+        "html": "<div><p>(3) Alcohol for alcohol-powered automobiles;</p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc3",
+        "html": "<div><p>(4) Natural gas for natural gas-powered automobiles; or</p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc4",
+        "html": "<div><p>(5) Any other fuel type used in a vehicle for which EPA requires a fuel economy label under 40 CFR part 600, subpart D.</p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc5",
+        "html": "<p><em>Manufacturer.</em> Any person engaged in the manufacturing or assembling of new automobiles, including any person importing new automobiles for resale and any person who acts for, and is under the control, of such manufacturer, assembler, or importer in connection with the distribution of new automobiles.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc6",
+        "html": "<p><em>Model type.</em> A unique combination of car line, basic engine, and transmission class as defined by 40 CFR part 600, subpart D.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc7",
+        "html": "<p><em>Ultimate purchaser or lessee.</em> The first person, other than a dealer purchasing in his or her capacity as a dealer, who in good faith purchases a new automobile for purposes other than resale or leases such vehicle for his or her personal use.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc8",
+        "html": "<p><em>Vehicle configuration.</em> The unique combination of automobile features, as defined in 40 CFR part 600.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bc9",
+        "html": "<div><p><strong>&#167; 259.3 Qualifications and disclosures.</strong></p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bca",
+        "html": "<p>To prevent deceptive claims, qualifications and disclosures should be clear, prominent, and understandable. To make disclosures clear and prominent, marketers should use plain language and sufficiently large type for a person to see and understand them, should place disclosures in close proximity to the qualified claim, and should avoid making inconsistent statements or using distracting elements that could undercut or contradict the disclosure. The disclosures should also appear in the same format as the claim. For example, for television advertisements, if the fuel economy claim appears in the video, the disclosure recommended by this Guide should appear in the visual format; if the fuel economy claim is audio, the disclosure should be in audio.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bcb",
+        "html": "<div><p><strong>&#167; 259.4 Advertising guidance.</strong></p></div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bcc",
+        "html": "<p>(a) <em>Misrepresentations.</em> It is deceptive to misrepresent, directly or by implication, the fuel economy or driving range of an automobile.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bcd",
+        "html": "<div>\n<p>(b) <em>General fuel economy claims.</em> General unqualified fuel economy claims, which do not reference a specific fuel economy estimate, likely convey a wide range of meanings about a vehicle's fuel economy relative to other vehicles. Such claims, which inherently involve comparisons to other vehicles, can mislead consumers about the vehicle class included in the comparison, as well as the extent to which the advertised vehicle's fuel economy differs from other models. Because it is highly unlikely that advertisers can substantiate all reasonable interpretations of these claims, advertisers making general fuel economy claims should disclose the advertised vehicle's EPA fuel economy estimate in the form of the EPA MPG rating.</p>\n<p><em>Example 1:</em> A new car advertisement states: &#8220;This vehicle gets great mileage.&#8221; The claim is likely to convey a variety of meanings, including that the vehicle has a better MPG rating than all or almost all other cars on the market. However, the advertised vehicle's EPA fuel economy estimates are only slightly better than the average vehicle on the market. Because the advertiser cannot substantiate that the vehicle's rating is better than all or almost all other cars on the market, the advertisement is deceptive. In addition, the advertiser may not be able to substantiate other reasonable interpretations of the claim. To avoid deception, the advertisement should disclose the vehicle's EPA fuel economy estimate (<em>e.g.,</em> &#8220;EPA-estimated 27 combined MPG&#8221;).</p>\n<p><em>Example 2:</em> An advertisement states: &#8220;This car gets great gas mileage compared to other compact cars.&#8221; The claim is likely to convey a variety of meanings, including that the vehicle gets better gas mileage than all or almost all other compact cars. However, the vehicle's EPA fuel economy estimates are only slightly better than average compared to other models in its class. Because the advertiser cannot substantiate that the vehicle's rating is better than all or almost all other compact cars, the advertisement is deceptive. In addition, the advertiser may not be able to substantiate other reasonable interpretations of the claim. To address this problem, the advertisement should disclose the vehicle's EPA fuel economy estimate.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bce",
+        "html": "<div>\n<p>(c) <em>Matching the EPA estimate to the claim.</em> EPA fuel economy estimates should match the mode of driving claim appearing in the advertisement. If they do not, consumers are likely to associate the stated fuel economy estimate with a different type of driving. Specifically, if an advertiser makes a city or a highway fuel economy claim, it should disclose the corresponding EPA-estimated city or highway fuel economy estimate. If the advertiser makes both a city and a highway fuel economy claim, it should disclose both the EPA estimated city and highway fuel economy rating. If the advertiser makes a general fuel economy claim without specifically referencing city or highway driving, it should disclose the EPA combined fuel economy estimate, or, alternatively, both the EPA city and highway fuel economy estimates.</p>\n<p><em>Example 1:</em> An automobile advertisement states that model &#8220;XYZ gets great gas mileage in town.&#8221; However, the advertisement does not disclose the EPA city fuel economy estimate. Instead, it only discloses the EPA highway fuel economy estimate, which is higher than the model's city estimate. This claim likely conveys to a significant proportion of reasonable consumers that the highway estimate disclosed in the advertisement applies to city driving. Thus, the advertisement is deceptive to consumers. To remedy this problem, the advertisement should disclose the EPA city fuel economy estimate (<em>e.g.,</em> &#8220;32 MPG in the city according to the EPA estimate&#8221;).</p>\n<p><em>Example 2:</em> A new car advertisement states that model &#8220;XZA gives you great gas mileage&#8221; but only provides the EPA highway fuel economy estimate. Given the likely inconsistency between the general fuel economy claim, which does not reference a specific type of driving, and the disclosed EPA highway estimate, the advertisement is deceptive to consumers. To address this problem, the advertisement should disclose the EPA combined estimate (<em>e.g.,</em> &#8220;37 MPG for combined driving according to the EPA estimate&#8221;), or both the EPA city and highway fuel economy estimates.</p>\n<p><em>Example 3: </em>An advertisement states: &#8220;according to EPA estimates, new cars in this class are rated at between 20 and 32 MPG, while the EPA estimate for this car is an impressive 35 MPG highway.&#8221; The advertisement is likely to imply that the 20 to 32 MPG range and 35 MPG estimate are comparable. In fact, the &#8220;20 and 32 MPG&#8221; range reflects EPA city estimates. Therefore, the advertisement is deceptive. To address this problem, the advertisement should only provide an apples-to-apples comparison&#8212;either using the highway range for the class or using the city estimate for the advertised vehicle.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bcf",
+        "html": "<div>\n<p>(d) <em>Identifying fuel economy and driving range ratings as estimates.</em> Advertisers citing EPA fuel economy or driving range figures should disclose that these numbers are estimates. Without such disclosures, consumers may incorrectly assume that they will achieve the mileage or range stated in the advertisement. In fact, their actual mileage or range will likely vary for many reasons, including driving conditions, driving habits, and vehicle maintenance. To address potential deception, advertisers may state that the values are &#8220;EPA estimate(s),&#8221; or use equivalent language that informs consumers that they will not necessarily achieve the stated MPG rating or driving range.</p>\n<p><em>Example 1:</em> An automobile manufacture's Web site states, without qualification, &#8220;This car gets 40 MPG on the highway.&#8221; The claim likely conveys to a significant proportion of reasonable consumers that they will achieve 40 MPG driving this vehicle on the highway. The advertiser based its claim on an EPA highway estimate. However, EPA provides that estimate primarily for comparison purposes&#8212;it does not necessarily reflect real world driving results. Therefore, the claim is deceptive. In addition, the use of the term &#8220;gets,&#8221; without qualification, may lead some consumers to believe not only that they can, but will consistently, achieve the stated mileage. To address these problems, the advertisement should clarify that the MPG value is an estimate by stating &#8220;EPA estimate&#8221; or equivalent language.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd0",
+        "html": "<div>\n<p>(e) <em>Disclosing EPA test as source of fuel economy and driving range estimates.</em> Advertisers citing any EPA fuel economy or driving range figures should identify EPA as the source of the test so consumers understand that the estimate is comparable to EPA estimates for competing models. Doing so prevents deception by ensuring that consumers do not associate the claimed ratings with a test other than the EPA-required procedures. Advertisers may avoid deception by stating that the values are &#8220;EPA estimate(s),&#8221; or equivalent language that identifies the EPA test as the source.</p>\n<p><em>Example 1: </em>A radio commercial for the &#8220;XTQ&#8221; car states that the vehicle &#8220;is rated at an estimated 28 MPG in the city&#8221; but does not disclose that an EPA test is the source of this MPG estimate. This advertisement may convey that the source of this test is an entity other than EPA. To avoid deception, the advertisement should state that the MPG figures are EPA estimates.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd1",
+        "html": "<div>\n<p>(f) <em>Specifying driving modes for fuel economy estimates.</em> If an advertiser cites an EPA fuel economy estimate, it should identify the particular type of driving associated with the estimate (<em>i.e.,</em> estimated city, highway, or combined MPG). Advertisements failing to do so can deceive consumers who incorrectly assume the disclosure applies to a specific type of driving, such as combined or highway, which may not be the driving type the advertiser intended. Thus, such consumers may believe the model's fuel economy rating is higher than it actually is.</p>\n<p><em>Example 1:</em> A television commercial for the car model &#8220;ZTA&#8221; informs consumers that the ZTA is rated at &#8220;25 miles per gallon according to the EPA estimate&#8221; but does not disclose whether this number is a highway, city, or combined estimate. The advertisement likely conveys to a significant proportion of reasonable consumers that the 25 MPG figure reflects normal driving (<em>i.e.,</em> a combination of city and highway driving), not the highway rating as intended by the advertiser. In fact, the 25 MPG rating is the vehicle's EPA highway estimate. Therefore, the advertisement is deceptive.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd2",
+        "html": "<div>\n<p>(g) <em>Within vehicle class comparisons.</em> If an advertisement contains an express comparative fuel economy claim where the relevant comparison is to any group or class, other than all available automobiles, the advertisement should identify the group or class of vehicles used in the comparison. Without such qualifying information, many consumers are likely to assume that the advertisement compares the vehicle to all new automobiles.</p>\n<p><em>Example 1:</em> An advertisement claims that sports car X &#8220;outpaces other cars' gas mileage.&#8221; The claim likely conveys a variety of meanings to a significant proportion of reasonable consumers, including that this vehicle has a higher MPG rating than all or almost all other vehicles on the market. Although the vehicle's MPG rating compares favorably to other sports cars, its fuel economy is only better than roughly half of all new automobiles on the market. Therefore, the claim is deceptive.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd3",
+        "html": "<div>\n<p>(h) <em>Comparing different model types.</em> Fuel economy estimates are assigned to specific model types under 40 CFR part 600, subpart D (<em>i.e.,</em> unique combinations of car line, basic engine, and transmission class). Therefore, advertisers citing MPG ratings for certain models should ensure that the rating applies to the model type depicted in the advertisement. It is deceptive to state or imply that a rated fuel economy figure applies to a vehicle featured in an advertisement if the estimate does not apply to vehicles of that model type.</p>\n<p><em>Example 1:</em> A manufacturer's advertisement states that model &#8220;PDQ&#8221; gets &#8220;great gas mileage&#8221; but depicts the MPG numbers for a similar model type known as the &#8220;Econo-PDQ.&#8221; The advertisement is likely to convey that the claimed MPG rating applies to all types of the PDQ model. However, the &#8220;Econo-PDQ&#8221; has a better fuel economy rating than other types of the &#8220;PDQ&#8221; model. Therefore, the advertisement is deceptive.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd4",
+        "html": "<div>\n<p>(i) &#8220;<em>Up to&#8221; claims.</em> Advertisers should avoid using the term &#8220;up to&#8221; without adequate explanatory language if they intend to communicate that certain versions of a model (<em>i.e.,</em> model types) are rated at a stated fuel economy estimate. A significant proportion of reasonable consumers are likely to interpret such claims to mean that the stated MPG can be achieved if the vehicle is driven under certain conditions. Therefore, to address the risk of deception, advertisers should qualify the claim by clearly and prominently disclosing the stated MPG applies to a particular vehicle model type.</p>\n<p><em>Example 1:</em> An advertisement states, without further explanation, that a vehicle model VXR will achieve &#8220;up to 40 MPG on the highway.&#8221; The advertisement is based on a particularly efficient type of this model, with specific options, with an EPA highway estimate of 40 MPG. However, other types of model VXR have lower EPA MPG estimates. A significant proportion of reasonable consumers likely interpret the &#8220;up to&#8221; claim as applying to all VXR model types. Therefore, the advertisement is deceptive. To address this problem, the advertisement should clearly and prominently disclose that the 40 MPG rating does not apply to all model types of the VXR or use language other than &#8220;up to&#8221; that better conveys the claim.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd5",
+        "html": "<div>\n<p>(j) <em>Claims for flexible-fueled vehicles.</em> Advertisements for flexible-fueled vehicles should not mislead consumers about the vehicle's fuel economy when operated with alternative fuel. If an advertisement for a flexible-fueled vehicle (other than a plug-in hybrid electric vehicle) mentions the vehicle's flexible-fuel capability and makes a fuel economy claim, it should clearly and prominently qualify the claim to identify the type of fuel used. Without such qualification, consumers are likely to take away that the stated fuel economy estimate applies to both gasoline and alternative fuel operation.</p>\n<p><em>Example 1:</em> An automobile advertisement states: &#8220;This flex-fuel powerhouse has a 30 MPG highway rating according to the EPA estimate.&#8221; The advertisement likely implies that the 30 MPG rating applies to both gasoline and alternative fuel operation. In fact, the ethanol EPA estimate for this vehicle is 25 MPG. Therefore, the advertisement is deceptive. To address this problem, the advertisement could clearly and prominently qualify the claim or disclose the MPG ratings for both gasoline and alternative fuel operation.</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd6",
+        "html": "<div>\n<p>(k) <em>General driving range claims.</em> General unqualified driving range claims, which do not reference a specific driving range estimate, are difficult for consumers to interpret and likely convey a wide range of meanings about a vehicle's range relative to other vehicles. Such claims, which inherently involve comparisons to other vehicles, can mislead consumers about the vehicle class included in the comparison as well as the extent to which the advertised vehicle's driving range differs from other models. Consumers may take away a range of reasonable interpretations from these claims. To avoid possible deception, advertisers making general driving range claims should disclose the advertised vehicle's EPA driving range estimate.</p>\n<p><em>Example 1:</em> An advertisement for an electric vehicle states: &#8220;This car has a great driving range.&#8221; This claim likely conveys a variety of meanings, including that the vehicle has a better driving range than all or almost all other electric vehicles. However, the EPA driving range estimate for this vehicle is only slightly better than roughly half of all other electric vehicles on the market. Because the advertiser cannot substantiate that the vehicle's driving range is better than all or almost all other electric vehicles, the advertisement is deceptive. In addition, the advertiser may not be able to substantiate other reasonable interpretations of the claim. To address this problem, the advertisement should disclose the vehicle's EPA driving range estimate (<em>e.g.,</em> &#8220;EPA-estimated range of 70 miles per charge&#8221;).</p>\n</div>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd7",
+        "html": "<p>(l) <em>Use of non-EPA estimates</em> \u2014</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd8",
+        "html": "<p>(1) <em>Disclosure content.</em> Given consumers' exposure to EPA estimated fuel economy values over the last several decades, fuel economy and driving range estimates derived from non-EPA tests can lead to deception if consumers understand such estimates to be fuel economy ratings derived from EPA-required tests. Accordingly, advertisers should avoid such claims and disclose the EPA fuel economy or driving range estimates. However, if an advertisement includes a claim about a vehicle's fuel economy or driving range based on a non-EPA estimate, advertisers should disclose the EPA estimate and disclose with substantially more prominence than the non-EPA estimate:</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bd9",
+        "html": "<p>(i) That the fuel economy or driving range information is based on a non-EPA test;</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bda",
+        "html": "<p>(ii) The source of the non-EPA test;</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bdb",
+        "html": "<p>(iii) The EPA fuel economy estimates or EPA driving range estimates for the vehicle; and</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bdc",
+        "html": "<p>(iv) All driving conditions or vehicle configurations simulated by the non-EPA test that are different from those used in the EPA test. Such conditions and variables may include, but are not limited to, road or dynamometer test, average speed, range of speed, hot or cold start, temperature, and design or equipment differences.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bdd",
+        "html": "<p>(2) <em>Disclosure format.</em> The Commission regards the following as constituting \u201csubstantially more prominence\u201d:</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bde",
+        "html": "<p>(i) <em>For visual disclosures on television.</em> If the fuel economy claims appear only in the visual portion, the EPA figures should appear in numbers twice as large as those used for any other estimate, and should remain on the screen at least as long as any other estimate. Each EPA figure should be broadcast against a solid color background that contrasts easily with the color used for the numbers when viewed on both color and black and white television.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4bdf",
+        "html": "<p>(ii) <em>For audio disclosures.</em> For radio and television advertisements in which any other estimate is used only in the audio, equal prominence should be given to the EPA figures. The Commission will regard the following as constituting equal prominence: The EPA estimated city and/or highway MPG should be stated, either before or after each disclosure of such other estimate, at least as audibly as such other estimate.</p>"
+    },
+    {
+        "id": "64c5120bcce38659fc9e4be0",
+        "html": "<div><p>(iii) <em>For print and Internet disclosures.</em> The EPA figures should appear in clearly legible type at least twice as large as that used for any other estimate. The EPA figures should appear against a solid color, and contrasting background. They may not appear in a footnote unless all references to fuel economy appear in a footnote.</p><p><em>Example 1:</em> An Internet advertisement states: \u201cIndependent driving experts took the QXT car for a weekend spin and managed to get 55 miles-per-gallon under a variety of driving conditions.\u201d It does not disclose the actual EPA fuel economy estimates, nor does it explain how conditions during the \u201cweekend spin\u201d differed from those under the EPA tests. This advertisement likely conveys that the 55 MPG figure is the same or comparable to an EPA fuel economy estimate for the vehicle. This claim is deceptive because it fails to disclose that fuel economy information is based on a non-EPA test, the source of the non-EPA test, the EPA fuel economy estimates for the vehicle, and all driving conditions or vehicle configurations simulated by the non-EPA test that are different from those used in the EPA test.</p><p><em>Example 2:</em> An advertisement states: \u201cThe XZY electric car has a driving range of 110 miles per charge in summer conditions according to our expert's test.\u201d It provides no additional information regarding this driving range claim. This advertisement likely conveys that this 110-mile driving range figure is comparable to an EPA driving range estimate for the vehicle. The advertisement is deceptive because it does not clearly state that the test is a non-EPA test; it does not provide the EPA estimated driving range; and it does not explain how conditions referred to in the advertisement differed from those under the EPA tests. Without this information, consumers are likely to confuse the claims with range estimates derived from the official EPA test procedures.</p></div>"
+    }
+]
