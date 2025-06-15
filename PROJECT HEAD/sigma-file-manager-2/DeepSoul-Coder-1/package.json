@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@memoryplugin/mcp-server": "^1.0.1"
+  }
+}

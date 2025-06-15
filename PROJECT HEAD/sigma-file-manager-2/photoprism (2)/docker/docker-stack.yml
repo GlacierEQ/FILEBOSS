@@ -1,0 +1,199 @@
+version: '3.8'
+
+# Production Docker Stack for PhotoPrism with high-availability configuration
+# Deploy with: docker stack deploy -c docker-stack.yml photoprism
+
+networks:
+  photoprism_net:
+    driver: overlay
+    attachable: true
+
+volumes:
+  photoprism_db:
+    driver: local
+  photoprism_storage:
+    driver: local
+  photoprism_originals:
+    driver: local
+  photoprism_import:
+    driver: local
+
+services:
+  photoprism:
+    image: photoprism/photoprism:latest
+    networks:
+      - photoprism_net
+    depends_on:
+      - db
+      - brains
+    environment:
+      PHOTOPRISM_ADMIN_USER: "${PHOTOPRISM_ADMIN_USER:-admin}"
+      PHOTOPRISM_ADMIN_PASSWORD: "${PHOTOPRISM_ADMIN_PASSWORD:-insecure}"
+      PHOTOPRISM_AUTH_MODE: "${PHOTOPRISM_AUTH_MODE:-password}"
+      PHOTOPRISM_SITE_URL: "${PHOTOPRISM_SITE_URL:-http://localhost:2342}"
+      PHOTOPRISM_SITE_TITLE: "${PHOTOPRISM_SITE_TITLE:-PhotoPrism}"
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "db:3306"
+      PHOTOPRISM_DATABASE_NAME: "photoprism"
+      PHOTOPRISM_DATABASE_USER: "photoprism"
+      PHOTOPRISM_DATABASE_PASSWORD: "${MYSQL_PASSWORD:-photoprism}"
+      PHOTOPRISM_BRAINS_SERVER: "http://brains:8000"
+      PHOTOPRISM_DISABLE_TLS: "${PHOTOPRISM_DISABLE_TLS:-false}"
+      PHOTOPRISM_DISABLE_CHOWN: "true" # Important for NFS or shared storage
+      PHOTOPRISM_LOG_LEVEL: "${PHOTOPRISM_LOG_LEVEL:-info}"
+      PHOTOPRISM_WORKERS: "${PHOTOPRISM_WORKERS:-3}"
+      PHOTOPRISM_READONLY: "${PHOTOPRISM_READONLY:-false}"
+    volumes:
+      - photoprism_storage:/photoprism/storage
+      - photoprism_originals:/photoprism/originals
+      - photoprism_import:/photoprism/import
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        delay: 5s
+      resources:
+        limits:
+          cpus: "${PHOTOPRISM_CPU_LIMIT:-2}"
+          memory: "${PHOTOPRISM_MEMORY_LIMIT:-2G}"
+        reservations:
+          cpus: "${PHOTOPRISM_CPU_RESERVATION:-0.5}"
+          memory: "${PHOTOPRISM_MEMORY_RESERVATION:-512M}"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.photoprism.rule=Host(`${PHOTOPRISM_DOMAIN:-photos.example.com}`)"
+        - "traefik.http.routers.photoprism.entrypoints=websecure"
+        - "traefik.http.routers.photoprism.tls=true"
+        - "traefik.http.routers.photoprism.tls.certresolver=letsencrypt"
+        - "traefik.http.services.photoprism.loadbalancer.server.port=2342"
+        - "traefik.http.middlewares.photoprism-compress.compress=true"
+        - "traefik.http.routers.photoprism.middlewares=photoprism-compress"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2342/api/v1/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  brains:
+    image: photoprism/brains:latest
+    networks:
+      - photoprism_net
+    environment:
+      BRAINS_LOG_LEVEL: "${BRAINS_LOG_LEVEL:-info}"
+      BRAINS_WORKERS: "${BRAINS_WORKERS:-2}"
+      BRAINS_READ_TIMEOUT: "${BRAINS_READ_TIMEOUT:-60s}"
+      BRAINS_WRITE_TIMEOUT: "${BRAINS_WRITE_TIMEOUT:-60s}"
+    volumes:
+      - photoprism_storage:/photoprism/storage
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "${BRAINS_CPU_LIMIT:-1}"
+          memory: "${BRAINS_MEMORY_LIMIT:-1G}"
+        reservations:
+          cpus: "${BRAINS_CPU_RESERVATION:-0.2}"
+          memory: "${BRAINS_MEMORY_RESERVATION:-256M}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  db:
+    image: mariadb:10.11
+    networks:
+      - photoprism_net
+    command: mariadbd --innodb-buffer-pool-size=${DB_BUFFER_POOL_SIZE:-256M} --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
+      MARIADB_INITDB_SKIP_TZINFO: "1"
+      MARIADB_DATABASE: "photoprism"
+      MARIADB_USER: "photoprism"
+      MARIADB_PASSWORD: "${MYSQL_PASSWORD:-photoprism}"
+      MARIADB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-photoprism}"
+    volumes:
+      - photoprism_db:/var/lib/mysql
+    deploy:
+      replicas: 1 # Database should not be scaled horizontally without proper configuration
+      placement:
+        constraints:
+          - node.role == manager # Place database on manager node for data persistence
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "${DB_CPU_LIMIT:-1}"
+          memory: "${DB_MEMORY_LIMIT:-1G}"
+        reservations:
+          cpus: "${DB_CPU_RESERVATION:-0.2}"
+          memory: "${DB_MEMORY_RESERVATION:-256M}"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - photoprism_net
+    command: redis-server --appendonly yes
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "${REDIS_CPU_LIMIT:-0.5}"
+          memory: "${REDIS_MEMORY_LIMIT:-256M}"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  traefik:
+    image: traefik:v2.10
+    networks:
+      - photoprism_net
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/acme.json:/acme.json
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.${PHOTOPRISM_DOMAIN:-photos.example.com}`)"
+        - "traefik.http.routers.traefik.service=api@internal"
+        - "traefik.http.routers.traefik.entrypoints=websecure"
+        - "traefik.http.routers.traefik.tls=true"
+        - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+        - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_ADMIN_USER:-admin}:${TRAEFIK_ADMIN_PASSWORD_HASH}"
+        - "traefik.http.routers.traefik.middlewares=traefik-auth"
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

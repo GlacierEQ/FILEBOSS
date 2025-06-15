@@ -1,0 +1,28 @@
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["libGL", "libGLU"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "File Automation Tool"
+
+[[workflows.workflow]]
+name = "File Automation Tool"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py --help"
+
+[deployment]
+run = ["sh", "-c", "python main.py --help"]

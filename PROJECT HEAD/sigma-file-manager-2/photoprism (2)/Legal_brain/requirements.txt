@@ -1,0 +1,15 @@
+flask
+requests
+# For Whisper (if run directly, not just via API call to whisper_service)
+# openai-whisper 
+# For PyAnnote (Speaker Diarization)
+pyannote.audio
+# For Document Processing
+pypdf2
+python-docx
+Pillow
+pytesseract 
+# Utilities
+# python-magic-win64 # For identifying file types, includes Windows DLLs
+# pylibmagic # Alternative for python-magic on Windows, bundles libmagic
+python-magic-bin # Provides libmagic binaries for Windows

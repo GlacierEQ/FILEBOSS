@@ -1,0 +1,17 @@
+apiVersion: v2
+name: deepseek-coder
+description: A Helm chart for DeepSeek-Coder API
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - deepseek
+  - coder
+  - ai
+  - code
+  - generation
+maintainers:
+  - name: DeepSeek AI Team
+    email: support@deepseek.com
+sources:
+  - https://github.com/deepseek-ai/deepseek-coder

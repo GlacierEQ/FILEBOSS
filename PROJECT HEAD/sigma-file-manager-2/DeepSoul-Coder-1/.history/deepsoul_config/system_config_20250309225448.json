@@ -1,0 +1,17 @@
+{
+  "model_name": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "device": "cuda",
+  "knowledge_store_path": "knowledge_store.db",
+  "learning_output_dir": "fine_tuned_models",
+  "task_checkpoint_dir": "task_checkpoints",
+  "max_concurrent_tasks": 4,
+  "auto_learning_enabled": false,
+  "auto_knowledge_acquisition": false,
+  "api_keys": {
+    "courtlistener": "YOUR_COURTLISTENER_API_KEY",
+    "memoryplugin": "YOUR_MEMORYPLUGIN_API_TOKEN",
+    "2captcha": "YOUR_2CAPTCHA_API_KEY"
+  },
+  "aion777_enabled": false,
+  "aion777_mode": false
+}

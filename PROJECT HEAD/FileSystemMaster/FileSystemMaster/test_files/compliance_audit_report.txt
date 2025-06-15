@@ -1,0 +1,42 @@
+CONFIDENTIAL - COMPLIANCE AUDIT REPORT
+
+Internal Audit Report - SOX Section 404 Assessment
+Company: TechFlow Industries Inc.
+Audit Period: Q4 2024
+Report Date: March 20, 2025
+
+EXECUTIVE SUMMARY:
+This report presents findings from our Sarbanes-Oxley Section 404 compliance assessment of internal controls over financial reporting.
+
+KEY FINDINGS:
+1. CRITICAL DEFICIENCY - Revenue Recognition Controls
+   - Manual journal entries lack proper approval workflow
+   - Risk Level: HIGH
+   - Remediation Required: Immediate
+
+2. SIGNIFICANT DEFICIENCY - IT General Controls  
+   - Access controls need strengthening
+   - Risk Level: MEDIUM
+   - Remediation Timeline: 60 days
+
+3. MINOR DEFICIENCY - Expense Authorization
+   - Documentation gaps in travel expenses
+   - Risk Level: LOW
+   - Remediation Timeline: 90 days
+
+COMPLIANCE STATUS:
+- Overall SOX Compliance: 85% effective
+- Material weaknesses: 1 identified
+- Significant deficiencies: 1 identified
+
+REGULATORY IMPLICATIONS:
+- SEC reporting requirements affected
+- External auditor notification required
+- Management certification impact assessment needed
+
+RETENTION: This document must be retained for 7 years per SOX requirements.
+CONFIDENTIALITY: Restricted to Audit Committee, Senior Management, and External Auditors.
+
+Prepared by: Internal Audit Department
+Reviewed by: Chief Audit Executive
+Distribution: Board Audit Committee, CEO, CFO, External Auditors

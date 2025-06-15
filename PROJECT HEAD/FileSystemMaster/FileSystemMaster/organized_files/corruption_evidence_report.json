@@ -1,0 +1,328 @@
+{
+  "case_name": "Del Carpio-Barton v. Del Carpio-Barton",
+  "analysis_date": "2025-05-30",
+  "total_corruption_score": 19,
+  "evidence_count": 4,
+  "evidence_files": [
+    {
+      "filename": "219 court.txt",
+      "corruption_score": 7,
+      "analysis": {
+        "suggested_name": "corruption_evidence_219 court",
+        "category": "judicial corruption evidence",
+        "subcategory": "court transcript analysis",
+        "corruption_score": 7,
+        "severity_level": "MODERATE",
+        "urgency_level": "HIGH",
+        "detected_violations": {
+          "procedural_violations": {
+            "ex_parte_communications": [
+              "written by mr. brower"
+            ]
+          },
+          "bias_indicators": {
+            "inflammatory_language": [
+              "violent"
+            ]
+          },
+          "systemic_corruption": {
+            "attorney_conflicts": [
+              "sean fitzsimmons"
+            ],
+            "case_manipulation": [
+              "92% denial rate"
+            ]
+          },
+          "legal_malpractice": {
+            "conflict_of_interest": [
+              "used to work for",
+              "may have met you once"
+            ],
+            "bad_faith_litigation": [
+              "inflammatory language"
+            ]
+          }
+        },
+        "legal_violations": [
+          {
+            "code": "hrs_571_46_9",
+            "description": "Sanctions for interfering with visitation not enforced",
+            "evidence": []
+          },
+          {
+            "code": "rule_58",
+            "description": "Draft decree filing timeline violations",
+            "evidence": [
+              "Draft decree filed 27 days after deadline"
+            ]
+          },
+          {
+            "code": "rule_94b",
+            "description": "Financial disclosure requirements bypassed",
+            "evidence": []
+          }
+        ],
+        "misconduct_evidence": {},
+        "appellate_issues": [
+          "Trial court committed reversible error by denying due process",
+          "Systematic procedural violations require reversal",
+          "Trial court demonstrated clear bias requiring disqualification",
+          "Gender bias violated equal protection under law",
+          "Trial court failed to apply Hawaii Revised Statutes properly",
+          "Constitutional violations require immediate appellate intervention"
+        ],
+        "timeline_violations": [
+          {
+            "violation": "Rule 58 Timeline Violation",
+            "description": "Draft decree filed 27 days after 10-day deadline",
+            "legal_basis": "Hawaii Family Court Rule 58",
+            "evidence": "Court transcript acknowledgment of untimely filing"
+          },
+          {
+            "violation": "Motion Response Failure",
+            "description": "Multiple motions pending over 90 days without response",
+            "legal_basis": "Due process requirements",
+            "evidence": "Court record showing unaddressed motions"
+          }
+        ],
+        "constitutional_claims": [],
+        "recommended_actions": [
+          "File motion for judicial disqualification/recusal",
+          "Document pattern of bias for appellate record",
+          "File motion to dismiss for procedural violations",
+          "Demand strict compliance with court rules",
+          "Contact civil rights organizations for support",
+          "Document all violations for federal court consideration"
+        ],
+        "evidence_strength": "MODERATE",
+        "tags": [
+          "judicial_corruption",
+          "due_process_violation",
+          "parental_rights",
+          "systemic_bias"
+        ],
+        "retention_period": "30",
+        "priority": "CRITICAL",
+        "analysis_method": "judicial_corruption_detection"
+      },
+      "file_path": "attached_assets/219 court.txt"
+    },
+    {
+      "filename": "829 court.txt",
+      "corruption_score": 6,
+      "analysis": {
+        "suggested_name": "corruption_evidence_829 court",
+        "category": "judicial corruption evidence",
+        "subcategory": "court transcript analysis",
+        "corruption_score": 6,
+        "severity_level": "MODERATE",
+        "urgency_level": "HIGH",
+        "detected_violations": {
+          "procedural_violations": {},
+          "bias_indicators": {
+            "gender_bias": [
+              "father",
+              "violent man"
+            ],
+            "parental_alienation": [
+              "one hour per week"
+            ],
+            "inflammatory_language": [
+              "aggressive",
+              "violent"
+            ]
+          },
+          "systemic_corruption": {
+            "child_welfare_ignored": [
+              "bearing the burden"
+            ]
+          },
+          "legal_malpractice": {}
+        },
+        "legal_violations": [
+          {
+            "code": "hrs_571_46",
+            "description": "Best interests of child standard violated",
+            "evidence": []
+          },
+          {
+            "code": "hrs_571_46_9",
+            "description": "Sanctions for interfering with visitation not enforced",
+            "evidence": []
+          },
+          {
+            "code": "rule_58",
+            "description": "Draft decree filing timeline violations",
+            "evidence": [
+              "Court acknowledged untimely filing"
+            ]
+          }
+        ],
+        "misconduct_evidence": {},
+        "appellate_issues": [
+          "Trial court demonstrated clear bias requiring disqualification",
+          "Gender bias violated equal protection under law",
+          "Trial court failed to apply Hawaii Revised Statutes properly",
+          "Constitutional violations require immediate appellate intervention"
+        ],
+        "timeline_violations": [],
+        "constitutional_claims": [],
+        "recommended_actions": [
+          "File motion for judicial disqualification/recusal",
+          "Document pattern of bias for appellate record",
+          "Contact civil rights organizations for support",
+          "Document all violations for federal court consideration"
+        ],
+        "evidence_strength": "MODERATE",
+        "tags": [
+          "judicial_corruption",
+          "due_process_violation",
+          "parental_rights",
+          "systemic_bias"
+        ],
+        "retention_period": "30",
+        "priority": "CRITICAL",
+        "analysis_method": "judicial_corruption_detection"
+      },
+      "file_path": "attached_assets/829 court.txt"
+    },
+    {
+      "filename": "3:27 court.txt",
+      "corruption_score": 5,
+      "analysis": {
+        "suggested_name": "corruption_evidence_3:27 court",
+        "category": "judicial corruption evidence",
+        "subcategory": "court transcript analysis",
+        "corruption_score": 5,
+        "severity_level": "MODERATE",
+        "urgency_level": "HIGH",
+        "detected_violations": {
+          "procedural_violations": {
+            "inconsistent_rulings": [
+              "denied because"
+            ]
+          },
+          "bias_indicators": {
+            "gender_bias": [
+              "father"
+            ],
+            "dismissive_attitude": [
+              "put your ipad down",
+              "not listening"
+            ]
+          },
+          "systemic_corruption": {},
+          "legal_malpractice": {
+            "procedural_errors": [
+              "third circuit caption"
+            ]
+          }
+        },
+        "legal_violations": [
+          {
+            "code": "hrs_571_46",
+            "description": "Best interests of child standard violated",
+            "evidence": []
+          },
+          {
+            "code": "hrs_571_46_9",
+            "description": "Sanctions for interfering with visitation not enforced",
+            "evidence": []
+          },
+          {
+            "code": "rule_58",
+            "description": "Draft decree filing timeline violations",
+            "evidence": [
+              "Draft decree filed 27 days after deadline"
+            ]
+          },
+          {
+            "code": "rule_94b",
+            "description": "Financial disclosure requirements bypassed",
+            "evidence": []
+          }
+        ],
+        "misconduct_evidence": {
+          "bias_and_prejudice": {
+            "description": "Clear bias against fathers/men in family court",
+            "evidence": [
+              "Judge demonstrated dismissive attitude toward pro se father",
+              "Judge refused to hear father's constitutional arguments"
+            ]
+          }
+        },
+        "appellate_issues": [
+          "Trial court committed reversible error by denying due process",
+          "Systematic procedural violations require reversal",
+          "Trial court demonstrated clear bias requiring disqualification",
+          "Gender bias violated equal protection under law",
+          "Trial court failed to apply Hawaii Revised Statutes properly",
+          "Constitutional violations require immediate appellate intervention"
+        ],
+        "timeline_violations": [
+          {
+            "violation": "Rule 58 Timeline Violation",
+            "description": "Draft decree filed 27 days after 10-day deadline",
+            "legal_basis": "Hawaii Family Court Rule 58",
+            "evidence": "Court transcript acknowledgment of untimely filing"
+          },
+          {
+            "violation": "Motion Response Failure",
+            "description": "Multiple motions pending over 90 days without response",
+            "legal_basis": "Due process requirements",
+            "evidence": "Court record showing unaddressed motions"
+          }
+        ],
+        "constitutional_claims": [],
+        "recommended_actions": [
+          "File motion for judicial disqualification/recusal",
+          "Document pattern of bias for appellate record",
+          "File motion to dismiss for procedural violations",
+          "Demand strict compliance with court rules",
+          "Contact civil rights organizations for support",
+          "Document all violations for federal court consideration"
+        ],
+        "evidence_strength": "MODERATE",
+        "tags": [
+          "judicial_corruption",
+          "due_process_violation",
+          "parental_rights",
+          "systemic_bias"
+        ],
+        "retention_period": "30",
+        "priority": "CRITICAL",
+        "analysis_method": "judicial_corruption_detection"
+      },
+      "file_path": "attached_assets/3:27 court.txt"
+    },
+    {
+      "filename": "219 walk out .txt",
+      "corruption_score": 1,
+      "analysis": {
+        "suggested_name": "legal_evidence_219 walk out .txt",
+        "category": "legal documentation",
+        "subcategory": "corruption evidence",
+        "corruption_score": 1,
+        "priority": "NORMAL",
+        "retention_period": "20",
+        "analysis_method": "legal_document_analysis"
+      },
+      "file_path": "attached_assets/219 walk out .txt"
+    }
+  ],
+  "key_findings": {
+    "ex_parte_communications": "Opposing counsel writing court minutes",
+    "procedural_violations": "27-day rule violations, 92% denial rate",
+    "gender_bias": "Systematic bias against fathers",
+    "constitutional_violations": "Due process and parental rights denied",
+    "judicial_misconduct": "Dismissive attitude, conflict enabling"
+  },
+  "recommended_actions": [
+    "File immediate appeal to Hawaii Intermediate Court of Appeals",
+    "Request emergency stay of proceedings",
+    "File judicial misconduct complaint",
+    "Prepare federal civil rights lawsuit under Section 1983",
+    "Contact fathers rights organizations",
+    "Document for media exposure"
+  ]
+}

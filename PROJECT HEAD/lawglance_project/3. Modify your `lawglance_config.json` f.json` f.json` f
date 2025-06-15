@@ -1,0 +1,56 @@
+3. Modify your `lawglance_config.json` file with your specific settings
+
+## 3. Integration Steps
+
+### Option 1: Use Enhanced Runner (Recommended)
+
+The simplest approach is to use the provided enhanced runner:
+
+```python
+from config import Config
+from lawglance_integration import LawglanceIntegration
+from lawglance_main import Lawglance
+from document_cache import DocumentCache
+from document_processor import DocumentProcessor
+
+config = Config()
+# Access settings with config.get("section", "key")
+
+cache = DocumentCache(config)
+doc_processor = DocumentProcessor(config, word_processor, doc_analyzer, concept_extractor, cache)
+
+# Initialize your Lawglance instance as usual
+lawglance = Lawglance(llm, embeddings, vector_store)
+
+# Enhance with improved components
+integration = LawglanceIntegration("lawglance_config.json")
+lawglance = integration.setup_lawglance(lawglance)
+
+# Use as normal
+response = lawglance.conversational("Your query")
+
+# Print performance report
+performance_monitor.print_report()
+```
+
+Now you have a comprehensive set of improvements addressing all the concerns:
+
+1. **Performance Optimization** with:
+   - Overlapping document chunking 
+   - Document caching system
+   - Performance monitoring
+
+2. **Dependency Management** with:
+   - Detailed requirements file with pinned versions
+   - Graceful degradation when optional dependencies are missing
+
+3. **Configuration Management** with:
+   - Central configuration class
+   - Default settings and file-based overrides
+   - Environment variable integration
+
+4. **Testing Infrastructure** with:
+   - Document processor tests
+   - Integration utilities
+
+Follow the migration guide to integrate these improvements with your existing system!

@@ -1,0 +1,167 @@
+import os
+import sys
+import json
+import logging
+import asyncio
+import aiofiles
+from logging.handlers import RotatingFileHandler
+from typing import Any, Dict
+
+# 🔹 Configure rotating log handler to prevent file bloating
+handler = RotatingFileHandler('blackbox_ai.log', maxBytes=10*1024*1024, backupCount=5)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger = logging.getLogger("BlackboxAI")
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
+
+# 🔹 Global settings
+AUTO_APPROVE: bool = True
+CYCLE_COUNT: int = 0  # Tracks how many coding steps have been auto-approved
+MEMORY_BANK_PATH: str = os.path.expanduser(
+    r'c:\\Users\\casey\\OneDrive\\Documents\\GitHub\\Local-File-Organizer\\memory_bank.json'
+)
+
+# ✅ Config Paths - Centralized storage
+CONFIG_PATH: str = os.path.expanduser(
+    r'C:\\Users\\casey\\AppData\\Roaming\\Code\\User\\globalStorage\\blackboxapp.blackboxagent\\settings\\blackbox_mcp_settings.json'
+)
+STATE_PATH: str = os.path.expanduser(
+    r'c:\\Users\\casey\\OneDrive\\Documents\\GitHub\\Local-File-Organizer\\evolution_state.json'
+)
+
+# 🔥 Asynchronous Config Loading & Saving
+async def async_load_config() -> Dict[str, Any]:
+    """Loads configuration asynchronously."""
+    try:
+        async with aiofiles.open(CONFIG_PATH, 'r') as f:
+            return json.loads(await f.read())
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        return {}
+
+async def async_save_config(cfg: Dict[str, Any]) -> None:
+    """Saves configuration asynchronously."""
+    try:
+        async with aiofiles.open(CONFIG_PATH, 'w') as f:
+            await f.write(json.dumps(cfg, indent=2))
+    except Exception as e:
+        logger.error(f"Error saving config: {e}")
+
+# 🔥 Evolution State Management
+async def load_evolution_state() -> Dict[str, Any]:
+    """Loads evolution state for AI self-improvement."""
+    try:
+        async with aiofiles.open(STATE_PATH, 'r') as f:
+            return json.loads(await f.read())
+    except Exception as e:
+        logger.warning(f"Evolution state missing, initializing new state: {e}")
+        return {"iteration": 0, "parameters": {}}
+
+async def save_evolution_state(state: Dict[str, Any]) -> None:
+    """Saves evolution state asynchronously."""
+    try:
+        async with aiofiles.open(STATE_PATH, 'w') as f:
+            await f.write(json.dumps(state, indent=2))
+    except Exception as e:
+        logger.error(f"Error saving evolution state: {e}")
+
+# 🔥 Memory Bank Management
+async def load_memory_bank() -> Dict[str, Any]:
+    """Loads memory bank for persistent knowledge retention."""
+    try:
+        async with aiofiles.open(MEMORY_PATH, 'r') as f:
+            return json.loads(await f.read())
+    except Exception as e:
+        logger.warning(f"Memory bank missing, initializing new memory bank: {e}")
+        return {"memories": []}
+
+async def save_memory_bank(memory: Dict[str, Any]) -> None:
+    """Saves memory bank asynchronously."""
+    try:
+        async with aiofiles.open(MEMORY_PATH, 'w') as f:
+            await f.write(json.dumps(memory, indent=2))
+    except Exception as e:
+        logger.error(f"Error saving memory bank: {e}")
+
+# 🔹 Auto-Approval System with Instruction Request Every 10 Steps
+CYCLE_COUNT = 0
+def confirm_step(step_description: str) -> bool:
+    global CYCLE_COUNT
+    if AUTO_APPROVE:
+        CYCLE_COUNT += 1
+        if CYCLE_COUNT % 10 == 0:
+            response = input(f"🔹 Instruction Needed: Confirm step [{step_description}]? (y/n): ")
+            return response.lower().startswith('y')
+        logger.info(f"Auto-approved: {step_description}")
+        return True
+    response = input(f"Confirm step [{step_description}]? (y/n): ")
+    return response.lower().startswith('y')
+
+# 🔹 AI-Enhanced Configuration Management
+async def add_or_update_server(name: str, url: str, api_key: str) -> None:
+    """Asynchronously adds or updates server configurations."""
+    cfg = await async_load_config()
+    cfg.setdefault('mcpServers', {})[name] = {"url": url, "apiKey": api_key}
+    await async_save_config(cfg)
+
+async def log_current_config() -> None:
+    """Logs the current configuration."""
+    cfg = await async_load_config()
+    logger.info(f"Current Config: {json.dumps(cfg, indent=2)}")
+import os
+import sys
+import json
+import logging
+import asyncio
+import aiofiles
+from logging.handlers import RotatingFileHandler
+from typing import Any, Dict, List, Union  # Improved type hinting
+
+# ... (logging setup remains the same)
+
+# Global settings with type hints
+AUTO_APPROVE: bool = True
+CYCLE_COUNT: int = 0
+MEMORY_BANK_PATH: str = os.path.expanduser(r'c:\\Users\\casey\\OneDrive\\Documents\\GitHub\\Local-File-Organizer\\memory_bank.json')
+CONFIG_PATH: str = os.path.expanduser(r'C:\\Users\\casey\\AppData\\Roaming\\Code\\User\\globalStorage\\blackboxapp.blackboxagent\\settings\\blackbox_mcp_settings.json')
+STATE_PATH: str = os.path.expanduser(r'c:\\Users\\casey\\OneDrive\\Documents\\GitHub\\Local-File-Organizer\\evolution_state.json')
+
+# ... (async_save_config remains the same)
+
+async def async_load_config() -> Dict[str, Any]:
+    """Loads configuration asynchronously with improved error handling and default."""
+    try:
+        async with aiofiles.open(CONFIG_PATH, 'r') as f:
+            return json.loads(await f.read())
+    except FileNotFoundError:
+        logger.warning("Config file not found, creating a default configuration.")
+        return {"mcpServers": {}}  # Return a default config
+    except json.JSONDecodeError:
+        logger.error("Invalid config file format. Please check the file for errors.")
+        return {"mcpServers": {}}  # Return a default config
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        return {"mcpServers": {}}  # Return a default config
+
+
+
+# ... (Other functions remain mostly the same, except for MEMORY_PATH -> MEMORY_BANK_PATH)
+
+# Memory Bank with a more defined structure
+Memory = Dict[str, Any]  # Define a type alias for memories
+
+async def load_memory_bank() -> List[Memory]:  # Type hint for the return value
+    # ... (Implementation using MEMORY_BANK_PATH)
+
+async def save_memory_bank(memory: List[Memory]) -> None: # Type hint
+    # ... (Implementation using MEMORY_BANK_PATH)
+
+
+# Auto-Approval with clearer type hint
+def confirm_step(step_description: str) -> bool:
+    # ... (implementation)
+
+
+
+# ... (rest of the code)

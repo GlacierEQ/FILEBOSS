@@ -1,0 +1,47 @@
+2025-05-30 10:49:03 - root - INFO - ==================================================
+2025-05-30 10:49:03 - root - INFO - File Automation Tool - Starting
+2025-05-30 10:49:03 - root - INFO - ==================================================
+2025-05-30 10:49:03 - root - INFO - Log level: DEBUG
+2025-05-30 10:49:03 - root - INFO - Log file: logs/file_automation_20250530_104903.log
+2025-05-30 10:49:03 - root - INFO - Starting enhanced file automation with config: Config(file_types=['pdf', 'doc', 'text', 'audio', 'video'], max_files=100, naming_pattern='smart', dry_run=True, backup_enabled=False, copy_files=False, ai_confidence_threshold=0.3, create_subdirectories=True, max_directory_depth=3)
+2025-05-30 10:49:03 - root - INFO - Input: test_files
+2025-05-30 10:49:03 - root - INFO - Output: test_files/organized_files
+2025-05-30 10:49:03 - root - INFO - Legal document analysis: ENHANCED
+2025-05-30 10:49:03 - root - INFO - Business intelligence: ENHANCED
+2025-05-30 10:49:03 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:11434
+2025-05-30 10:49:03 - multi_ai_analyzer - INFO - Available AI providers: ['pattern_based']
+2025-05-30 10:49:03 - root - INFO - Scanning directory for files...
+2025-05-30 10:49:03 - file_processor - INFO - Scanning directory: test_files
+2025-05-30 10:49:03 - root - INFO - Found 6 supported files
+2025-05-30 10:49:03 - root - INFO - Processing files with enhanced AI analysis...
+2025-05-30 10:49:03 - file_processor - INFO - Processing file 1/6: meeting_notes_2024.txt
+2025-05-30 10:49:03 - file_processor - ERROR - Error processing meeting_notes_2024.txt: 'MultiAIAnalyzer' object has no attribute 'analyze_file_content'
+2025-05-30 10:49:03 - file_processor - INFO - Processing file 2/6: financial_report_q4.txt
+2025-05-30 10:49:03 - file_processor - ERROR - Error processing financial_report_q4.txt: 'MultiAIAnalyzer' object has no attribute 'analyze_file_content'
+2025-05-30 10:49:03 - file_processor - INFO - Processing file 3/6: presentation_slides.txt
+2025-05-30 10:49:03 - file_processor - ERROR - Error processing presentation_slides.txt: 'MultiAIAnalyzer' object has no attribute 'analyze_file_content'
+2025-05-30 10:49:03 - file_processor - INFO - Processing file 4/6: random_document.txt
+2025-05-30 10:49:03 - file_processor - ERROR - Error processing random_document.txt: 'MultiAIAnalyzer' object has no attribute 'analyze_file_content'
+2025-05-30 10:49:03 - file_processor - INFO - Processing file 5/6: service_agreement_draft.txt
+2025-05-30 10:49:03 - file_processor - ERROR - Error processing service_agreement_draft.txt: 'MultiAIAnalyzer' object has no attribute 'analyze_file_content'
+2025-05-30 10:49:03 - file_processor - INFO - Processing file 6/6: compliance_audit_report.txt
+2025-05-30 10:49:03 - file_processor - ERROR - Error processing compliance_audit_report.txt: 'MultiAIAnalyzer' object has no attribute 'analyze_file_content'
+2025-05-30 10:49:03 - root - INFO - Organizing files with intelligent categorization...
+2025-05-30 10:49:03 - file_organizer - INFO - Organizing 6 files into test_files/organized_files
+2025-05-30 10:49:03 - file_organizer - INFO - DRY RUN: Would move test_files/meeting_notes_2024.txt -> test_files/organized_files/Error/unverified_meeting_notes_2024.txt
+2025-05-30 10:49:03 - file_organizer - INFO - DRY RUN: Would move test_files/financial_report_q4.txt -> test_files/organized_files/Error/unverified_financial_report_q4.txt
+2025-05-30 10:49:03 - file_organizer - INFO - DRY RUN: Would move test_files/presentation_slides.txt -> test_files/organized_files/Error/unverified_presentation_slides.txt
+2025-05-30 10:49:03 - file_organizer - INFO - DRY RUN: Would move test_files/random_document.txt -> test_files/organized_files/Error/unverified_random_document.txt
+2025-05-30 10:49:03 - file_organizer - INFO - DRY RUN: Would move test_files/service_agreement_draft.txt -> test_files/organized_files/Error/unverified_service_agreement_draft.txt
+2025-05-30 10:49:03 - file_organizer - INFO - DRY RUN: Would move test_files/compliance_audit_report.txt -> test_files/organized_files/Error/unverified_compliance_audit_report.txt
+2025-05-30 10:49:03 - file_organizer - INFO - Organization complete: 0 organized, 6 errors, 0 skipped
+2025-05-30 10:49:03 - file_organizer - INFO - Organization report saved to: test_files/organized_files/organization_report.txt
+2025-05-30 10:49:03 - root - INFO - ============================================================
+2025-05-30 10:49:03 - root - INFO - ENHANCED AI PROCESSING COMPLETE
+2025-05-30 10:49:03 - root - INFO - ============================================================
+2025-05-30 10:49:03 - root - ERROR - Fatal error: 'total_files'
+Traceback (most recent call last):
+  File "/home/runner/workspace/main.py", line 240, in main
+    logger.info(f"Files processed: {results['total_files']}")
+                                    ~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'total_files'

@@ -1,0 +1,8 @@
+{
+  "app.css": "app.test.css",
+  "app.js": "app.test.js",
+  "share.css": "share.test.css",
+  "share.js": "share.test.js",
+  "splash.css": "splash.test.css",
+  "splash.js": "splash.test.js"
+}

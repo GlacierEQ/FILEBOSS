@@ -1,0 +1,27 @@
+2025-05-30 10:42:48 - root - INFO - ==================================================
+2025-05-30 10:42:48 - root - INFO - File Automation Tool - Starting
+2025-05-30 10:42:48 - root - INFO - ==================================================
+2025-05-30 10:42:48 - root - INFO - Log level: DEBUG
+2025-05-30 10:42:48 - root - INFO - Log file: logs/file_automation_20250530_104248.log
+2025-05-30 10:42:48 - root - INFO - Starting enhanced file automation with config: Config(file_types=['pdf', 'doc', 'text', 'audio', 'video'], max_files=100, naming_pattern='smart', dry_run=True, backup_enabled=False, copy_files=False, ai_confidence_threshold=0.3, create_subdirectories=True, max_directory_depth=3)
+2025-05-30 10:42:48 - root - INFO - Input: test_files
+2025-05-30 10:42:48 - root - INFO - Output: test_files/organized_files
+2025-05-30 10:42:48 - root - INFO - Memory-enhanced AI analysis: ENABLED
+2025-05-30 10:42:48 - root - INFO - Legal document analysis: ENHANCED
+2025-05-30 10:42:48 - root - INFO - Business intelligence: ENHANCED
+2025-05-30 10:42:52 - root - WARNING - Failed to initialize memory analyzer: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+2025-05-30 10:42:52 - root - INFO - Falling back to standard AI analysis
+2025-05-30 10:42:52 - root - ERROR - Fatal error: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+Traceback (most recent call last):
+  File "/home/runner/workspace/main.py", line 181, in main
+    processor = FileProcessor(config)
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/file_processor.py", line 46, in __init__
+    self.ai_analyzer = EnhancedAIAnalyzer()
+                       ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/enhanced_ai_analyzer.py", line 17, in __init__
+    self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/openai/_client.py", line 126, in __init__
+    raise OpenAIError(
+openai.OpenAIError: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable

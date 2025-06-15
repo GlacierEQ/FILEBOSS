@@ -1,0 +1,256 @@
+/* Layout Breakpoints */
+
+@media (min-width: 1750px) {
+    /* Extra Large (XL) */
+    .flex.xlg2 {
+        flex-basis: 16.666666666666664%;
+        flex-grow: 0;
+        max-width: 16.666666666666664%;
+    }
+
+    .flex.xlg10 {
+        flex-basis: 83.333333333333332%;
+        flex-grow: 0;
+        max-width: 83.333333333333332%;
+    }
+}
+
+@media (min-width: 2400px) {
+    /* Extra Extra Large (XXL) */
+    .flex.xxl1 {
+        flex-basis: 8.333333333333332%;
+        flex-grow: 0;
+        max-width: 8.333333333333332%;
+    }
+
+    .flex.xxl11 {
+        flex-basis: 91.66666666666667%;
+        flex-grow: 0;
+        max-width: 91.66666666666667%;
+    }
+}
+
+@media (min-width: 2800px) {
+    /* Ultra Large (UL) */
+    .flex.ul1 {
+        flex-basis: 8.333333333333332%;
+        flex-grow: 0;
+        max-width: 8.333333333333332%;
+    }
+
+    .flex.ul11 {
+        flex-basis: 91.66666666666667%;
+        flex-grow: 0;
+        max-width: 91.66666666666667%;
+    }
+}
+
+/* Layout Widths */
+
+.width-sm, .width-md, .width-lg {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.width-sm {
+    max-width: 600px;
+}
+
+.width-md {
+    max-width: 960px;
+}
+
+.width-lg {
+    max-width: 1264px;
+}
+
+.width-50 {
+    min-width: 50%;
+}
+
+.width-60 {
+    min-width: 60%;
+}
+
+.width-66 {
+    min-width: 66%;
+}
+
+.width-70 {
+    min-width: 70%;
+}
+
+.width-80 {
+    min-width: 80%;
+}
+
+.width-90 {
+    min-width: 90%;
+}
+
+.width-100 {
+    width: 100%;
+}
+
+/* Rounded Elements */
+
+.v-menu__content,
+.v-btn.v-btn--depressed:not(.v-btn--round):not(.v-btn--icon),
+.v-text-field.v-text-field--box > .v-input__control > .v-input__slot,
+.v-text-field.v-text-field--solo > .v-input__control > .v-input__slot,
+.v-dialog .v-responsive.v-image,
+.mosaic-view .result.preview,
+.list-view .result .preview {
+    border-radius: 4px;
+}
+
+.v-alert,
+.cards-view .result,
+div.v-dialog > div.v-card,
+div.v-dialog > div.v-card > .v-card__text .v-expansion-panels__container,
+div.v-dialog > form > div.v-card,
+div.v-dialog > form > div.v-card > .v-card__text .v-expansion-panels__container {
+    border-radius: 6px !important;
+}
+
+.cards-view .result {
+    height: 100%;
+}
+
+.ra-2,
+.ra-2 > a,
+.rounded-2,
+.rounded-2 > a {
+    border-radius: 2px !important;
+}
+
+.ra-3,
+.ra-3 > a,
+.rounded-3,
+.rounded-3 > a {
+    border-radius: 3px !important;
+}
+
+.ra-4,
+.ra-4 > a,
+.rounded-4,
+.rounded-4 > a {
+    border-radius: 4px !important;
+}
+
+.ra-5,
+.ra-5 > a,
+.rounded-5,
+.rounded-5 > a {
+    border-radius: 5px !important;
+}
+
+.ra-6,
+.ra-6 > a,
+.rounded-6,
+.rounded-6 > a {
+    border-radius: 6px !important;
+}
+
+.ra-8,
+.ra-8 > a,
+.rounded-8,
+.rounded-8 > a {
+    border-radius: 8px !important;
+}
+
+.ra-10,
+.ra-10 > a,
+.rounded-10,
+.rounded-10 > a {
+    border-radius: 10px !important;
+}
+
+.ra-24,
+.ra-24 > a,
+.rounded-24,
+.rounded-24 > a {
+    border-radius: 24px !important;
+}
+
+.v-autocomplete__content.v-menu__content,
+.v-autocomplete__content.v-menu__content .v-card {
+    border-radius: 0 0 4px 4px;
+}
+
+.v-snack.v-snack--bottom .v-snack__wrapper {
+    border-radius: 5px 5px 0 0;
+}
+
+/* Responsive Layout Styles */
+
+@media only screen and (min-width: 960px) {
+    .pa-1-md-and-up {
+        padding: 4px !important;
+    }
+
+    .pa-2-md-and-up {
+        padding: 8px !important;
+    }
+
+    .pa-3-md-and-up {
+        padding: 16px !important;
+    }
+
+    .pa-3-md-and-up {
+        padding: 24px !important;
+    }
+
+    .ra-4-table-md-and-up table.v-table {
+        border-radius: 4px !important;
+    }
+}
+
+/* Footer */
+
+footer {
+    clear: both;
+    padding: 1rem 2rem;
+}
+
+footer.p-about-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 12px 24px 4px;
+}
+
+footer.p-about-footer>div {
+    user-select: text;
+    font-size: .875rem;
+    font-weight: 400;
+    letter-spacing: .0178571429em;
+    line-height: 1.425;
+    margin-bottom: .85rem;
+    text-transform: none;
+    text-align: center;
+}
+
+footer.p-about-footer > div > * {
+    display: inline;
+    float: right;
+    max-width: 45vw;
+    text-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+footer.p-about-footer > div > strong {
+    float: left;
+}
+
+@media only screen and (min-width: 600px) {
+    footer.p-about-footer>div > * {
+        display: block;
+        float: none!important;
+        margin: 0;
+        padding: 0;
+    }
+}

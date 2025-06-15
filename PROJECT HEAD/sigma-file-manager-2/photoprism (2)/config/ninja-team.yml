@@ -1,0 +1,78 @@
+# Ninja Team Configuration
+version: "1.0"
+
+# Global team settings
+team:
+  size: 4
+  recursion_levels: 3
+  build_mode: "parallel"
+  coordination_strategy: "distributed"
+  retry_failed: true
+  max_retries: 3
+
+# Specializations for team members
+specializations:
+  frontend:
+    priority: 1
+    dependencies: []
+    tasks:
+      - "log 'Starting frontend tasks'"
+      - "cd frontend && npm ci"
+      - "cd frontend && npm run build"
+      - "log 'Frontend tasks completed'"
+    artifacts:
+      - "assets/static/build"
+
+  backend:
+    priority: 2
+    dependencies: []
+    tasks:
+      - "log 'Starting backend tasks'"
+      - "go build -tags='brains' ./cmd/photoprism"
+      - "log 'Backend tasks completed'"
+    artifacts:
+      - "photoprism"
+
+  database:
+    priority: 3
+    dependencies: ["backend"]
+    tasks:
+      - "log 'Starting database tasks'"
+      - "scripts/download-brains.sh"
+      - "log 'Database tasks completed'"
+    artifacts:
+      - "assets/brains"
+
+  ai:
+    priority: 4
+    dependencies: ["backend"]
+    tasks:
+      - "log 'Starting AI tasks'"
+      - "scripts/download-facenet.sh"
+      - "scripts/download-nasnet.sh"
+      - "log 'AI tasks completed'"
+    artifacts:
+      - "assets/facenet"
+      - "assets/nasnet"
+
+# Deployment configurations
+deployment:
+  environments:
+    - name: "development"
+      docker_compose_file: "docker/docker-compose.yml"
+      env_file: "docker/.env.example"
+    
+    - name: "staging"
+      docker_compose_file: "docker/docker-compose.yml"
+      env_file: "docker/.env.staging"
+    
+    - name: "production"
+      docker_compose_file: "docker/docker-compose.prod.yml"
+      env_file: "docker/.env.prod"
+
+  # Recursive deployment strategy
+  strategy:
+    mode: "depth-first"
+    fan_out_factor: 2
+    validation_points: [0.25, 0.5, 0.75, 1.0]
+    rollback_on_failure: true

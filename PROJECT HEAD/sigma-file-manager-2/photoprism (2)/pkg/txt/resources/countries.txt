@@ -1,0 +1,802 @@
+AD:Andorra
+FR:France
+FR:Frankreich
+SK:Bratislava
+SK:Slovakia
+AT:Austria
+AT:Hallstatt
+AT:Wörthersee
+AT:Österreich
+AT:Vienna
+AT:Wien
+AT:Salzburg
+AT:Sölden
+AT:Klagenfurt
+AT:Innsbruck
+HU:Hungary
+GE:Georgia Republic
+VA:Vatican City
+PL:Poland
+PL:Warsaw
+PL:Warschau
+KH:Cambodia
+LA:Vientiane
+LA:Lao Republic
+LA:Laos
+VN:Vietnam
+DK:Denmark
+MM:Myanmar
+CZ:Czechia
+CZ:Czech
+CZ:Karlovy Vary
+CH:Zurich
+CH:Zürich
+CH:St Gallen
+CH:Basel
+CH:Interlaken
+CH:Lauterbrunnen
+CH:Grindelwald
+CH:Lucerne
+CH:Luzern
+CH:Switzerland
+CH:Swiss
+CH:Schweiz
+BE:Belgium
+SE:Sweden
+SE:Sverige
+SE:Schweden
+SE:Gotland
+SE:Öland
+FO:Faroe
+AL:Albania
+MK:Macedonia
+ME:Montenegro
+FI:Finland
+SM:San Marino
+MD:Moldova
+BY:Belarus
+BR:Brazil
+BR:Brasil
+RU:Russia
+UA:Ukraine
+GB:United Kingdom
+GB:London
+GB:Scotland
+GB:Edinburgh
+GB:England
+GB:Britain
+GB:Buckingham
+IM:Isle of Man
+IE:Ireland
+IE:Dublin
+DE:Deutschland
+DE:Germany
+DE:Aachen
+DE:Steglitz
+DE:Kreuzberg
+DE:Kreuzberger
+DE:Neukölln
+DE:Neuköllner
+DE:Friedrichshain
+DE:Berghain
+DE:Bundestag
+DE:Bundesrat
+DE:Potsdam
+DE:Potsdamer
+DE:Brandenburg
+DE:Brandenburger
+DE:Grunewald
+DE:Charlottenburg
+DE:Wilmersdorf
+DE:Tempelhof
+DE:Tempelhofer
+DE:Schönefeld
+DE:Schönefelder
+DE:Reichstag
+DE:Kassel
+DE:Ostsee
+DE:Nordsee
+DE:Wannsee
+DE:Berlin
+DE:Pfalz
+DE:Mannheim
+DE:Heidelberg
+DE:Heidelberger
+DE:Stuttgart
+DE:Stuttgarter
+DE:Bisingen
+DE:Balingen
+DE:Hechingen
+DE:Swabian
+DE:Schwarzwald
+DE:Schwarzwälder
+DE:Schwaben
+DE:Schwäbisch
+DE:Schwäbische
+DE:Schwäbisches
+DE:Albtrauf
+DE:München
+DE:Münchner
+DE:Oktoberfest
+DE:Württemberg
+DE:Bayern
+DE:Bavaria
+DE:Bairisch
+DE:Bavarian
+DE:Erfurt
+DE:Leipzig
+DE:Leipziger
+DE:Schwerin
+DE:Greifswald
+DE:Greifswalder
+DE:Dresden
+DE:Dresdener
+DE:Nebelhorn
+DE:Neuschwanstein
+DE:Nürnberg
+DE:Würzburg
+DE:Munich
+DE:Frankfurt
+DE:Freiburg
+DE:Freiburger
+DE:Hamburg
+DE:Tübingen
+DE:Tubingen
+DE:Tübinger
+DE:Köln
+DE:Kölner
+DE:Königsee
+DE:Dortmund
+DE:Düsseldorf
+DE:Cologne
+DE:Saarland
+DE:Saarbrücken
+DE:Konstanz
+DE:Konstanzer
+DE:Reichenau
+DE:Meckenheim
+DE:Wiesbaden
+DE:Lahnstein
+DE:Augsburg
+DE:Augsburger
+DE:Freinsheim
+DE:Speyer
+DE:Marburg
+DE:Marburger
+DE:Mechtersheim
+DE:Dürkheim
+DE:Ulm
+DE:Neckarsulm
+DE:Zugspitze
+DE:Sächsische Schweiz
+LV:Latvia
+LV:Lettland
+LT:Lithuania
+LT:Litauen
+EE:Estonia
+AU:Australia
+AU:Melbourne
+AU:Perth
+AU:Tasmania
+AU:Tasmanien
+AU:Sydney
+ZA:Capetown
+ZA:Durban
+ZA:Pretoria
+ZA:Kapstadt
+ZA:Johannesburg
+ZA:South Africa
+SZ:Eswatini
+SZ:Swaziland
+RO:Romania
+EC:Ecuador
+MX:Mexico
+CO:Colombia
+US:California
+US:Washington
+US:New York
+US:NYC
+US:Florida
+US:Cape Canaveral
+US:San Francisco
+US:Oakland
+US:San Diego
+US:Los Angeles
+US:Seattle
+US:Chicago
+US:Miami
+US:Dallas
+US:Houston
+US:Las Vegas
+US:Minneapolis
+US:Kansas
+US:Wisconsin
+US:Michigan
+US:Illinois
+US:Boston
+US:Massachusetts
+US:Connecticut
+US:New Jersey
+US:Delaware
+US:Orlando
+US:Detroit
+US:Nevada
+US:Texas
+US:USA
+US:United States
+US:Venice Beach
+MN:Mongolia
+CL:Chile
+RW:Rwanda
+TR:Turkey
+TR:Türkei
+TR:Istanbul
+TR:Ankara
+TR:Izmir
+TR:Bursa
+TR:Antalya
+TR:Konya
+TR:Adana
+TR:Gaziantep
+TR:Kocaeli
+TR:Mersin
+TR:Diyarbakır
+KG:Kyrgyzstan
+BT:Bhutan
+NP:Everest
+NP:Nepal
+NP:Himalaya
+NP:Kathmandu
+BD:Bangladesh
+BD:Dhaka
+BD:Chattogram
+BD:Khulna
+JO:Jordan
+JO:Amman
+JO:عَمَّان
+JO:Zarqa
+JO:الزرقاء
+JO:Irbid
+JO:إربد
+JO:Russeifa
+JO:الرصيفة
+JO:Sahab
+JO:سحاب
+JO:Ar Ramtha
+JO:الرمثا
+JO:Aqaba
+JO:العقبة
+JO:Mafraq
+JO:المفرق
+SY:Syria
+SY:سوريا
+SY:Syrien
+SY:Damascus
+SY:دِمَشق
+SY:Aleppo
+SY:ﺣَﻠَﺐ
+SY:Ḥalab
+SY:Daraa
+SY:دَرْعَا
+SY:Ad-Deir
+SY:Deir ez-Zor
+SY:دير الزور
+SY:Al-Hasakah
+SY:لْحَسَكَة
+SY:Latakia
+SY:للَّاذْقِيَّة
+SY:Quneitra
+SY:Al Qunaytirah
+SY:Qunaitira
+SY:Kuneitra
+SY:لْقُنَيطْرَة
+SY:Idlib
+SY:in Homs
+SY:Qusseir
+SY:Raqqa
+SY:ar-Raqqah
+SY:Rakka
+SY:ٱلرَّقَّة
+SY:Afrin
+SY:Ifrin
+SY:Efrin
+SY:عفرين
+LB:Lebanon
+LB:لُبْنان
+LB:Beirut
+LB:بيروت
+LB:Dahieh
+LB:Dahiyeh
+LB:Dâhiye
+LB:Al-Dahyeh
+LB:Nabatieh
+LB:Byblos
+LB:Baalbek
+LB:Baalbeck
+LB:بعلبك
+LB:Quobeiyat
+LB:Rafic Hariri
+LB:Kafarkila
+LB:Kfarkila
+LB:Kfarkela
+LB:Kafarkela
+LB:Kafr Kila
+LB:كفركلا
+LB:Mhaibib
+LB:Ghobeiri
+LB:Ghobeiry
+LB:غبيري
+LB:in Sidon
+LB:صيدا
+LB:in Tyre
+LB:صُور
+BG:Bulgaria
+BG:Koprivshtitsa
+BG:Melnik
+BG:Sofia
+GR:Corfu
+GR:Greece
+GR:Hellas
+KP:North Korea
+KP:DPRK
+KP:DPR Korea
+DZ:Algeria
+TN:Tunisia
+LY:Libya
+MR:Mauritania
+GM:Gambia
+SN:Senegal
+GW:Guinea Bissau
+SL:Sierra Leone
+GN:Guinea
+CI:Ivory Coast
+LR:Liberia
+GH:Ghana
+TG:Togo
+BF:Burkina Faso
+BJ:Benin
+ML:Mali
+NE:Niger
+NG:Nigeria
+SD:Sudan
+CF:Central African
+GQ:Equatorial Guinea
+GA:Gabon
+CG:Congo Brazzaville
+CD:Congo
+UG:Uganda
+KE:Kenya
+SO:Somalia
+ET:Ethiopia
+DJ:Djibouti
+CM:Cameroon
+NA:Namibia
+AO:Angola
+BI:Burundi
+TZ:Tanzania
+ZM:Zambia
+ZW:Zimbabwe
+ZW:Rhodesia
+MZ:Mozambique
+MW:Malawi
+UZ:Uzbekistan
+TJ:Tajikistan
+KZ:Kazakhstan
+HR:Croatia
+SI:Slovenia
+SI:Ljubljana
+TM:Turkmenistan
+TM:Ashgabat
+BO:Bolivia
+GG:Guernsey
+CN:China
+CN:Shanghai
+CN:上海市
+CN:Peking
+CN:北京市
+CN:Beijing
+VE:Venezuela
+VE:Caracas
+VG:Virgin Island
+VG:Charlotte Amalie
+AR:Argentina
+AR:Argentine
+AR:Buenos Aires
+UY:Uruguay
+UY:Montevideo
+PY:Paraguay
+PY:Asunción
+SR:Suriname
+GY:Guyana
+NI:Nicaragua
+NI:Managua
+CR:Costa Rica
+PA:Panama
+HN:Honduras
+HN:Tegucigalpa
+BZ:Belize
+PE:Peru
+PE:Lima
+PT:Portugal
+PT:Lisboa
+PT:Lisbon
+PT:Lissabon
+ER:Eritrea
+IS:Iceland
+IS:Ísland
+IS:Reykjavík
+IS:Reykjavik
+IS:Keflavík
+IS:Vatnajökull
+AF:Afghanistan
+IN:India
+IN:Indien
+IN:Bhārat Gaṇarājya
+IN:Mumbai
+IN:Muṁbaī
+IN:Bombay
+IN:Maharashtra
+IN:New Delhi
+IN:Naī Dillī
+IN:Bangalore
+IN:Hyderabad
+IN:Ahmedabad
+IN:Chennai
+IN:Kolkata
+IN:Jaipur
+IN:Lucknow
+ID:Indonesia
+ID:Jakarta
+ID:Surabaya
+ID:Bandung
+ID:Balikpapan
+ID:Denpasar
+ID:Bali
+IQ:Iraq
+IQ:Irak
+IQ:Baghdad
+IQ:العراق
+IQ:بَغْدَاد
+IQ:Mosul
+IQ:Nineveh
+IQ:Basra
+IQ:Kirkuk
+IQ:Erbil
+IQ:Hewlêr
+IQ:أربيل
+IQ:ܐܲܪܒܹܝܠ
+IQ:هەولێر
+IQ:Najaf
+IQ:Karbala
+IQ:Sulaymaniyah
+IQ:Nasiriyah
+IQ:Dhi Qar
+IR:Iran
+IR:إيران
+IR:Tehran
+IR:Tehrān
+IR:Teheran
+IR:تهران
+IR:طهران
+IR:طَهْران
+IR:Shamsabad
+IR:Shams Abad
+IR:شمس اباد
+IR:Shamsābād
+IR:Parchin
+IR:پارچین
+IR:Shahroud
+IR:Schahrud
+IR:شاهرود
+IR:Isfahan
+IR:اصفهان
+IR:Bushehr
+IR:Būšehr
+IR:Bushire
+IR:Busheer
+IR:Bouchir
+IR:Mashhad
+IR:Persia
+YE:Yemen
+YE:اليمن
+YE:Sana'a
+YE:Sanaa
+YE:سناء
+YE:Al Hudaydah
+YE:Hodeda
+YE:Hodeida
+YE:Hudaida
+YE:Hodeidah
+YE:الْحُدَيْدَة
+YE:الحديدة
+QA:Qatar
+QA:قَطَر
+QA:الدوحة
+KW:Kuwait
+OM:Oman
+TL:East Timor
+PK:Pakistan
+PK:Islamabad
+SA:Saudi Arabia
+SA:Riad
+SA:Riyadh
+SA:الرياض
+KR:South Korea
+KR:Seoul
+AE:United Arab
+AE:UAE
+AE:الإمارات العربية المتحدة
+AE:Dubai
+AE:دبي
+AE:Abu Dhabi
+AE:أبو ظبي
+AE:Al Ain
+AE:العين
+AE:Sharjah
+AE:الشارقة
+AE:Khor Fakkan
+AE:خَوْر فَكَّان
+AE:كَلْبَاء
+AE:Ajman
+AE:Ras Al Khaimah
+AE:Fujairah
+AE:Umm Al Quwain
+AE:Madinat Zayed
+AE:Dibba Al-Fujairah
+CY:Cyprus
+CY:Nicosia
+DM:Dominica
+HT:Haiti
+HT:Hayti
+HT:Port-au-Prince
+CU:Cuba
+CU:Habana
+CU:Guantánamo
+CU:Guantanamo
+CU:Varadero
+CU:Hicacos
+CU:Matanzas
+CU:Gustavo Rizo
+CU:José Martí
+CU:Jose Marti
+PG:New Guinea
+AM:Armenia
+AM:Yerevan
+AZ:Azerbaijan
+MT:Malta
+MT:Valletta
+IT:Como
+IT:Cortina d'Ampezzo
+IT:Italy
+IT:Milan
+IT:Milano
+IT:Mailand
+IT:Neapel
+IT:Palermo
+IT:Genua
+IT:Florenz
+IT:Bologna
+IT:Venezia
+IT:Venedig
+IT:Venice
+IT:Italien
+IT:Sicily
+IT:Trieste
+JE:Jersey Island
+BH:Bahrain
+JP:Japan
+JP:Tokyo
+JP:東京都
+JP:Fukushima
+JP:Nippon
+JP:Nihon
+PH:Pilipinas
+PH:Filipinas
+PH:Philippines
+MG:Madagascar
+TW:Taiwan
+TW:Taipei
+CV:Cape Verde
+KM:Comoros
+MU:Mauritius
+ST:São Tomé
+ST:Príncipe
+SC:Seychelles
+SC:Seychellen
+MV:Maldives
+SG:Singapore
+LK:Sri Lanka
+KN:Saint Kitts
+KN:Nevis
+AG:Antigua
+AG:Barbuda
+MS:Montserrat
+BS:Bahamas
+TC:Turks Island
+TC:Caicos Island
+BB:Barbados
+VC:Saint Vincent
+GD:Grenada
+LC:Saint Lucia
+JM:Jamaica
+TT:Trinidad
+TT:Tobago
+NZ:New Zealand
+KI:Kiribati
+FJ:Fiji
+FJ:Bligh Island
+MH:Marshall Island
+FM:Micronesia
+NR:Nauru
+PW:Palau
+MC:Monaco
+LI:Liechtenstein
+GI:Gibraltar
+ES:Spain
+ES:Spanien
+ES:Andalusien
+ES:Andalusia
+ES:Canarias
+ES:Granada
+ES:Madrid
+ES:Barcelona
+ES:Córdoba
+ES:Seville
+ES:Málaga
+ES:Bilbao
+ES:Valencia
+ES:España
+ES:Espana
+CA:Canada
+CA:Kanada
+CA:Vancouver
+CA:British Columbia
+CA:Montreal
+CA:Toronto
+CA:Ottawa
+CA:Quebec
+CA:Ontario
+CA:Alberta
+IL:Israel
+IL:Israeli
+IL:Israelis
+IL:יִשְׂרָאֵל
+IL:Yisra'el
+IL:Yisrael
+IL:Tel Aviv
+IL:תֵּל אָבִיב-יָפוֹ
+IL:Ben Gurion
+IL:Caesarea
+IL:Netanya
+IL:קֵיסָרְיָה
+IL:Haifa
+IL:חֵיפָה
+IL:Bethlehem
+IL:بيت لحم
+IL:Nazareth
+IL:النَّاصِرَة
+IL:Jerusalem
+IL:יְרוּשָׁלַיִם
+IL:القُدس
+IL:Al-Quds
+IL:Nhariyya
+IL:Ashdod
+IL:אַשְׁדּוֹד
+IL:Ashkelon
+IL:אשקלון
+IL:Beersheba
+IL:באר שבע
+IL:Rishon LeZion
+IL:Tiberias
+IL:Sderot
+IL:Mefalsim
+IL:Mitspe Ramon
+IL:Kibbutz
+IL:קִבּוּץ
+IL:קיבוץ
+IL:Kibbutzim
+IL:קִבּוּצִים
+IL:קיבוצים
+IL:Degania
+IL:Nahal Oz
+IL:Kfar Aza
+IL:Kfar Maimon
+IL:Kfar Hoshen
+IL:Kfar Masaryk
+IL:in Kfar
+IL:Be'eri
+EG:Egypt
+EG:Ägypten
+EG:Aegypten
+SV:El Salvador
+GT:Guatemala
+NU:Niue
+SS:South Sudan
+RS:Serbia
+SB:Solomon Island
+WS:Samoa
+BW:Gaborone
+BW:Botswana
+BW:Botsuana
+SH:Saint Helena
+GS:Sandwich Island
+BM:Bermuda
+IO:British Indian
+TH:Thailand
+XK:Kosovo
+LS:Lesotho
+BN:Brunei
+MY:Malaysia
+LU:Luxembourg
+AI:Anguilla
+VU:Vanuatu
+TV:Tuvalu
+GL:Greenland
+CK:Cook Island
+KY:Cayman Island
+FK:Falkland Island
+PN:Pitcairn Island
+TK:Tokelau
+TO:Tonga
+FR:Chamonix
+FR:Réunion
+FR:Strassburg
+FR:Strasbourg
+FR:Straßburg
+FR:Paris
+NL:Amsterdam
+NL:Rotterdam
+NL:Den Haag
+NL:The Hague
+NL:Utrecht
+NL:Eindhoven
+NL:Groningen
+NL:Beekse Bergen
+NL:Netherlands
+NL:Nederland
+NL:Nederlands
+NL:Nederlanden
+NL:Holland
+TD:Chad
+BA:Bosnia
+BA:Herzegovina
+NO:Norway
+NO:Norwegen
+MA:Morocco
+PS:State of Palestine
+PS:فلسطين
+PS:Gaza City
+PS:Gaza Strip
+PS:in Gaza
+PS:Gazans
+PS:Palestinians
+PS:Tulkarm
+PS:Tulkarem
+PS:طولكرم
+PS:Dschenin
+PS:Djenin
+PS:جنين
+PS:Al-Aqsa
+PS:المسجد
+PS:West Bank
+PS:Samaria
+PS:Judea
+PS:Nablus
+PS:Rafah
+PS:Khan Yunis
+PS:Al Mawasi
+PS:Nurseirat
+PS:Jabalia
+PS:Beit Lahia
+PS:Beit Hanoun
+PS:Tal as Sultan
+PS:Tel al-Sultan
+PS:Ramallah
+PS:Hebron
+HM:McDonald Island
+HM:Heard Island
+EU:Europe
+EU:Europa
+EU:European Union
+EU:Europäische Union
+EU:Union européenne

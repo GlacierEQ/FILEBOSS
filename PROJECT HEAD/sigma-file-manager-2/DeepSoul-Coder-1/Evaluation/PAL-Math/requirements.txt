@@ -1,0 +1,10 @@
+# PAL-Math evaluation dependencies
+sympy==1.12
+pebble>=5.0.0
+timeout-decorator>=0.5.0
+regex>=2022.1.18
+multiprocess>=0.70.14
+transformers>=4.30.0
+torch>=2.0.0
+numpy>=1.22.0
+accelerate>=0.20.0

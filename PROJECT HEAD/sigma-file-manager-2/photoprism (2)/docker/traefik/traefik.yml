@@ -1,0 +1,59 @@
+# Traefik configuration for PhotoPrism production deployment
+# This configuration provides automatic HTTPS with Let's Encrypt
+
+api:
+  dashboard: true
+  insecure: false  # Dashboard is secured via basic auth middleware
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+        options: modern
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@example.com  # Change to your email
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    swarmMode: true
+    exposedByDefault: false
+    network: photoprism_net
+
+log:
+  level: INFO
+
+accessLog: {}
+
+metrics:
+  prometheus:
+    entryPoint: metrics
+
+# Global HTTP to HTTPS redirection
+http:
+  middlewares:
+    secureHeaders:
+      headers:
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000

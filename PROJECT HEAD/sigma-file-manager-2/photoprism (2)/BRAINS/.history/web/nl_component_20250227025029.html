@@ -1,0 +1,185 @@
+<div class="card nl-organizer">
+    <div class="card-header">
+        <h3><i class="fas fa-magic"></i> Natural Language Organizer</h3>
+    </div>
+    <div class="card-body">
+        <p class="card-text">Organize files using plain English commands.</p>
+
+        <div class="form-group">
+            <label for="nlInstruction"><i class="fas fa-comment-alt"></i> Instruction:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="nlInstruction"
+                    placeholder="e.g., 'Move all PDFs to Documents folder'">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="nlOrganizeBtn">
+                        <i class="fas fa-play"></i> Organize
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="nlPath"><i class="fas fa-folder-open"></i> Path to organize:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="nlPath"
+                    placeholder="Leave empty for default safe path">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" id="nlBrowseBtn">
+                        <i class="fas fa-search"></i> Browse
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="example-commands mt-3">
+            <label><i class="fas fa-lightbulb"></i> Try these examples:</label>
+            <div class="example-buttons">
+                <button class="btn btn-sm btn-outline-info example-btn" data-example="Move all PDFs to the Documents folder">PDFs to Documents</button>
+                <button class="btn btn-sm btn-outline-info example-btn" data-example="Create folders for photos by year and month">Photos by date</button>
+                <button class="btn btn-sm btn-outline-info example-btn" data-example="Organize code files by language">Code by language</button>
+            </div>
+        </div>
+
+        <div id="nlResults" class="results-area mt-3" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Results</span>
+                        <button class="btn btn-sm btn-outline-secondary" id="nlCloseResultsBtn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="nlResultsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nl-organizer {
+        border-color: #57cbff;
+        box-shadow: 0 2px 5px rgba(87, 203, 255, 0.1);
+    }
+
+    .nl-organizer .card-header {
+        background-color: rgba(87, 203, 255, 0.1);
+        border-bottom-color: #57cbff;
+    }
+
+    .nl-organizer .card-header h3 {
+        color: #2980b9;
+        font-size: 1.25rem;
+        margin: 0;
+    }
+
+    .example-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .results-area {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .file-action {
+        padding: 4px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .file-action:last-child {
+        border-bottom: none;
+    }
+
+    .file-action .fa-check {
+        color: #27ae60;
+    }
+
+    .file-action .fa-times {
+        color: #c0392b;
+    }
+</style>
+
+<script>
+    $(document).ready(function() {
+                // Example button click
+                $('.example-btn').on('click', function() {
+                    const example = $(this).data('example');
+                    $('#nlInstruction').val(example);
+                });
+
+                // Browse button
+                $('#nlBrowseBtn').on('click', function() {
+                    // This would normally open a directory picker
+                    // In a web context, we'll use a server-side API to list available paths
+                    $.ajax({
+                        url: '/api/directories',
+                        method: 'GET',
+                        success: function(data) {
+                            // Show modal with directory options
+                            showDirectoryPicker(data.directories);
+                        },
+                        error: function(err) {
+                            showToast('Error loading directories', 'danger');
+                        }
+                    });
+                });
+
+                // Close results button
+                $('#nlCloseResultsBtn').on('click', function() {
+                    $('#nlResults').hide();
+                });
+
+                // Organize button
+                $('#nlOrganizeBtn').on('click', function() {
+                    const instruction = $('#nlInstruction').val().trim();
+                    const path = $('#nlPath').val().trim();
+
+                    if (!instruction) {
+                        showToast('Please enter an instruction', 'warning');
+                        return;
+                    }
+
+                    // Show loading state
+                    const btn = $(this);
+                    const originalText = btn.html();
+                    btn.html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+                    btn.prop('disabled', true);
+
+                    // Make API call
+                    $.ajax({
+                        url: '/api/organize',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            instruction: instruction,
+                            path: path || null
+                        }),
+                        success: function(data) {
+                            // Show results
+                            showResults(data);
+                            btn.html(originalText);
+                            btn.prop('disabled', false);
+                        },
+                        error: function(err) {
+                            showToast('Error: ' + (err.responseJSON?.detail || 'Organization failed'), 'danger');
+                            btn.html(originalText);
+                            btn.prop('disabled', false);
+                        }
+                    });
+                });
+
+                // Directory picker function
+                function showDirectoryPicker(directories) {
+                    // Create a modal dialog
+                    const modal = $(`
+                <div class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Select Directory</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">

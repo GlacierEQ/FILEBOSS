@@ -1,0 +1,64 @@
+FILE ORGANIZATION REPORT
+==================================================
+
+SUMMARY:
+Total files processed: 7
+Successfully organized: 0
+Errors: 7
+Skipped: 0
+
+CATEGORIES:
+  Business Documents: 4 files
+  Legal Documents: 3 files
+
+DETAILED OPERATIONS:
+------------------------------
+Source: test_files/meeting_notes_2024.txt
+Destination: test_files/organized_files/Business Documents/Financial/financial_final.txt
+Status: dry_run
+Category: Business Documents
+Subcategory: Financial
+Confidence: 0.46
+
+Source: test_files/financial_report_q4.txt
+Destination: test_files/organized_files/Business Documents/Financial/financial.txt
+Status: dry_run
+Category: Business Documents
+Subcategory: Financial
+Confidence: 0.53
+
+Source: test_files/presentation_slides.txt
+Destination: test_files/organized_files/Business Documents/Marketing/marketing.txt
+Status: dry_run
+Category: Business Documents
+Subcategory: Marketing
+Confidence: 0.45
+
+Source: test_files/random_document.txt
+Destination: test_files/organized_files/Business Documents/Operations/operations_draft.txt
+Status: dry_run
+Category: Business Documents
+Subcategory: Operations
+Confidence: 0.42
+
+Source: test_files/service_agreement_draft.txt
+Destination: test_files/organized_files/Legal Documents/Contract/contract_TechCorp_Solutions_L.txt
+Status: dry_run
+Category: Legal Documents
+Subcategory: Contract
+Confidence: 0.58
+
+Source: test_files/compliance_audit_report.txt
+Destination: test_files/organized_files/Legal Documents/Compliance/compliance_Assessment_Company.txt
+Status: dry_run
+Category: Legal Documents
+Subcategory: Compliance
+Confidence: 0.46
+
+Source: test_files/organized_files/organization_report.txt
+Destination: test_files/organized_files/Legal Documents/Contract/contract_draft.txt
+Status: dry_run
+Category: Legal Documents
+Subcategory: Contract
+Confidence: 0.46
+

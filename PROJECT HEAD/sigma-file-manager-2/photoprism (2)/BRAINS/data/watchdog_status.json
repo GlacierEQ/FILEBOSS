@@ -1,0 +1,8 @@
+{
+  "timestamp": 1741216826.8645396,
+  "system_healthy": true,
+  "api_server": true,
+  "file_watcher": true,
+  "database": true,
+  "safe_path": true
+}

@@ -1,0 +1,40 @@
+SAMPLE CONTRACT AGREEMENT
+
+THIS AGREEMENT is made on [DATE] between [PARTY A], located at [ADDRESS] ("Client"), and [PARTY B], located at [ADDRESS] ("Contractor").
+
+1. SERVICES
+   The Contractor agrees to perform the following services for the Client:
+   [DESCRIPTION OF SERVICES]
+
+2. TERM
+   This Agreement shall commence on [START DATE] and continue until [END DATE], unless terminated earlier in accordance with this Agreement.
+
+3. COMPENSATION
+   The Client shall pay the Contractor [AMOUNT] for the Services. Payment shall be made as follows:
+   [PAYMENT SCHEDULE]
+
+4. INDEPENDENT CONTRACTOR STATUS
+   The Contractor is an independent contractor, not an employee of the Client. The Contractor shall be responsible for all taxes and other costs related to the Contractor's business.
+
+5. CONFIDENTIALITY
+   The Contractor agrees to keep confidential all information obtained from the Client during the performance of the Services.
+
+6. INTELLECTUAL PROPERTY
+   All work product created by the Contractor in the course of performing the Services shall be the exclusive property of the Client.
+
+7. TERMINATION
+   Either party may terminate this Agreement with [NUMBER] days' written notice to the other party. Upon termination, the Contractor shall be paid for all Services performed up to the date of termination.
+
+8. GOVERNING LAW
+   This Agreement shall be governed by and construed in accordance with the laws of [STATE/COUNTRY].
+
+9. DISPUTE RESOLUTION
+   Any dispute arising out of or relating to this Agreement shall be resolved through binding arbitration in accordance with the rules of the [ARBITRATION ASSOCIATION].
+
+10. ENTIRE AGREEMENT
+    This Agreement constitutes the entire agreement between the parties and supersedes all prior agreements or understandings between them.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first above written.
+
+[PARTY A]                           [PARTY B]
+___________________________        ___________________________

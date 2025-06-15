@@ -1,0 +1,31 @@
+{
+  "model_name": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "theme": "dark",
+  "watched_directories": [],
+  "auto_analyze": false,
+  "auto_enhance": false,
+  "low_memory": false,
+  "auto_offload_to_cpu": true,
+  "memory_dump_enabled": true,
+  "ram_warning_threshold": 85,
+  "gpu_warning_threshold": 85,
+  "context_menu_enabled": false,
+  "dir_context_menu_enabled": false,
+  "auto_start": false,
+  "file_associations": {
+    "py": false,
+    "js": false,
+    "cpp": false,
+    "java": false
+  },
+  "editor": {
+    "font_family": "Consolas",
+    "font_size": 10,
+    "tab_size": 4,
+    "auto_indentation": true,
+    "highlight_current_line": true,
+    "show_line_numbers": true
+  },
+  "recent_files": [],
+  "recent_directories": []
+}

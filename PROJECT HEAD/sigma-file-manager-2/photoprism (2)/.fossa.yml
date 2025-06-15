@@ -1,0 +1,24 @@
+version: 3
+
+project:
+  name: "PhotoPrism"
+  id: "github.com/photoprism/photoprism"
+  url: "https://github.com/photoprism/photoprism"
+  link: "https://www.photoprism.app/"
+
+revision:
+  branch: "develop"
+
+paths:
+  exclude:
+    - ./.github
+    - ./assets
+    - ./build
+    - ./docker
+    - ./frontend/tests
+    - ./storage
+    - ./scripts
+    - ./test
+
+telemetry:
+  scope: "off"

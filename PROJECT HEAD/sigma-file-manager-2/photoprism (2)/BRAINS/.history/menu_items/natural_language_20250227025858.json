@@ -1,0 +1,12 @@
+{
+    "id": "nl_organizer",
+    "name": "Natural Language Organizer",
+    "description": "Organize files using plain English commands",
+    "icon": "magic",
+    "command": "python nl_gui.py",
+    "priority": 20,
+    "category": "tools",
+    "enabled": true,
+    "requires_restart": false,
+    "shortcut": "Ctrl+Shift+N"
+}

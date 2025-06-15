@@ -1,0 +1,24 @@
+.p-help .v-expansion-panel-title {
+    font-size: 0.875rem;
+    letter-spacing: normal;
+}
+
+.p-help h3 {
+    margin: 0 0 1em 0;
+    line-height: 1.25;
+    padding: 0;
+}
+
+.p-help p {
+    margin: 0 0 1em 0;
+    padding: 0;
+}
+
+.p-help a.text-link {
+    text-decoration: none;
+    color: rgb(var(--v-theme-primary, #9E7BEA)) !important;
+}
+
+.p-help a.text-link:hover {
+    text-decoration: underline !important;
+}

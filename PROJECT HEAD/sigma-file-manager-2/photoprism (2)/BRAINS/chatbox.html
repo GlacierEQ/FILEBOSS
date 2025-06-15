@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbox</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chatbox { width: 300px; height: 400px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; }
+        #userInput { width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Chat with AI</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Type your message here..." />
+    <button id="sendButton">Send</button>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        sendButton.onclick = async () => {
+            const message = userInput.value;
+            chatbox.innerHTML += `<div>User: ${message}</div>`;
+            userInput.value = '';
+
+            // Send message to the server
+            const response = await fetch('/chat/ai_interact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    queries: [{ user_input: message }],
+                    session_config: { models: ["model1", "model2"], incognito: false }
+                })
+            });
+            const data = await response.json();
+            data.responses.forEach(resp => {
+                chatbox.innerHTML += `<div>AI: ${resp.reply}</div>`;
+            });
+            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+        };
+    </script>
+</body>
+</html>

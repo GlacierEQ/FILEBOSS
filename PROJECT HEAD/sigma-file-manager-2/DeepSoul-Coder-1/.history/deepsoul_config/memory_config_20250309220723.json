@@ -1,0 +1,50 @@
+{
+  "memory_protection": {
+    "enabled": true,
+    "ram_warning_threshold": 0.85,
+    "ram_critical_threshold": 0.95,
+    "gpu_warning_threshold": 0.85,
+    "gpu_critical_threshold": 0.92,
+    "check_interval": 3.0,
+    "memory_dump_enabled": true,
+    "auto_offload_to_cpu": true,
+    "aggressive_gc": true
+  },
+  "system_specs": {
+    "total_ram_gb": 16.0,
+    "available_ram_gb": 8.0,
+    "cuda_available": true,
+    "gpu_count": 1
+  },
+  "gpus": [
+    {
+      "id": 0,
+      "name": "NVIDIA GeForce RTX 3080",
+      "total_memory_gb": 10.0,
+      "warning_threshold": 0.85,
+      "critical_threshold": 0.92,
+      "monitoring_enabled": true
+    }
+  ],
+  "model_specific": {
+    "deepseek-coder-1.3b-instruct": {
+      "max_batch_size": 16,
+      "half_precision": true,
+      "use_flash_attention": true,
+      "offload_layers": false
+    },
+    "deepseek-coder-6.7b-instruct": {
+      "max_batch_size": 4,
+      "half_precision": true,
+      "use_flash_attention": true,
+      "offload_layers": true,
+      "offload_layer_indices": [0, 1, 2, 3, 4, 5]
+    }
+  },
+  "experimental": {
+    "use_cpu_offload": true,
+    "use_disk_offload": false,
+    "use_8bit_quantization": false,
+    "use_4bit_quantization": false
+  }
+}

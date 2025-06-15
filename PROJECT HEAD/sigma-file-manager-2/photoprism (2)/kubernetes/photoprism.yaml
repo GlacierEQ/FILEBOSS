@@ -1,0 +1,316 @@
+# Kubernetes deployment for PhotoPrism with BRAINS
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: photoprism
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: photoprism
+  namespace: photoprism
+  labels:
+    app: photoprism
+    component: frontend
+spec:
+  serviceName: photoprism
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photoprism
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: photoprism
+        component: frontend
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: photoprism
+        image: photoprism/photoprism:latest-brains
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 2342
+          name: http
+        env:
+        - name: PHOTOPRISM_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: photoprism-secrets
+              key: admin_user
+        - name: PHOTOPRISM_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: photoprism-secrets
+              key: admin_password
+        - name: PHOTOPRISM_DATABASE_DRIVER
+          value: "mysql"
+        - name: PHOTOPRISM_DATABASE_SERVER
+          value: "mariadb.photoprism.svc.cluster.local:3306"
+        - name: PHOTOPRISM_DATABASE_NAME
+          value: "photoprism"
+        - name: PHOTOPRISM_DATABASE_USER
+          value: "photoprism"
+        - name: PHOTOPRISM_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: photoprism-secrets
+              key: database_password
+        - name: PHOTOPRISM_SITE_URL
+          value: "https://photos.example.com/"
+        - name: PHOTOPRISM_SITE_TITLE
+          value: "PhotoPrism"
+        - name: PHOTOPRISM_LOG_LEVEL
+          value: "info"
+        - name: PHOTOPRISM_READONLY
+          value: "false"
+        - name: PHOTOPRISM_WORKERS
+          value: "auto"
+        - name: PHOTOPRISM_EXPERIMENTAL
+          value: "true"
+        - name: PHOTOPRISM_BRAINS
+          value: "true"
+        - name: PHOTOPRISM_BRAINS_OBJECT_DETECTION
+          value: "true"
+        - name: PHOTOPRISM_BRAINS_AESTHETIC_SCORING
+          value: "true"
+        - name: PHOTOPRISM_BRAINS_SCENE_UNDERSTANDING
+          value: "true"
+        - name: TZ
+          value: "UTC"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+        volumeMounts:
+        - name: photoprism-storage
+          mountPath: /photoprism/storage
+        - name: photoprism-originals
+          mountPath: /photoprism/originals
+        - name: photoprism-import
+          mountPath: /photoprism/import
+        - name: photoprism-brains-models
+          mountPath: /photoprism/assets/brains
+        livenessProbe:
+          httpGet:
+            path: /api/v1/status
+            port: http
+          initialDelaySeconds: 90
+          periodSeconds: 60
+          timeoutSeconds: 15
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/v1/status
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+  volumeClaimTemplates:
+  - metadata:
+      name: photoprism-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: standard
+  - metadata:
+      name: photoprism-brains-models
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
+      storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: photoprism-originals-pvc
+  namespace: photoprism
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: managed-nfs
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: photoprism-import-pvc
+  namespace: photoprism
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: managed-nfs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: photoprism
+  namespace: photoprism
+  labels:
+    app: photoprism
+    component: frontend
+spec:
+  ports:
+  - port: 2342
+    targetPort: 2342
+    protocol: TCP
+    name: http
+  selector:
+    app: photoprism
+    component: frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: photoprism
+  namespace: photoprism
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+spec:
+  tls:
+  - hosts:
+    - photos.example.com
+    secretName: photoprism-tls
+  rules:
+  - host: photos.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: photoprism
+            port:
+              number: 2342
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb
+  namespace: photoprism
+  labels:
+    app: photoprism
+    component: database
+spec:
+  serviceName: mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photoprism
+      component: database
+  template:
+    metadata:
+      labels:
+        app: photoprism
+        component: database
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+      - name: mariadb
+        image: mariadb:10.10
+        ports:
+        - containerPort: 3306
+          name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: photoprism-secrets
+              key: mysql_root_password
+        - name: MYSQL_DATABASE
+          value: "photoprism"
+        - name: MYSQL_USER
+          value: "photoprism"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: photoprism-secrets
+              key: database_password
+        args:
+        - --innodb-buffer-pool-size=512M
+        - --transaction-isolation=READ-COMMITTED
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_unicode_ci
+        - --max-connections=512
+        - --innodb-rollback-on-timeout=OFF
+        - --innodb-lock-wait-timeout=120
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2"
+        volumeMounts:
+        - name: mariadb-data
+          mountPath: /var/lib/mysql
+        livenessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-h", "localhost"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-h", "localhost"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+  volumeClaimTemplates:
+  - metadata:
+      name: mariadb-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  namespace: photoprism
+  labels:
+    app: photoprism
+    component: database
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+    protocol: TCP
+    name: mysql
+  selector:
+    app: photoprism
+    component: database
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: photoprism-secrets
+  namespace: photoprism
+type: Opaque
+stringData:
+  admin_user: admin
+  admin_password: change-me-now
+  mysql_root_password: change-me-now
+  database_password: change-me-now

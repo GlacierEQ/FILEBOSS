@@ -1,0 +1,147 @@
+# Production Docker Compose configuration for PhotoPrism with BRAINS
+version: '3.8'
+
+networks:
+  photoprism_net:
+    name: photoprism_net
+
+services:
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    depends_on:
+      - db
+      - brains
+    restart: unless-stopped
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    networks:
+      - photoprism_net
+    ports:
+      - "${PHOTOPRISM_PORT:-2342}:2342" # HTTP port
+    environment:
+      PHOTOPRISM_ADMIN_USER: "${PHOTOPRISM_ADMIN_USER:-admin}"
+      PHOTOPRISM_ADMIN_PASSWORD: "${PHOTOPRISM_ADMIN_PASSWORD:-insecure}" # Initial password
+      PHOTOPRISM_AUTH_MODE: "${PHOTOPRISM_AUTH_MODE:-password}"
+      PHOTOPRISM_SITE_URL: "${PHOTOPRISM_SITE_URL:-http://localhost:2342}"
+      PHOTOPRISM_SITE_TITLE: "${PHOTOPRISM_SITE_TITLE:-PhotoPrism}"
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "db:3306"
+      PHOTOPRISM_DATABASE_NAME: "photoprism"
+      PHOTOPRISM_DATABASE_USER: "photoprism"
+      PHOTOPRISM_DATABASE_PASSWORD: "${MYSQL_PASSWORD:-photoprism}"
+      PHOTOPRISM_BRAINS_SERVER: "http://brains:8000"
+      PHOTOPRISM_DISABLE_TLS: "${PHOTOPRISM_DISABLE_TLS:-false}"
+      PHOTOPRISM_DISABLE_CHOWN: "${PHOTOPRISM_DISABLE_CHOWN:-false}"
+      PHOTOPRISM_DISABLE_WEBDAV: "${PHOTOPRISM_DISABLE_WEBDAV:-false}"
+      PHOTOPRISM_DISABLE_SETTINGS: "${PHOTOPRISM_DISABLE_SETTINGS:-false}"
+      PHOTOPRISM_DISABLE_BACKUPS: "${PHOTOPRISM_DISABLE_BACKUPS:-false}"
+      PHOTOPRISM_DISABLE_EXIFTOOL: "${PHOTOPRISM_DISABLE_EXIFTOOL:-false}"
+      PHOTOPRISM_DISABLE_PLACES: "${PHOTOPRISM_DISABLE_PLACES:-false}"
+      PHOTOPRISM_DISABLE_TENSORFLOW: "${PHOTOPRISM_DISABLE_TENSORFLOW:-false}"
+      PHOTOPRISM_DISABLE_FACES: "${PHOTOPRISM_DISABLE_FACES:-false}"
+      PHOTOPRISM_DISABLE_CLASSIFICATION: "${PHOTOPRISM_DISABLE_CLASSIFICATION:-false}"
+      PHOTOPRISM_DETECT_NSFW: "${PHOTOPRISM_DETECT_NSFW:-false}"
+      PHOTOPRISM_UPLOAD_NSFW: "${PHOTOPRISM_UPLOAD_NSFW:-true}"
+      PHOTOPRISM_LOG_LEVEL: "${PHOTOPRISM_LOG_LEVEL:-info}"
+      PHOTOPRISM_READONLY: "${PHOTOPRISM_READONLY:-false}"
+      PHOTOPRISM_EXPERIMENTAL: "${PHOTOPRISM_EXPERIMENTAL:-false}"
+      PHOTOPRISM_WORKERS: "${PHOTOPRISM_WORKERS:-3}" # Automatic
+      PHOTOPRISM_THUMB_SIZE: "${PHOTOPRISM_THUMB_SIZE:-2048}"
+      PHOTOPRISM_THUMB_LIMIT: "${PHOTOPRISM_THUMB_LIMIT:-1000}"
+      PHOTOPRISM_THUMB_UNCACHED: "${PHOTOPRISM_THUMB_UNCACHED:-false}"
+      PHOTOPRISM_JPEG_QUALITY: "${PHOTOPRISM_JPEG_QUALITY:-85}"
+    volumes:
+      - "${PHOTOPRISM_STORAGE_PATH:-./storage}:/photoprism/storage"
+      - "${PHOTOPRISM_ORIGINALS_PATH:-./originals}:/photoprism/originals"
+      - "${PHOTOPRISM_IMPORT_PATH:-./import}:/photoprism/import"
+    deploy:
+      resources:
+        limits:
+          cpus: "${PHOTOPRISM_CPU_LIMIT:-2}"
+          memory: "${PHOTOPRISM_MEMORY_LIMIT:-2G}"
+        reservations:
+          cpus: "${PHOTOPRISM_CPU_RESERVATION:-0.5}"
+          memory: "${PHOTOPRISM_MEMORY_RESERVATION:-512M}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:2342/api/v1/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  brains:
+    image: photoprism/brains:latest
+    container_name: photoprism_brains
+    restart: unless-stopped
+    networks:
+      - photoprism_net
+    environment:
+      BRAINS_LOG_LEVEL: "${BRAINS_LOG_LEVEL:-info}"
+      BRAINS_WORKERS: "${BRAINS_WORKERS:-2}"
+      BRAINS_READ_TIMEOUT: "${BRAINS_READ_TIMEOUT:-60s}"
+      BRAINS_WRITE_TIMEOUT: "${BRAINS_WRITE_TIMEOUT:-60s}"
+    volumes:
+      - "${PHOTOPRISM_STORAGE_PATH:-./storage}/brains:/brains/data"
+    deploy:
+      resources:
+        limits:
+          cpus: "${BRAINS_CPU_LIMIT:-1}"
+          memory: "${BRAINS_MEMORY_LIMIT:-1G}"
+        reservations:
+          cpus: "${BRAINS_CPU_RESERVATION:-0.2}"
+          memory: "${BRAINS_MEMORY_RESERVATION:-256M}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/status" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: mariadb:10.11
+    container_name: photoprism_db
+    restart: unless-stopped
+    networks:
+      - photoprism_net
+    command: mariadbd --innodb-buffer-pool-size=${DB_BUFFER_POOL_SIZE:-256M} --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
+      MARIADB_INITDB_SKIP_TZINFO: "1"
+      MARIADB_DATABASE: "photoprism"
+      MARIADB_USER: "photoprism"
+      MARIADB_PASSWORD: "${MYSQL_PASSWORD:-photoprism}"
+      MARIADB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-photoprism}"
+    volumes:
+      - "${PHOTOPRISM_DATABASE_PATH:-./database}:/var/lib/mysql"
+    deploy:
+      resources:
+        limits:
+          cpus: "${DB_CPU_LIMIT:-1}"
+          memory: "${DB_MEMORY_LIMIT:-1G}"
+        reservations:
+          cpus: "${DB_CPU_RESERVATION:-0.2}"
+          memory: "${DB_MEMORY_RESERVATION:-256M}"
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: photoprism_redis
+    restart: unless-stopped
+    networks:
+      - photoprism_net
+    volumes:
+      - "${PHOTOPRISM_REDIS_PATH:-./redis}:/data"
+    deploy:
+      resources:
+        limits:
+          cpus: "${REDIS_CPU_LIMIT:-0.5}"
+          memory: "${REDIS_MEMORY_LIMIT:-256M}"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3

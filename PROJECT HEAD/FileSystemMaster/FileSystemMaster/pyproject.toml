@@ -1,0 +1,18 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.52.1",
+    "logger>=1.4",
+    "mem0ai>=0.1.102",
+    "mutagen>=1.47.0",
+    "notion-client>=2.3.0",
+    "openai>=1.82.1",
+    "opencv-python>=4.11.0.86",
+    "pdfplumber>=0.11.6",
+    "pypdf2>=3.0.1",
+    "python-docx>=1.1.2",
+    "requests>=2.32.3",
+]

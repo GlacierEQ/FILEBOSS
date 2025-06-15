@@ -1,0 +1,115 @@
+# PhotoPrism Production Dockerfile with BRAINS integration
+# Multi-stage build for optimized production deployment
+
+# Stage 1: Build environment
+FROM golang:1.20-bullseye as builder
+
+# Set build arguments
+ARG TARGETARCH=amd64
+ARG BUILD_TAG=production
+ARG PHOTOPRISM_VERSION="development"
+
+# Set up working directory
+WORKDIR /go/src/github.com/photoprism/photoprism
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libx264-dev \
+    libleptonica-dev \
+    libtesseract-dev \
+    libheif-dev \
+    libvips-dev \
+    libopenblas-dev \
+    libtensorflow-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy source code
+COPY . .
+
+# Build the application with BRAINS support
+RUN make all BRAINS=true GOARCH=$TARGETARCH BUILD_TAG=$BUILD_TAG VERSION=$PHOTOPRISM_VERSION
+
+# Stage 2: Runtime environment
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    TF_CPP_MIN_LOG_LEVEL=2 \
+    PHOTOPRISM_ARCH=amd64 \
+    PHOTOPRISM_STORAGE_PATH="/photoprism/storage" \
+    PHOTOPRISM_ORIGINALS_PATH="/photoprism/originals" \
+    PHOTOPRISM_IMPORT_PATH="/photoprism/import" \
+    PHOTOPRISM_LOG_LEVEL="info" \
+    PHOTOPRISM_READONLY="false" \
+    PHOTOPRISM_BRAINS="true" \
+    PHOTOPRISM_EXPERIMENTAL="true" \
+    PHOTOPRISM_BRAINS_OBJECT_DETECTION="true" \
+    PHOTOPRISM_BRAINS_AESTHETIC_SCORING="true" \
+    PHOTOPRISM_BRAINS_SCENE_UNDERSTANDING="true" \
+    PHOTOPRISM_HTTP_MODE="release"
+
+# Copy artifacts from builder stage
+COPY --from=builder /go/src/github.com/photoprism/photoprism/assets /photoprism/assets
+COPY --from=builder /go/src/github.com/photoprism/photoprism/bin /photoprism/bin
+COPY --from=builder /go/src/github.com/photoprism/photoprism/scripts /photoprism/scripts
+COPY --from=builder /go/src/github.com/photoprism/photoprism/docker/entrypoint.sh /photoprism/entrypoint.sh
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
+    ca-certificates \
+    libheif1 \
+    libvips42 \
+    libx264-163 \
+    libtesseract4 \
+    ffmpeg \
+    libopenblas0 \
+    libtensorflow2 \
+    curl \
+    wget \
+    gnupg \
+    supervisor \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && chmod +x /photoprism/entrypoint.sh \
+    && mkdir -p \
+    /photoprism/originals \
+    /photoprism/import \
+    /photoprism/storage \
+    /photoprism/cache \
+    /photoprism/logs \
+    /photoprism/assets/brains
+
+# Create non-root user
+RUN groupadd -r photoprism && useradd -r -g photoprism photoprism
+RUN chown -R photoprism:photoprism /photoprism
+
+# Create directory for BRAINS models and download them
+COPY --from=builder /go/src/github.com/photoprism/photoprism/scripts/download-brains.sh /photoprism/scripts/download-brains.sh
+RUN chmod +x /photoprism/scripts/download-brains.sh && \
+    cd /photoprism && \
+    ./scripts/download-brains.sh
+
+# Setup supervisor config for process management
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/supervisor/photoprism.conf /etc/supervisor/conf.d/photoprism.conf
+
+# Set working directory
+WORKDIR /photoprism
+
+# Expose ports
+EXPOSE 2342 2343
+
+# Set default volumes
+VOLUME ["/photoprism/storage", "/photoprism/originals", "/photoprism/import"]
+
+# Configure healthcheck
+HEALTHCHECK --interval=60s --timeout=15s --start-period=90s --retries=3 \
+    CMD curl -f http://localhost:2342/api/v1/status || exit 1
+
+# Switch to non-root user
+USER photoprism
+
+# Set entrypoint
+ENTRYPOINT ["/photoprism/entrypoint.sh"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

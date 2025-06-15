@@ -1,0 +1,125 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyTorch/DeepSeek-Coder specific
+models/
+models-backup/
+*.pt
+*.pth
+*.bin
+*.gguf
+*.ckpt
+*.safetensors
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Jupyter Notebook
+.ipynb_checkpoints
+notebooks/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+data/
+logs/
+runs/
+cache/
+.transformers_cache/
+transformers_cache/
+
+# Production
+.secrets/
+ssl/
+*.pem
+*.key
+*.crt
+api_keys.txt
+.tokens
+.api_keys
+nginx/ssl/
+
+# Elasticsearch
+elasticsearch/data/
+esdata/
+
+# Docker
+.dockerignore
+
+# Documentation
+docs/build/
+site/
+
+# Backup files
+*.bak
+*.tmp
+*.backup
+*.old
+*.swp
+*~
+
+# Large files
+*.csv
+*.sqlite
+*.db
+*.hdf5
+*.h5
+*.parquet
+*.gz
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.7z
+*.rar
+
+# Monitoring
+monitoring/grafana/data/
+prometheus/data/
+
+# Generated files
+.generated/
+generated/
+output/

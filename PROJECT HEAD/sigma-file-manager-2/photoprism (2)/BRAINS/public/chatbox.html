@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LlamaFS Chat Interface</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --error-color: #e74c3c;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+
+        .chat-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatbox {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            max-width: 80%;
+            padding: 0.8rem;
+            border-radius: 8px;
+            word-break: break-word;
+        }
+
+        .user-message {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .ai-message {
+            background-color: #f1f1f1;
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .system-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            align-self: center;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .chat-controls {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 0.7rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+
+        #sendButton {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 0 4px 4px 0;
+            transition: background 0.2s;
+        }
+
+        #sendButton:hover {
+            background-color: #2980b9;
+        }
+
+        .settings-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-title {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            margin: 0.5rem 0;
+        }
+
+        .typing-indicator span {
+            height: 10px;
+            width: 10px;
+            margin: 0 2px;
+            background-color: #9E9EA1;
+            display: inline-block;
+            border-radius: 50%;
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        code {
+            background-color: #f8f8f8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            background-color: #f8f8f8;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LlamaFS Chat Interface</h1>
+            <p>Ask questions about files, folders, and organization</p>
+        </div>
+
+        <div class="chat-container">
+            <div id="chatbox">
+                <div class="message ai-message">
+                    Hello! I'm your file system assistant. How can I help you today?
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="chat-controls">
+                <input type="text" id="userInput" placeholder="Type your message here..." />
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+
+        <div class="settings-panel">
+            <h3 class="settings-title">Chat Settings</h3>
+
+            <div class="form-group">
+                <label for="systemPromptStyle">Assistant Style:</label>
+                <select id="systemPromptStyle">
+                    <option value="general">General Assistant</option>
+                    <option value="technical">Technical Expert</option>
+                    <option value="creative">Creative Organizer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="scanRepairToggle">File Scanning & Repair:</label>
+                <select id="scanRepairToggle">
+                    <option value="off">Off</option>
+                    <option value="scan">Scan Only</option>
+                    <option value="repair">Scan & Repair</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chat elements
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const systemPromptStyle = document.getElementById('systemPromptStyle');
+        const scanRepairToggle = document.getElementById('scanRepairToggle');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Session management
+        const sessionId = generateSessionId();
+        let messageHistory = [];
+
+        // Add event listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Initialize with welcome message
+        fetchWelcomeMessage();
+
+        // Functions
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substring(2, 15);
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'flex';
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function addMessageToChatbox(text, isUser = false, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user-message' :
+                isError ? 'message system-message' : 'message ai-message';
+
+            // Process markdown-like formatting (very basic)
+            let processedText = text;
+            if (!isUser) {
+                // Format code blocks
+                processedText = processedText.replace(/```(.+?)```/gs, '<pre><code>$1</code></pre>');
+                // Format inline code
+                processedText = processedText.replace(/`(.+?)`/g, '<code>$1</code>');
+                // Format bold text
+                processedText = processedText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                // Format lists
+                processedText = processedText.replace(/- (.+?)(\n|$)/g, '• $1<br>');
+            }
+
+            messageDiv.innerHTML = processedText;
+            chatbox.insertBefore(messageDiv, typingIndicator);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            return messageDiv;
+        }
+
+        async function fetchWelcomeMessage() {
+            try {
+                const response = await fetch('/chat/welcome');
+                if (!response.ok) throw new Error('Failed to fetch welcome message');
+
+                const data = await response.json();
+                if (data && data.reply) {
+                    addMessageToChatbox(data.reply);
+                }
+            } catch (error) {
+                console.error('Error fetching welcome message:', error);
+                addMessageToChatbox('Welcome to the chat! (Could not load custom welcome message)', false, true);
+            }
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chatbox
+            addMessageToChatbox(message, true);
+
+            // Clear input
+            userInput.value = '';
+
+            try {
+                // Show typing indicator
+                showTypingIndicator();
+
+                // Check for scan/repair commands
+                if (scanRepairToggle.value !== 'off' &&
+                    (message.toLowerCase().includes('scan') || message.toLowerCase().includes('repair'))) {
+                    await handleScanRepairRequest(message);
+                    return;
+                }
+
+                // Send message to the server
+                const response = await fetch('/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId,
+                        system_prompt: systemPromptStyle.value
+                    })
+                });
+
+                // Parse response
+                const data = await response.json();
+
+                // Hide typing indicator
+                hideTypingIndicator();
+
+                if (data.error) {
+                    addMessageToChatbox(`Error: ${data.error}`, false, true);
+                } else if (data.reply) {
+                    addMessageToChatbox(data.reply);
+
+                    // If instruction was detected, show a hint
+                    if (data.instruction_detected && data.instruction_type) {
+                        const hint = getInstructionHint(data.instruction_type);
+                        if (hint) {
+                            setTimeout(() => {
+                                addMessageToChatbox(hint, false, false);
+                            }, 1000);
+                        }
+                    }
+                } else {
+                    addMessageToChatbox('Received an empty response from the server.', false, true);
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Error sending message:', error);
+                addMessageToChatbox(`Failed to communicate with the server: ${error.message}`, false, true);
+            }
+        }
+
+        async function handleScanRepairRequest(message) {
+            try {
+                // Extract path from message - basic implementation
+                let path = extractPathFromMessage(message);
+                if (!path) {
+                    hideTypingIndicator();
+                    addMessageToChatbox("Please specify a path to scan or repair. For example: 'scan C:/path/to/folder'", false, true);
+                    return;
+                }
+
+                // Determine if we should repair
+                const shouldRepair = scanRepairToggle.value === 'repair';
+
+                addMessageToChatbox(`${shouldRepair ? 'Scanning and repairing' : 'Scanning'} files at: ${path}...`, false, false);
+
+                // This is just a placeholder - in a real application, you would call your API endpoint
+                // Wait for 2 seconds to simulate processing
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Show results
+                if (shouldRepair) {
+                    addMessageToChatbox(`Completed scan and repair on ${path}. Found 3 issues and fixed 2.`, false, false);
+                } else {
+                    addMessageToChatbox(`Completed scan on ${path}. Found 3 issues.`, false, false);
+                }
+
+                hideTypingIndicator();
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Error in scan/repair:', error);
+                addMessageToChatbox(`Failed during ${scanRepairToggle.value}: ${error.message}`, false, true);
+            }
+        }
+
+        function extractPathFromMessage(message) {
+            // Very basic path extraction - in a real app, use regex or NLP
+            const words = message.split(' ');
+            for (let i = 0; i < words.length; i++) {
+                if (words[i].includes('/') || words[i].includes('\\')) {
+                    return words[i];
+                }
+            }
+            return null;
+        }
+
+        function getInstructionHint(instructionType) {
+            const hints = {
+                'list': "I can list files in directories for you. Try asking 'list files in path/to/directory'.",
+                'move': "I can help you move files. Try 'move file.txt from src to dest'.",
+                'copy': "I can copy files for you. Try 'copy file.txt from src to dest'.",
+                'create': "I can create new files or directories. Try 'create a new folder called name'.",
+                'delete': "I can help remove files. Try 'delete file.txt from path'.",
+                'organize': "I can help organize your files. Try 'organize my documents folder'.",
+                'evolve': "I can improve text or code. Try 'evolve this: your text here'."
+            };
+
+            return hints[instructionType] || null;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+version: '3.5'
+
+services:
+  photoprism:
+    # Use photoprism-brains image for BRAINS support
+    image: photoprism/photoprism:latest
+    # If using a custom build with BRAINS
+    build:
+      context: ..
+      dockerfile: docker/photoprism/Dockerfile
+    depends_on:
+      - mariadb
+    # ...existing code...
+    environment:
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "mariadb:3306"
+      # ...existing code...
+      # BRAINS configuration
+      PHOTOPRISM_EXPERIMENTAL: "true"
+      PHOTOPRISM_BRAINS: "true"
+      PHOTOPRISM_BRAINS_OBJECT_DETECTION: "true"
+      PHOTOPRISM_BRAINS_AESTHETIC_SCORING: "true"
+      PHOTOPRISM_BRAINS_SCENE_UNDERSTANDING: "true"
+    # ...existing code...
+    volumes:
+      # ...existing code...
+      # Separate volume for BRAINS models to optimize rebuilds
+      - "./brains-models:/photoprism/assets/brains"
+    # ...existing code...
+
+    # ...existing code...

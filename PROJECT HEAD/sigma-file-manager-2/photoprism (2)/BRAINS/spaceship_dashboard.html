@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Hat Command Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a192f;
+            --primary-light: #172a45;
+            --accent-green: #64ffda;
+            --accent-blue: #57cbff;
+            --text-bright: #e6f1ff;
+            --text-muted: #8892b0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --success: #06d6a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-bright);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(100, 255, 218, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(87, 203, 255, 0.05) 0%, transparent 30%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--accent-blue);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-blue));
+            animation: scanline 4s linear infinite;
+            box-shadow: 0 0 8px var(--accent-blue);
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--accent-green);
+            margin-right: 15px;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
+        }
+
+        .title-container h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .title-container p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .status-panel {
+            display: flex;
+            align-items: center;
+            padding: 8px 20px;
+            border-radius: 50px;
+            background-color: var(--primary-light);
+            border: 1px solid var(--accent-blue);
+            box-shadow: 0 0 15px rgba(87, 203, 255, 0.2);
+        }
+
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-healthy {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-warning {
+            background-color: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
+        }
+
+        .status-danger {
+            background-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .main-panel {
+            grid-column: span 8;
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .side-panel {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .module {
+            background-color: var(--primary-light);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .module::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--accent-green), var(--accent-blue));
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .module-title {
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .module-title i {
+            font-size: 1.2rem;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: transparent;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn:hover {
+            background-color: rgba(87, 203, 255, 0.1);
+            box-shadow: 0 0 10px rgba(87, 203, 255, 0.2);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: var(--primary-dark);
+        }
+
+        .btn-primary:hover {
+            background-color: #78d5ff;
+            color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: var(--primary-dark);
+        }
+
+        .btn-success:hover {
+            background-color: #07eab0;
+            border-color: #07eab0;
+        }
+
+        .system-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: rgba(23, 42, 69, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(87, 203, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .metric-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--accent-blue);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .dial-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .dial {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .dial-background {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: rgba(23, 42, 69, 0.7);
+            border: 3px solid #233554;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .dial-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
+            background-color: var(--accent-green);
+            opacity: 0.3;
+            transform: rotate(0deg);
+            transform-origin: center center;
+            transition: transform 1s ease;
+        }
+
+        .dial-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background-color: var(--primary-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        .dial-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .dial-unit {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .dial-tick {
+            position: absolute;
+            width: 2px;
+            height: 6px;
+            background-color: var(--text-muted);
+            transform-origin: center 60px;
+            top: calc(50% - 60px);
+            left: calc(50% - 1px);
+        }
+
+        .dial-tick.major {
+            height: 10px;
+            width: 3px;
+            background-color: var(--text-bright);
+        }
+
+        .dial-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .dial-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 50%;
+            background: linear-gradient(to top, var(--accent-green), transparent);
+            transform-origin: bottom center;
+            transform: rotate(0deg);
+            border-radius: 50% 50% 0 0;
+            z-index: 3;
+            transition: transform 1s ease;
+        }
+
+        .dial-needle::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--accent-green);
+        }
+
+        .system-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .status-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: rgba(23, 42, 69, 0.7);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .status-item.active {
+            border-left-color: var(--success);
+            box-shadow: 0 0 5px rgba(6, 214, 160, 0.3);
+        }
+
+        .status-item.inactive {
+            border-left-color: var(--danger);
+            box-shadow: 0 0 5px rgba(239, 71, 111, 0.3);
+        }
+
+        .status-item.warning {
+            border-left-color: var(--warning);
+            box-shadow: 0 0 5px rgba(255, 209, 102, 0.3);
+        }
+
+        .status-item-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-item-icon {
+            color: var(--accent-blue);
+            font-size: 1rem;
+        }
+
+        .status-item-text {
+            font-weight: 500;
+        }
+
+        .status-item-value {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-running {
+            background-color: rgba(6, 214, 160, 0.15);
+            color: var(--success);
+        }
+
+        .status-stopped {
+            background-color: rgba(239, 71, 111, 0.15);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 209, 102, 0.15);
+            color: var(--warning);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #233554;
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--text-bright);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--accent-green);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .control-item {
+            background-color: rgba(23, 42, 69, 0.7);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(87, 203, 255, 0.1);
+        }
+
+        .control-label {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-icon {
+            color: var(--accent-blue);
+            font-size: 1rem;
+        }
+
+        .logs-container {
+            height: 300px;
+            overflow-y: auto;
+            background-color: #0d1b2a;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #8892b0;
+        }
+
+        .logs-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb {
+            background-color: rgba(87, 203, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .logs-container::-webkit-scrollbar-track {
+            background-color: #0d1b2a;
+        }
+
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(87, 203, 255, 0.05);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-timestamp {
+            color: var(--accent-green);
+            margin-right: 10px;
+        }
+
+        .log-type-info {
+            color: var(--accent-blue);
+        }
+
+        .log-type-warning {
+            color: var(--warning);
+        }
+
+        .log-type-error {
+            color: var(--danger);
+        }
+
+        .log-message {
+            color: var(--text-bright);
+        }
+
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .settings-label {
+            font-weight: 500;
+        }
+
+        .settings-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .folder-selection {
+            background-color: rgba(23, 42, 69, 0.7);
+            border: 1px solid rgba(87, 203, 255, 0.2);
+            border-radius: 4px;
+            padding: 8px 10px;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .folder-path {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+        }
+
+        .folder-browse {
+            color: var(--accent-blue);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .space-radar {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            background-color: rgba(10, 25, 47, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .radar-scan {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(0 0, 50% 0, 50% 50%);
+            background: radial-gradient(circle, rgba(100, 255, 218, 0.3) 0%, transparent 70%);
+            animation: radarScan 4s linear infinite;
+            transform-origin: bottom right;
+        }
+
+        .radar-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(87, 203, 255, 0.3);
+        }
+
+        .radar-ring-1 {
+            width: 30%;
+            height: 30%;
+        }
+
+        .radar-ring-2 {
+            width: 60%;
+            height: 60%;
+        }
+
+        .radar-center {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            z-index: 2;
+        }
+
+        @keyframes radarScan {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 1200px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-panel, .side-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .system-metrics, .system-status {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="title-container">
+                    <h1>Sorting Hat Command Center</h1>
+                    <p>Automated File Organization System</p>
+                </div>
+            </div>
+            
+            <div class="status-panel">
+                <div class="status-indicator status-healthy" id="systemStatusIndicator"></div>
+                <span id="systemStatusText">System Online</span>
+            </div>
+        </div>
+        
+        <div class="grid-container">
+            <div class="main-panel">
+                <div class="module">
+                    <div class="module-header">
+                        <h2 class="module-title">
+                            <i class="fas fa-chart-line"></i>
+                            System Metrics
+                        </h2>
+                        <div class="module-actions">
+                            <button class="btn" id="refreshMetricsBtn">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="system-metrics">
+                        <div class="metric-card">
+                            <i class="fas fa-microchip metric-icon"></i>
+                            <div class="dial-container">
+                                <div class="dial">
+                                    <div class="dial-background">
+                                        <div class="dial-fill" id="cpuDialFill"></div>
+                                        <div class="dial-center">
+                                            <div>
+                                                <span class="dial-text" id="cpuText">0</span>
+                                                <span class="dial-unit">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="dial-needle" id="cpuNeedle"></div>
+                                        <!-- Ticks will be added by JS -->
+                                    </div>
+                                </div>
+                                <div class="dial-label">CPU Usage</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <i class="fas fa-memory metric-icon"></i>
+                            <div class="dial-container">
+                                <div class="dial">
+                                    <div class="dial-background">
+                                        <div class="dial-fill" id="memoryDialFill"></div>
+                                        <div class="dial-center">
+                                            <div>
+                                                <span class="dial-text" id="memoryText">0</span>
+                                                <span class="dial-unit">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="dial-needle" id="memoryNeedle"></div>
+                                        <!-- Ticks will be added by JS -->
+                                    </div>
+                                </div>
+                                <div class="dial-label">Memory Usage</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <i class="fas fa-folder-open metric-icon"></i>
+                            <div class="dial-container">
+                                <div class="dial">
+                                    <div class="dial-background">
+                                        <div class="dial-fill" id="diskDialFill"></div>
+                                        <div class="dial-center">
+                                            <div>
+                                                <span class="dial-text" id="diskText">0</span>
+                                                <span class="dial-unit">GB</span>
+                                            </div>
+                                        </div>
+                                        <div class="dial-needle" id="diskNeedle"></div>
+                                        <!-- Ticks will be added by JS -->
+                                    </div>
+                                </div>
+                                <div class="dial-label">Disk Space</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <i class="fas fa-file-import metric-icon"></i>
+                            <div class="metric-value" id="processedFilesValue">0</div>
+                            <div class="metric-label">Files Processed</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="module">
+                    <div class="module-header">
+                        <h2 class="module-title">
+                            <i class="fas fa-satellite"></i>
+                            System Status
+                        </h2>
+                        <div class="module-actions">
+                            <button class="btn" id="refreshStatusBtn">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="system-status">
+                        <div class="status-group">
+                            <div class="status-item active">
+                                <div class="status-item-label">
+                                    <i class="fas fa-server status-item-icon"></i>
+                                    <span class="status-item-text">API Server</span>
+                                </div>
+                                <div class="status-item-value status-running" id="apiServerStatus">RUNNING</div>
+                            </div>
+                            
+                            <div class="status-item active">
+                                <div class="status-item-label">
+                                    <i class="fas fa-eye status-item-icon"></i>
+                                    <span class="status-item-text">File Watcher</span>
+                                </div>
+                                <div class="status-item-value status-running" id="watcherStatus">RUNNING</div>
+                            </div>
+                            
+                            <div class="status-item active">
+                                <div class="status-item-label">
+                                    <i class="fas fa-database status-item-icon"></i>
+                                    <span class="status-item-text">Database</span>
+                                </div>
+                                <div class="status-item-value status-running" id="databaseStatus">RUNNING</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-group">
+                            <div class="status-item active">
+                                <div class="status-item-label">
+                                    <i class="fas fa-brain status-item-icon"></i>
+                                    <span class="status-item-text">Evolution System</span>
+                                </div>
+                                <div class="status-item-value status-running" id="evolutionStatus">ACTIVE</div>
+                            </div>
+                            
+                            <div class="status-item active">
+                                <div class="status-item-label">
+                                    <i class="fas fa-shield-alt status-item-icon"></i>
+                                    <span class="status-item-text">Safe Path Protection</span>
+                                </div>
+                                <div class="status-item-value status-running" id="safePathStatus">ENABLED</div>
+                            </div>
+                            
+                            <div class="status-item active">
+                                <div class="status-item-label">
+                                    <i class="fas fa-cog status-item-icon"></i>
+                                    <span class="status-item-text">Windows Service</span>
+                                </div>
+                                <div class="status-item-value status-running" id="serviceStatus">RUNNING</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="side-panel">
+                <div class="module">
+                    <div class="module-header">
+                        <h2 class="module-title">
+                            <i class="fas fa-sliders-h"></i>
+                            Controls
+                        </h2>
+                    </div>
+                    
+                    <div class="control-panel">
+                        <div class="control-item">
+                            <div class="control-label">
+                                <i class="fas fa-power-off control-icon"></i>
+                                <span>Service Status</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="serviceToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <i class="fas fa-eye control-icon"></i>
+                                <span>File Watcher</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="watcherToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <i class="fas fa-brain control-icon"></i>
+                                <span>Evolution System</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="evolutionToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <i class="fas fa-shield-alt control-icon"></i>
+                                <span>GitHub Protection</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="githubProtectionToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div class="control-label">
+                                <i class="fas fa-bolt control-icon"></i>
+                                <span>Auto-Start</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoStartToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="module">
+                    <div class="module-header">
+                        <h2 class="module-title">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </h2>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Safe Path</div>
+                            <div class="settings-desc">Directory monitored for automatic organization</div>
+                            <div class="folder-selection">
+                                <div class="folder-path" id="safePath">C:/Users/casey/OrganizeFolder</div>
+                                <div class="folder-browse"><i class="fas fa-folder-open"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Scan Interval</div>
+                            <div class="settings-desc">How frequently to check for new files</div>
+                        </div>
+                        <div>
+                            <select class="btn" id="scanInterval">
+                                <option value="5">5 seconds</option>
+                                <option value="15">15 seconds</option>
+                                <option value="30" selected>30 seconds</option>
+                                <option value="60">1 minute</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Sorting Mode</div>
+                            <div class="settings-desc">How aggressively to organize files</div>
+                        </div>
+                        <div>
+                            <select class="btn" id="sortingMode">
+                                <option value="conservative">Conservative</option>
+                                <option value="balanced" selected>Balanced</option>
+                                <option value="aggressive">Aggressive</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="module-actions" style="text-align: right; margin-top: 15px;">
+                        <button class="btn btn-primary" id="saveSettingsBtn">
+                            <i class="fas fa-save"></i>
+                            Save Settings
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="module">
+                    <div class="module-header">
+                        <h2 class="module-title">
+                            <i class="fas fa-rocket"></i>
+                            Quick Actions
+                        </h2>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn" id="triggerEvolutionBtn">
+                            <i class="fas fa-dna"></i>
+                            Trigger Evolution
+                        </button>
+                        <button class="btn" id="scanFolderBtn">
+                            <i class="fas fa-search"></i>
+                            Scan Folder
+                        </button>
+                        <button class="btn" id="generateReportBtn">
+                            <i class="fas fa-file-alt"></i>
+                            Generate Report
+                        </button>
+                        <button class="btn" id="resetSystemBtn">
+                            <i class="fas fa-redo-alt"></i>
+                            Reset System
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="module" style="margin-top: 20px;">
+            <div class="module-header">
+                <h2 class="module-title">
+                    <i class="fas fa-terminal"></i>
+                    System Logs
+                </h2>
+                <div class="module-actions">
+                    <button class="btn" id="clearLogsBtn">
+                        <i class="fas fa-trash"></i>
+                        Clear
+                    </button>
+                    <button class="btn" id="refreshLogsBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <div class="logs-container" id="logsContainer">
+                <!-- Logs will be inserted by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Radar Animation -->
+        <div class="space-radar">
+            <div class="radar-scan"></div>
+            <div class="radar-ring radar-ring-1"></div>
+            <div class="radar-ring radar-ring-2"></div>
+            <div class="radar-center"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const cpuDialFill = document.getElementById('cpuDialFill');
+        const cpuNeedle = document.getElementById('cpuNeedle');
+        const cpuText = document.getElementById('cpuText');
+        const memoryDialFill = document.getElementById('memoryDialFill');
+        const memoryNeedle = document.getElementById('memoryNeedle');
+        const memoryText = document.getElementById('memoryText');
+        const diskDialFill = document.getElementById('diskDialFill');
+        const diskNeedle = document.getElementById('diskNeedle');
+        const diskText = document.getElementById('diskText');
+        const processedFilesValue = document.getElementById('processedFilesValue');
+        
+        const systemStatusIndicator = document.getElementById('systemStatusIndicator');
+        const systemStatusText = document.getElementById('systemStatusText');
+        const apiServerStatus = document.getElementById('apiServerStatus');
+        const watcherStatus = document.getElementById('watcherStatus');
+        const databaseStatus = document.getElementById('databaseStatus');
+        const evolutionStatus = document.getElementById('evolutionStatus');
+        const safePathStatus = document.getElementById('safePathStatus');
+        const serviceStatus = document.getElementById('serviceStatus');
+        
+        const serviceToggle = document.getElementById('serviceToggle');
+        const watcherToggle = document.getElementById('watcherToggle');
+        const evolutionToggle = document.getElementById('evolutionToggle');
+        const githubProtectionToggle = document.getElementById('githubProtectionToggle');
+        const autoStartToggle = document.getElementById('autoStartToggle');
+        
+        const refreshMetricsBtn = document.getElementById('refreshMetricsBtn');
+        const refreshStatusBtn = document.getElementById('refreshStatusBtn');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const triggerEvolutionBtn = document.getElementById('triggerEvolutionBtn');
+        const scanFolderBtn = document.getElementById('scanFolderBtn');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const resetSystemBtn = document.getElementById('resetSystemBtn');
+        const clearLogsBtn = document.getElementById('clearLogsBtn');
+        const refreshLogsBtn = document.getElementById('refreshLogsBtn');
+        
+        const logsContainer = document.getElementById('logsContainer');
+        
+        // Initialize dials with ticks
+        function createDialTicks(dial) {
+            // Create tick marks
+            for (let i = 0; i < 60; i++) {
+                const tick = document.createElement('div');
+                tick.className = i % 5 === 0 ? 'dial-tick major' : 'dial-tick';
+                tick.style.transform = `rotate(${i * 6}deg)`;
+                dial.querySelector('.dial-background').appendChild(tick);
+            }
+        }
+        
+        // Create ticks for all dials
+        createDialTicks(document.querySelector('#cpuDialFill').closest('.dial'));
+        createDialTicks(document.querySelector('#memoryDialFill').closest('.dial'));
+        createDialTicks(document.querySelector('#diskDialFill').closest('.dial'));
+        
+        // Update dial values
+        function updateDial(fillElement, needleElement, textElement, value, unit = '%') {
+            // Update dial rotation (180 degrees = 100%)
+            const rotation = value * 1.8;
+            fillElement.style.transform = `rotate(${rotation}deg)`;
+            needleElement.style.transform = `rotate(${rotation}deg)`;
+            
+            // Update text
+            textElement.textContent = value;
+        }
+        
+        // Add system log entry
+        function addLogEntry(message, type = 'info') {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString();
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-type-${type}">[${type.toUpperCase()}]</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+        
+        // Fetch system metrics
+        async function fetchMetrics() {
+            try {
+                // In a real app, this would fetch from your backend
+                // For demo, we'll simulate random values
+                const cpuUsage = Math.floor(Math.random() * 60) + 10; // 10-70%
+                const memoryUsage = Math.floor(Math.random() * 40) + 20; // 20-60%
+                const diskUsage = Math.floor(Math.random() * 50) + 10; // 10-60 GB
+                const filesProcessed = Math.floor(Math.random() * 1000);
+                
+                updateDial(cpuDialFill, cpuNeedle, cpuText, cpuUsage);
+                updateDial(memoryDialFill, memoryNeedle, memoryText, memoryUsage);
+                updateDial(diskDialFill, diskNeedle, diskText, diskUsage, 'GB');
+                processedFilesValue.textContent = filesProcessed;
+                
+                addLogEntry('System metrics updated', 'info');
+            } catch (error) {
+                console.error('Error fetching metrics:', error);
+                addLogEntry('Failed to update metrics', 'error');
+            }
+        }
+        
+        // Fetch system status
+        async function fetchStatus() {
+            try {
+                // In a real app, this would fetch from your backend
+                // For demo, we'll simulate with mostly positive statuses
+                const serverRunning = Math.random() > 0.1; // 90% chance of running
+                const watcherRunning = Math.random() > 0.2; // 80% chance of running
+                const databaseRunning = Math.random() > 0.05; // 95% chance of running
+                const evolutionActive = Math.random() > 0.3; // 70% chance of active
+                const safePathEnabled = true; // Always enabled
+                const serviceRunning = Math.random() > 0.1; // 90% chance of running
+                
+                // Update status indicators
+                apiServerStatus.textContent = serverRunning ? 'RUNNING' : 'STOPPED';
+                apiServerStatus.className = `status-item-value ${serverRunning ? 'status-running' : 'status-stopped'}`;
+                
+                watcherStatus.textContent = watcherRunning ? 'RUNNING' : 'STOPPED';
+                watcherStatus.className = `status-item-value ${watcherRunning ? 'status-running' : 'status-stopped'}`;
+                
+                databaseStatus.textContent = databaseRunning ? 'RUNNING' : 'STOPPED';
+                databaseStatus.className = `status-item-value ${databaseRunning ? 'status-running' : 'status-stopped'}`;
+                
+                evolutionStatus.textContent = evolutionActive ? 'ACTIVE' : 'INACTIVE';
+                evolutionStatus.className = `status-item-value ${evolutionActive ? 'status-running' : 'status-pending'}`;
+                
+                safePathStatus.textContent = safePathEnabled ? 'ENABLED' : 'DISABLED';
+                safePathStatus.className = `status-item-value ${safePathEnabled ? 'status-running' : 'status-stopped'}`;
+                
+                serviceStatus.textContent = serviceRunning ? 'RUNNING' : 'STOPPED';
+                serviceStatus.className = `status-item-value ${serviceRunning ? 'status-running' : 'status-stopped'}`;
+                
+                // Update overall system status
+                const systemHealthy = serverRunning && watcherRunning && databaseRunning;
+                systemStatusIndicator.className = `status-indicator ${systemHealthy ? 'status-healthy' : 'status-danger'}`;
+                systemStatusText.textContent = systemHealthy ? 'System Online' : 'System Issue Detected';
+                
+                addLogEntry('System status updated', 'info');
+            } catch (error) {
+                console.error('Error fetching status:', error);
+                addLogEntry('Failed to update system status', 'error');
+            }
+        }
+        
+        // Toggle handlers
+        serviceToggle.addEventListener('change', function() {
+            const status = this.checked ? 'enabled' : 'disabled';
+            addLogEntry(`Service ${status}`, this.checked ? 'info' : 'warning');
+        });
+        
+        watcherToggle.addEventListener('change', function() {
+            const status = this.checked ? 'enabled' : 'disabled';
+            addLogEntry(`File watcher ${status}`, this.checked ? 'info' : 'warning');
+        });
+        
+        evolutionToggle.addEventListener('change', function() {
+            const status = this.checked ? 'enabled' : 'disabled';
+            addLogEntry(`Evolution system ${status}`, this.checked ? 'info' : 'warning');
+        });
+        
+        githubProtectionToggle.addEventListener('change', function() {
+            const status = this.checked ? 'enabled' : 'disabled';
+            addLogEntry(`GitHub protection ${status}`, this.checked ? 'info' : 'warning');
+        });
+        
+        autoStartToggle.addEventListener('change', function() {
+            const status = this.checked ? 'enabled' : 'disabled';
+            addLogEntry(`Auto-start ${status}`, this.checked ? 'info' : 'warning');
+        });
+        
+        // Button handlers
+        refreshMetricsBtn.addEventListener('click', function() {
+            fetchMetrics();
+            addLogEntry('Refreshing metrics...', 'info');
+        });
+        
+        refreshStatusBtn.addEventListener('click', function() {
+            fetchStatus();
+            addLogEntry('Refreshing system status...', 'info');
+        });
+        
+        saveSettingsBtn.addEventListener('click', function() {
+            addLogEntry('Settings saved successfully', 'info');
+        });
+        
+        triggerEvolutionBtn.addEventListener('click', function() {
+            addLogEntry('Evolution process triggered', 'info');
+            setTimeout(() => {
+                addLogEntry('Evolution analysis complete', 'info');
+                addLogEntry('3 new patterns discovered', 'info');
+            }, 2000);
+        });
+        
+        scanFolderBtn.addEventListener('click', function() {
+            addLogEntry('Scanning folder for new files...', 'info');
+            setTimeout(() => {
+                addLogEntry('Scan complete - 17 files found', 'info');
+            }, 1500);
+        });
+        
+        generateReportBtn.addEventListener('click', function() {
+            addLogEntry('Generating organization report...', 'info');
+            setTimeout(() => {
+                addLogEntry('Report generated successfully', 'info');
+            }, 1000);
+        });
+        
+        resetSystemBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset the system? This will restart all services.')) {
+                addLogEntry('System reset initiated...', 'warning');
+                setTimeout(() => {
+                    addLogEntry('Stopping services...', 'warning');
+                    setTimeout(() => {
+                        addLogEntry('Restarting services...', 'warning');
+                        setTimeout(() => {
+                            addLogEntry('System reset complete', 'info');
+                            fetchMetrics();
+                            fetchStatus();
+                        }, 1000);
+                    }, 1000);
+                }, 500);
+            }
+        });
+        
+        clearLogsBtn.addEventListener('click', function() {
+            logsContainer.innerHTML = '';
+            addLogEntry('Logs cleared', 'info');
+        });
+        
+        refreshLogsBtn.addEventListener('click', function() {
+            addLogEntry('Logs refreshed', 'info');
+        });
+        
+        // Initial setup
+        window.addEventListener('load', function() {
+            addLogEntry('Dashboard initialized', 'info');
+            addLogEntry('Connecting to Sorting Hat services...', 'info');
+            
+            // Initial data fetch with slight delay to simulate loading
+            setTimeout(() => {
+                fetchMetrics();
+                fetchStatus();
+                addLogEntry('System online and operational', 'info');
+            }, 1000);
+            
+            // Set up regular updates
+            setInterval(fetchMetrics, 30000); // Every 30 seconds
+            setInterval(fetchStatus, 45000);  // Every 45 seconds
+        });
+    </script>
+</body>
+</html>

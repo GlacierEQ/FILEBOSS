@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+if [[ -z $1 ]] || [[ -z $2 ]]; then
+  echo "Error: Missing required arguments." 1>&2
+  echo "Usage: ${0##*/} [develop|race|static|debug|prod] [filename]" 1>&2
+  exit 1
+fi
+
+# Check if GO_BIN is set and go command is available
+GO_BIN=${GO_BIN:-go}
+if ! command -v "$GO_BIN" &> /dev/null; then
+  echo "Error: Go is not installed or not in the PATH." 1>&2
+  exit 1
+fi
+
+set -e
+
+BUILD_OS=$(uname -s)
+BUILD_ARCH=$("$(dirname "$0")/dist/arch.sh")
+BUILD_DATE=$(date -u +%y%m%d)
+BUILD_VERSION=$(git describe --always)
+BUILD_TAG=${BUILD_DATE}-${BUILD_VERSION}
+BUILD_ID=${BUILD_TAG}-${BUILD_OS}-$(echo "${BUILD_ARCH}" |  tr '[:lower:]' '[:upper:]')
+BUILD_BIN=${2:-photoprism}
+GO_VER=$($GO_BIN version)
+
+echo "Building PhotoPrism ${BUILD_ID} ($1)..."
+
+if [[ $1 == "develop" ]]; then
+  # Added brains tag to develop build
+  BUILD_CMD=("$GO_BIN" build -tags="debug,develop,brains" -ldflags "-X main.version=${BUILD_ID}-DEVELOP" -o "${BUILD_BIN}" cmd/photoprism/photoprism.go)
+elif [[ $1 == "race" ]]; then
+  # Added brains tag to race build
+  BUILD_CMD=("$GO_BIN" build -tags="debug,brains" -race -ldflags "-X main.version=${BUILD_ID}-RACE" -o "${BUILD_BIN}" cmd/photoprism/photoprism.go)
+elif [[ $1 == "static" ]]; then
+  # Added brains tag to static build
+  BUILD_CMD=("$GO_BIN" build -a -v -tags="static,brains" -ldflags "-linkmode external -extldflags \"-static -L /usr/lib -ltensorflow\" -s -w -X main.version=${BUILD_ID}-STATIC" -o "${BUILD_BIN}" cmd/photoprism/photoprism.go)
+elif [[ $1 == "debug" ]]; then
+  # Added brains tag to debug build
+  BUILD_CMD=("$GO_BIN" build -tags="debug,brains" -ldflags "-extldflags \"-Wl,-rpath -Wl,\$ORIGIN/../lib\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_BIN}-DEBUG" cmd/photoprism/photoprism.go)
+else
+  # Added brains tag to production build
+  BUILD_CMD=("$GO_BIN" build -tags="brains" -ldflags "-extldflags \"-Wl,-rpath -Wl,\$ORIGIN/../lib\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_BIN}" cmd/photoprism/photoprism.go)
+fi
+
+# Build app binary.
+echo "=> compiling \"$BUILD_BIN\" with \"${GO_VER}\""
+echo "=> ${BUILD_CMD[*]}"
+"${BUILD_CMD[@]}"
+
+# Display binary size.
+du -h "${BUILD_BIN}"
+
+echo "Done."

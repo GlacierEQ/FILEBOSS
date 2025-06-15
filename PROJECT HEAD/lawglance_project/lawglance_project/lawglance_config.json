@@ -1,0 +1,35 @@
+{
+  "models": {
+    "embeddings": "sentence-transformers/all-MiniLM-L6-v2",
+    "qa_model": "deepset/roberta-base-squad2",
+    "llm": "google/flan-t5-base",
+    "semantic_analyzer": "nlpaueb/legal-bert-base-uncased"
+  },
+  "api_keys": {
+    "huggingface_token": "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"
+  },
+  "retrieval": {
+    "k": 10,
+    "score_threshold": 0.75
+  },
+  "document_processing": {
+    "chunk_size": 512,
+    "chunk_overlap": 100,
+    "max_document_size": 10000000
+  },
+  "caching": {
+    "enabled": true,
+    "max_cache_size": 100,
+    "cache_dir": ".cache"
+  },
+  "state": {
+    "save_interval": 3,
+    "state_file": "ai_state.json",
+    "backup_file": "ai_state_prev.json"
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "lawglance.log"
+  }
+}

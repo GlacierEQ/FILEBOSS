@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek-Coder API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+        .header img {
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .main-content {
+            flex: 2;
+            min-width: 300px;
+            padding-right: 30px;
+        }
+        .sidebar {
+            flex: 1;
+            min-width: 250px;
+            background-color: #f7f9fa;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .code {
+            background-color: #f4f4f4;
+            border-left: 4px solid #5c6bc0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        a {
+            color: #5c6bc0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .card {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .endpoint {
+            background-color: #e8eaf6;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            color: white;
+            font-size: 0.8em;
+            margin-right: 10px;
+        }
+        .post {
+            background-color: #4caf50;
+        }
+        .get {
+            background-color: #2196f3;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/img/logo.png" alt="DeepSeek-Coder Logo" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; this.style.display='none'">
+        <h1>DeepSeek-Coder API</h1>
+        <p>Advanced AI Code Assistant</p>
+    </div>
+    
+    <div class="container">
+        <div class="main-content">
+            <h2>Getting Started</h2>
+            <p>DeepSeek-Coder provides a powerful API for code generation, completion, and chat. Use the following endpoints to interact with the AI model.</p>
+            
+            <div class="card">
+                <h3>Code Completion</h3>
+                <p><span class="method post">POST</span><span class="endpoint">/api/v1/completion</span></p>
+                <p>Generate code completions from a given prompt.</p>
+                <div class="code">
+                    # Example curl request
+                    curl -X POST http://localhost/api/v1/completion \
+                      -H "Content-Type: application/json" \
+                      -d '{"prompt": "def fibonacci(n):", "max_tokens": 100}'
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Code Insertion</h3>
+                <p><span class="method post">POST</span><span class="endpoint">/api/v1/insertion</span></p>
+                <p>Insert code between a prefix and suffix.</p>
+                <div class="code">
+                    # Example curl request
+                    curl -X POST http://localhost/api/v1/insertion \
+                      -H "Content-Type: application/json" \
+                      -d '{"prefix": "def add_numbers(a, b):", "suffix": "    return result", "max_tokens": 50}'
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Chat with AI</h3>
+                <p><span class="method post">POST</span><span class="endpoint">/api/v1/chat</span></p>
+                <p>Chat with the AI model for interactive coding help.</p>
+                <div class="code">
+                    # Example curl request
+                    curl -X POST http://localhost/api/v1/chat \
+                      -H "Content-Type: application/json" \
+                      -d '{"messages": [{"role": "user", "content": "Write a function to calculate factorial"}], "max_tokens": 300}'
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Health Check</h3>
+                <p><span class="method get">GET</span><span class="endpoint">/health</span></p>
+                <p>Check if the API is operational.</p>
+                <div class="code">
+                    # Example curl request
+                    curl http://localhost/health
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <h3>Resources</h3>
+            <ul>
+                <li><a href="/docs" target="_blank">API Documentation</a></li>
+                <li><a href="https://github.com/deepseek-ai/deepseek-coder" target="_blank">GitHub Repository</a></li>
+                <li><a href="https://huggingface.co/deepseek-ai" target="_blank">Models on HuggingFace</a></li>
+            </ul>
+            
+            <h3>Monitoring</h3>
+            <ul>
+                <li><a href="/kibana" target="_blank">Kibana Dashboard</a></li>
+                <li><a href="http://localhost:3000" target="_blank">Grafana Metrics</a></li>
+                <li><a href="http://localhost:9090" target="_blank">Prometheus</a></li>
+            </ul>
+            
+            <h3>Authentication</h3>
+            <p>For production use, include your API key in the request headers:</p>
+            <div class="code">
+                Authorization: Bearer YOUR_API_KEY
+            </div>
+            
+            <h3>Rate Limits</h3>
+            <p>Default: 100 requests/hour per API key</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2024 DeepSeek AI. All rights reserved.</p>
+    </footer>
+</body>
+</html>
