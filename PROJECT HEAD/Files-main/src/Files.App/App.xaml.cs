@@ -2,10 +2,15 @@
 // Licensed under the MIT License.
 
 using Files.App.Helpers.Application;
+using Files.App.Plugins;
+using Files.App.Plugins.Interfaces;
+using Files.App.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
+using System;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
@@ -41,6 +46,12 @@ namespace Files.App
 		public static LibraryManager LibraryManager { get; private set; } = null!;
 		public static AppModel AppModel { get; private set; } = null!;
 		public static ILogger Logger { get; private set; } = null!;
+
+		private static LocalizationService _localizationService;
+		public static LocalizationService LocalizationService => _localizationService ??= new LocalizationService();
+
+		private static PluginManager _pluginManager;
+		public static PluginManager PluginManager => _pluginManager ??= new PluginManager();
 
 		/// <summary>
 		/// Initializes an instance of <see cref="App"/>.
@@ -87,6 +98,14 @@ namespace Files.App
 				// Configure Sentry
 				if (AppLifecycleHelper.AppEnvironment is not AppEnvironment.Dev)
 					AppLifecycleHelper.ConfigureSentry();
+
+					// Configure plugin context
+					var pluginContext = new PluginContext
+					{
+						MainWindow = MainWindow.Instance,
+						GetService = serviceType => Ioc.Default.GetService(serviceType)
+					};
+					PluginManager.Initialize(pluginContext);
 
 				var userSettingsService = Ioc.Default.GetRequiredService<IUserSettingsService>();
 				var isLeaveAppRunning = userSettingsService.GeneralSettingsService.LeaveAppRunning;
