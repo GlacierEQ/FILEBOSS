@@ -27,18 +27,21 @@ FILEBOSS is an advanced digital evidence management system designed for legal, i
 ### With Docker (Recommended)
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-username/FILEBOSS.git
    cd FILEBOSS
    ```
 
 2. Copy the example environment file and configure it:
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 3. Start the application with Docker Compose:
+
    ```bash
    docker-compose up -d
    ```
@@ -51,24 +54,27 @@ FILEBOSS is an advanced digital evidence management system designed for legal, i
 ### Local Development Setup
 
 1. Create and activate a virtual environment:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 2. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. Set up the database:
+
    ```bash
    # Start PostgreSQL and Redis
    docker-compose up -d postgres redis
-   
+
    # Run migrations
    alembic upgrade head
-   
+
    # Initialize database
    python scripts/init_db.py
    ```
@@ -106,16 +112,19 @@ docker-compose logs -f
 ## 📚 API Documentation
 
 For detailed API documentation, visit the interactive documentation at:
+
 - **Swagger UI**: http://localhost:8000/api/docs
 - **ReDoc**: http://localhost:8000/api/redoc
 
 ### Main API Endpoints
 
 #### Authentication
+
 - `POST /api/v1/auth/token` - Get access token (OAuth2 password flow)
 - `POST /api/v1/auth/refresh` - Refresh access token
 
 #### Evidence Management
+
 - `POST /api/v1/evidence/upload` - Upload a new evidence file
 - `POST /api/v1/evidence/process-directory` - Process a directory of evidence files
 - `GET /api/v1/evidence/{evidence_id}` - Get evidence details
@@ -124,6 +133,7 @@ For detailed API documentation, visit the interactive documentation at:
 - `POST /api/v1/evidence/{evidence_id}/link-timeline` - Link evidence to timeline event
 
 #### Case Management
+
 - `GET /api/v1/cases` - List all cases
 - `POST /api/v1/cases` - Create a new case
 - `GET /api/v1/cases/{case_id}` - Get case details
@@ -131,6 +141,7 @@ For detailed API documentation, visit the interactive documentation at:
 - `GET /api/v1/cases/{case_id}/timeline` - Get timeline for a case
 
 #### Timeline Management
+
 - `GET /api/v1/timeline` - List timeline events
 - `POST /api/v1/timeline` - Create a new timeline event
 - `POST /api/v1/timeline/{event_id}/link-evidence` - Link evidence to a timeline event
@@ -139,6 +150,7 @@ For detailed API documentation, visit the interactive documentation at:
 ## 🔧 Development
 
 ### Prerequisites
+
 - Python 3.10+
 - Poetry (for dependency management)
 - Docker and Docker Compose
@@ -146,11 +158,13 @@ For detailed API documentation, visit the interactive documentation at:
 ### Setup
 
 1. Install Poetry (if not installed):
+
    ```bash
    curl -sSL https://install.python-poetry.org | python3 -
    ```
 
 2. Install dependencies:
+
    ```bash
    poetry install
    ```
@@ -182,6 +196,7 @@ poetry run pre-commit run --all-files
 ### Testing
 
 Run the test suite:
+
 ```bash
 # Run all tests
 pytest
@@ -196,6 +211,7 @@ pytest tests/test_evidence_processing.py -v
 ### Database Migrations
 
 1. Create a new migration:
+
    ```bash
    docker-compose exec app python scripts/create_migration.py -m "Your migration message"
    ```
@@ -236,7 +252,7 @@ For production deployments, we recommend using:
 Example production `docker-compose.prod.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -275,11 +291,33 @@ The project includes a GitHub Actions workflow (`.github/workflows/ci-cd.yml`) t
 4. Deploys to production when pushing to `main`
 
 Required secrets:
+
 - `DOCKERHUB_USERNAME` - Docker Hub username
 - `DOCKERHUB_TOKEN` - Docker Hub access token
 - `SSH_PRIVATE_KEY` - SSH key for deployment
 - `STAGING_*` - Staging environment variables
 - `PRODUCTION_*` - Production environment variables
+
+## 🔮 Codex Resonator Plugin
+
+The optional Codex Resonator plugin helps you generate "resonator scrolls" that
+summarize a repository and suggest future improvements.
+
+### Usage
+
+1. (Optional) Install the OpenAI client if you want AI-generated insights:
+   ```bash
+   pip install openai
+   ```
+2. Run the plugin:
+   ```bash
+   python -m plugins.codex_resonator <path-to-repo> --output-dir ./scrolls --openai
+   ```
+   Omit `--openai` to generate a scroll using only README content.
+
+   When using the `--openai` flag, set your API key with the `OPENAI_API_KEY` environment variable.
+
+The generated scroll will appear in the chosen output directory.
 
 ## 📄 License
 
@@ -308,6 +346,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 Example:
+
 ```
 feat(api): add user authentication endpoint
 
