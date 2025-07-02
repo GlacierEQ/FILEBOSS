@@ -8,6 +8,10 @@ python-dotenv>=1.0.0
 pydantic>=1.10.4
 pydantic-settings>=2.0.0
 
+# Audio transcription
+openai-whisper>=2023110
+requests>=2.31.0
+
 # Database
 sqlalchemy>=2.0.0
 alembic>=1.10.2

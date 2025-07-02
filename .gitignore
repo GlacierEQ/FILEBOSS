@@ -13,4 +13,7 @@ copilot-messages.log
 
 # System files
 .DS_Store
-.project/attachments/
+__pycache__/
+
+AGENTS.md
+package-lock.json
