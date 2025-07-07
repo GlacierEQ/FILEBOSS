@@ -28,6 +28,7 @@ dependencies = [
     "alembic>=1.12.0",
     "pydantic-settings>=2.0.0",
     "python-multipart>=0.0.6",
+    "aiohttp>=3.9.1",
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
     "python-magic>=0.4.27",
@@ -45,19 +46,23 @@ dev = [
     "pytest-asyncio>=0.20.0",
     "httpx>=0.24.0",
     "pre-commit>=3.0.0",
+    "bandit>=1.7.5",
 ]
 
 [project.urls]
 Homepage = "https://github.com/yourusername/megacasebuilder"
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
 
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
 
 [tool.mypy]
 python_version = "3.10"

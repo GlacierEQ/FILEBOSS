@@ -1,15 +1,12 @@
 """
 Database base configuration and session management.
 """
+
 import contextlib
 from typing import AsyncGenerator, Generator
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import (
-    AsyncSession, 
-    async_sessionmaker, 
-    create_async_engine
-)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from ..config import settings
@@ -26,7 +23,7 @@ engine = create_engine(
 )
 
 async_engine = create_async_engine(
-    settings.database.url.replace("sqlite", "sqlite+aiosqlite"),
+    settings.database.url,
     echo=settings.database.echo,
     pool_size=settings.database.pool_size,
     max_overflow=settings.database.max_overflow,
@@ -44,6 +41,7 @@ AsyncSessionLocal = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
 )
+
 
 # Dependency to get DB session
 def get_db() -> Generator:

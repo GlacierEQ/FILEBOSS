@@ -1,0 +1,46 @@
+name: Process Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      directory:
+        description: 'Directory containing files to process'
+        required: true
+        default: 'evidence'
+      case_id:
+        description: 'Case ID to associate with the files'
+        required: true
+      output_dir:
+        description: 'Directory to store organized files'
+        required: true
+        default: 'organized'
+      scheme:
+        description: 'Organization scheme'
+        required: false
+        default: 'type_date'
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run processing script
+        run: |
+          python scripts/process_and_organize.py \
+            "${{ github.event.inputs.directory }}" \
+            "${{ github.event.inputs.case_id }}" \
+            --output-dir "${{ github.event.inputs.output_dir }}" \
+            --scheme "${{ github.event.inputs.scheme }}" \
+            --recursive
+      - name: Upload organized files
+        uses: actions/upload-artifact@v3
+        with:
+          name: organized-files
+          path: ${{ github.event.inputs.output_dir }}
