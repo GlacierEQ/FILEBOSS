@@ -1,0 +1,12 @@
+site_name: FILEBOSS Documentation
+nav:
+  - Home: index.md
+  - API:
+      - Authentication: docs/api/authentication.md
+      - Cases: docs/api/cases.md
+      - Evidence: docs/api/evidence.md
+  - Architecture:
+      - System Context: docs/architecture/system_context.md
+      - Component Diagram: docs/architecture/component_diagram.md
+      - Data Flow: docs/architecture/data_flow.md
+      - Integration Points: docs/architecture/integration_points.md

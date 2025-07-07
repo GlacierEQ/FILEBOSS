@@ -191,6 +191,9 @@ poetry run pylint casebuilder tests
 
 # Run all checks
 poetry run pre-commit run --all-files
+
+# Security scanning with Bandit
+poetry run bandit -r casebuilder -ll
 ```
 
 ### Testing
@@ -206,7 +209,40 @@ pytest --cov=casebuilder --cov-report=html
 
 # Run a specific test file
 pytest tests/test_evidence_processing.py -v
+
+# Run formatting, linting, and tests together
+scripts/run_checks.sh
+
+# Run security scan
+scripts/run_security_scan.sh
+
+# Run tests with coverage enforcement
+scripts/run_coverage.sh
+
+# Run the pre-commit hooks manually
+pre-commit run --all-files
+
+# Build documentation
+scripts/build_docs.sh
+
+# Run full CI pipeline
+scripts/run_ci.sh
 ```
+
+### Processing and Organizing Files
+
+The helper script `process_and_organize.py` processes a directory of files and
+organizes them for a specific case. Example usage:
+
+```bash
+python scripts/process_and_organize.py ./incoming CASE123 \
+  --output-dir organized \
+  --scheme type_date \
+  --recursive
+```
+
+You can also trigger this functionality via the `process-evidence` GitHub Action,
+which uploads the organized files as an artifact.
 
 ### Database Migrations
 
@@ -360,3 +396,13 @@ Closes #123
 ## 📞 Support
 
 For support, please open an issue in the GitHub issue tracker.
+
+### Weekly Audit
+Run a full audit (formatting, linting, tests, and security scan):
+```bash
+scripts/run_audit.sh
+```
+
+### Dependency Review
+Run a dependency review on all pull requests to catch vulnerable libraries.
+This is handled automatically via `.github/workflows/dependency-review.yml`.

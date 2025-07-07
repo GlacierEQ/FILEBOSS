@@ -1,10 +1,9 @@
 """
 Database models for Mega CaseBuilder 3000.
 """
+
 import uuid
-from datetime import datetime
 from enum import Enum
-from typing import List, Optional
 
 from sqlalchemy import (
     Boolean,
@@ -19,7 +18,7 @@ from sqlalchemy import (
     Table,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func
 
 from .base import Base
@@ -45,12 +44,36 @@ document_relationships = Table(
     "document_relationships",
     Base.metadata,
     Column(
-        "parent_document_id", UUID(as_uuid=True), ForeignKey("documents.id"), primary_key=True
+        "parent_document_id",
+        UUID(as_uuid=True),
+        ForeignKey("documents.id"),
+        primary_key=True,
     ),
     Column(
-        "child_document_id", UUID(as_uuid=True), ForeignKey("documents.id"), primary_key=True
+        "child_document_id",
+        UUID(as_uuid=True),
+        ForeignKey("documents.id"),
+        primary_key=True,
     ),
     Column("relationship_type", String(50), nullable=False, default="related"),
+)
+
+# Association table for timeline events and evidence
+timeline_event_evidence = Table(
+    "timeline_event_evidence",
+    Base.metadata,
+    Column(
+        "timeline_event_id",
+        UUID(as_uuid=True),
+        ForeignKey("timeline_events.id"),
+        primary_key=True,
+    ),
+    Column(
+        "evidence_id",
+        UUID(as_uuid=True),
+        ForeignKey("evidence.id"),
+        primary_key=True,
+    ),
 )
 
 
@@ -113,10 +136,10 @@ class Case(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     closed_at = Column(DateTime(timezone=True), nullable=True)
-    
+
     # Foreign keys
     owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    
+
     # Relationships
     owner = relationship("User", back_populates="cases")
     participants = relationship(
@@ -126,14 +149,14 @@ class Case(Base):
     tags = relationship("Tag", secondary=case_tags, back_populates="cases")
     timeline_events = relationship("TimelineEvent", back_populates="case")
     evidence_items = relationship("Evidence", back_populates="case")
-    
+
     def __repr__(self) -> str:
         return f"<Case {self.case_number or self.title}>"
 
 
 class DocumentType(str, Enum):
     """Document type enumeration."""
-    
+
     PLEADING = "pleading"
     MOTION = "motion"
     BRIEF = "brief"
@@ -147,7 +170,7 @@ class DocumentType(str, Enum):
 
 class DocumentStatus(str, Enum):
     """Document status enumeration."""
-    
+
     DRAFT = "draft"
     FINAL = "final"
     FILED = "filed"
@@ -160,7 +183,7 @@ class Document(Base):
     """Document model for storing case-related files and metadata."""
 
     __tablename__ = "documents"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
@@ -174,11 +197,11 @@ class Document(Base):
     metadata_ = Column("metadata", JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Foreign keys
     case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
     uploaded_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    
+
     # Relationships
     case = relationship("Case", back_populates="documents")
     uploaded_by = relationship("User", back_populates="documents")
@@ -190,14 +213,14 @@ class Document(Base):
         back_populates="related_documents",
     )
     evidence = relationship("Evidence", back_populates="document", uselist=False)
-    
+
     def __repr__(self) -> str:
         return f"<Document {self.title} ({self.file_type})>"
 
 
 class EvidenceType(str, Enum):
     """Evidence type enumeration."""
-    
+
     DOCUMENT = "document"
     PHOTO = "photo"
     VIDEO = "video"
@@ -211,7 +234,7 @@ class EvidenceType(str, Enum):
 
 class EvidenceStatus(str, Enum):
     """Evidence status enumeration."""
-    
+
     PENDING_REVIEW = "pending_review"
     ADMITTED = "admitted"
     EXCLUDED = "excluded"
@@ -224,34 +247,36 @@ class Evidence(Base):
     """Evidence model representing pieces of evidence in a case."""
 
     __tablename__ = "evidence"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     evidence_type = Column(SQLAlchemyEnum(EvidenceType), nullable=False)
-    status = Column(SQLAlchemyEnum(EvidenceStatus), default=EvidenceStatus.PENDING_REVIEW)
+    status = Column(
+        SQLAlchemyEnum(EvidenceStatus), default=EvidenceStatus.PENDING_REVIEW
+    )
     exhibit_number = Column(String(50), nullable=True)
     chain_of_custody = Column(JSON, default=list)
     metadata_ = Column("metadata", JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Foreign keys
     case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
     document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=True)
-    
+
     # Relationships
     case = relationship("Case", back_populates="evidence_items")
     document = relationship("Document", back_populates="evidence")
     timeline_events = relationship("TimelineEvent", back_populates="evidence")
-    
+
     def __repr__(self) -> str:
         return f"<Evidence {self.title} ({self.evidence_type})>"
 
 
 class TimelineEventType(str, Enum):
     """Timeline event type enumeration."""
-    
+
     CASE_EVENT = "case_event"
     COURT_DATE = "court_date"
     FILING = "filing"
@@ -269,7 +294,7 @@ class TimelineEvent(Base):
     """Timeline event model for case chronology."""
 
     __tablename__ = "timeline_events"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
@@ -280,17 +305,17 @@ class TimelineEvent(Base):
     metadata_ = Column("metadata", JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Foreign keys
     case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
     created_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     evidence_id = Column(UUID(as_uuid=True), ForeignKey("evidence.id"), nullable=True)
-    
+
     # Relationships
     case = relationship("Case", back_populates="timeline_events")
     created_by = relationship("User", back_populates="events")
     evidence = relationship("Evidence", back_populates="timeline_events")
-    
+
     def __repr__(self) -> str:
         return f"<TimelineEvent {self.title} ({self.event_type})>"
 
@@ -299,15 +324,15 @@ class Tag(Base):
     """Tag model for categorizing cases and other entities."""
 
     __tablename__ = "tags"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(50), nullable=False, unique=True, index=True)
     color = Column(String(7), nullable=True)  # Hex color code
     description = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # Relationships
     cases = relationship("Case", secondary=case_tags, back_populates="tags")
-    
+
     def __repr__(self) -> str:
         return f"<Tag {self.name}>"
