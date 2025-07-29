@@ -14,3 +14,9 @@ copilot-messages.log
 # System files
 .DS_Store
 .project/attachments/
+
+# Coders in Flow
+.codersinflow
+.vscode
+node_modules
+.env
