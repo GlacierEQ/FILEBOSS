@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "CodeZap": {
+      "command": "uvx",
+      "args": [
+        "codezap-mcp"
+      ],
+      "env": {
+        "CODEZAP_API_KEY": "19d81b78fd79aafe3af0888a4e3de6bcdfe6f925675449431a2f9f24fafb92c2"
+      }
+    }
+  }
+}
