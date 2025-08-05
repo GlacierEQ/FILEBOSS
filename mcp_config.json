@@ -2,11 +2,103 @@
   "mcpServers": {
     "CodeZap": {
       "command": "uvx",
-      "args": [
-        "codezap-mcp"
-      ],
+      "args": ["codezap-mcp"],
       "env": {
         "CODEZAP_API_KEY": "19d81b78fd79aafe3af0888a4e3de6bcdfe6f925675449431a2f9f24fafb92c2"
+      },
+      "features": {
+        "autoScanning": {
+          "enabled": true,
+          "filePatterns": ["**/*.{py,ps1,json,toml,md,yaml,yml}"],
+          "ignorePatterns": ["**/node_modules/**", "**/__pycache__/**", "**/.git/**"],
+          "scanInterval": 30000,
+          "maxFileSizeMB": 10
+        },
+        "indexing": {
+          "enabled": true,
+          "symbols": true,
+          "dependencies": true,
+          "imports": true,
+          "references": true,
+          "inMemoryCache": true,
+          "persistentStorage": true
+        },
+        "completion": {
+          "enabled": true,
+          "snippets": true,
+          "autoImport": true,
+          "documentation": true,
+          "typeInfo": true,
+          "signatureHelp": true,
+          "contextAware": true
+        },
+        "codeAnalysis": {
+          "enabled": true,
+          "linters": ["pylint", "pylance", "powershell"],
+          "formatters": ["black", "powershell-formatter"],
+          "onSave": true,
+          "onType": true
+        },
+        "projectIntelligence": {
+          "enabled": true,
+          "codebaseGraph": true,
+          "dependencyGraph": true,
+          "changelogGeneration": true,
+          "apiDocumentation": true
+        }
+      },
+      "commands": {
+        "scanProject": {
+          "command": "codezap",
+          "args": ["scan", "--deep"],
+          "description": "Perform deep scan of the project"
+        },
+        "rebuildIndex": {
+          "command": "codezap",
+          "args": ["index", "--rebuild"],
+          "description": "Rebuild the project index"
+        },
+        "analyzeDependencies": {
+          "command": "codezap",
+          "args": ["deps", "analyze"],
+          "description": "Analyze project dependencies"
+        },
+        "generateDocumentation": {
+          "command": "codezap",
+          "args": ["docs", "generate"],
+          "description": "Generate project documentation"
+        },
+        "codeReview": {
+          "command": "codezap",
+          "args": ["review", "--all"],
+          "description": "Perform automated code review"
+        },
+        "performanceProfile": {
+          "command": "codezap",
+          "args": ["profile", "--all"],
+          "description": "Profile project performance"
+        },
+        "securityScan": {
+          "command": "codezap",
+          "args": ["security", "scan"],
+          "description": "Run security vulnerability scan"
+        }
+      },
+      "advanced": {
+        "watchMode": true,
+        "incrementalUpdates": true,
+        "memoryLimitMB": 4096,
+        "workerThreads": 4,
+        "cacheTTL": 3600,
+        "telemetry": {
+          "enabled": true,
+          "anonymizeData": true
+        },
+        "experimental": {
+          "aiAssist": true,
+          "autoFix": true,
+          "predictiveAnalysis": true
+        }
       }
     }
   }
