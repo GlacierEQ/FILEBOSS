@@ -4,7 +4,56 @@
       "command": "uvx",
       "args": ["codezap-mcp"],
       "env": {
-        "CODEZAP_API_KEY": "19d81b78fd79aafe3af0888a4e3de6bcdfe6f925675449431a2f9f24fafb92c2"
+        "CODEZAP_API_KEY": "19d81b78fd79aafe3af0888a4e3de6bcdfe6f925675449431a2f9f24fafb92c2",
+        "AUTO_EDIT_LEVEL": "aggressive",
+        "AUTO_FIX_LEVEL": "all"
+      },
+      "autoEdit": {
+        "enabled": true,
+        "autoUpdate": {
+          "dependencies": true,
+          "imports": true,
+          "apiEndpoints": true,
+          "checkInterval": 3600
+        },
+        "autoUpgrade": {
+          "codePatterns": true,
+          "apiCalls": true,
+          "deprecatedFeatures": true,
+          "suggestAlternatives": true
+        },
+        "autoExpand": {
+          "functions": true,
+          "classes": true,
+          "documentation": true,
+          "testCases": true
+        },
+        "autoFix": {
+          "syntaxErrors": true,
+          "codeStyle": true,
+          "performanceIssues": true,
+          "securityVulnerabilities": true,
+          "applyFixes": true,
+          "createBackups": true
+        },
+        "autoBuild": {
+          "onSave": true,
+          "onDependencyChange": true,
+          "incrementalBuilds": true,
+          "parallelBuilds": 4
+        },
+        "autoTest": {
+          "runTests": true,
+          "generateMissingTests": true,
+          "coverageThreshold": 80,
+          "failOnRegression": true
+        },
+        "aiAssist": {
+          "suggestRefactors": true,
+          "generateBoilerplate": true,
+          "optimizeCode": true,
+          "explainChanges": true
+        }
       },
       "features": {
         "autoScanning": {
