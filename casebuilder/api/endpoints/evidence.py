@@ -9,12 +9,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ....db.session import get_db
-from ....models import Evidence, EvidenceType, EvidenceStatus
-from ....schemas.evidence import EvidenceCreate, EvidenceUpdate, EvidenceInDB
-from ....schemas.timeline import TimelineEventCreate
-from ....services.evidence_processing import EvidenceProcessingService
-from ....core.security import get_current_active_user
+from casebuilder.db.session import get_db
+from casebuilder.models import Evidence, EvidenceType, EvidenceStatus
+from casebuilder.schemas.evidence import EvidenceCreate, EvidenceUpdate, EvidenceInDB
+from casebuilder.schemas.timeline import TimelineEventCreate
+from casebuilder.services.evidence_processing import EvidenceProcessingService
+from casebuilder.core.security import get_current_active_user
 
 logger = logging.getLogger(__name__)
 
