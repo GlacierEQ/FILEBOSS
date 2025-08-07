@@ -41,7 +41,7 @@ def test_mcp_server(base_url: str = "http://localhost:8080") -> bool:
     
     return all_tests_passed
 
-def main():
+def main() -> None:
     print("🚀 Starting MCP Server Integration Tests")
     print("=" * 50)
     
