@@ -21,8 +21,16 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "CaseBuilder API"
     
-    # CORS settings
+    # CORS settings - accept a comma-separated string or a list
     CORS_ORIGINS: List[str] = ["*"]
+    
+    @validator("CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v):
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        return v
     
     # Database settings
     SQLITE_DB: str = "sqlite:///./casebuilder.db"
