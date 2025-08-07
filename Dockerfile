@@ -1,32 +1,53 @@
 # CaseBuilder FastAPI Application Dockerfile
-FROM python:3.11-slim
+# Multi-stage build for smaller final image
 
-# Set working directory
+# Build stage
+FROM python:3.11-slim as builder
+
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Create and activate virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy application code
-COPY . .
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
+
+# Runtime stage
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy Python virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Create non-root user
-RUN useradd --create-home --shell /bin/bash casebuilder
-RUN chown -R casebuilder:casebuilder /app
+RUN useradd --create-home --shell /bin/bash casebuilder && \
+    chown -R casebuilder:casebuilder /app
+
+# Copy application code
+COPY --chown=casebuilder:casebuilder . .
+
+# Switch to non-root user
 USER casebuilder
+
+# Environment variables
+ENV PYTHONPATH=/app
+ENV ENVIRONMENT=production
 
 # Expose port
 EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Run application
-CMD ["python", "main.py"]
+# Run Gunicorn with Uvicorn workers
+CMD ["gunicorn", "-c", "gunicorn_config.py", "main:app"]
