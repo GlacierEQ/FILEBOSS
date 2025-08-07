@@ -21,15 +21,15 @@ Base = declarative_base()
 engine = create_engine(
     settings.database.url,
     echo=settings.database.echo,
-    pool_size=settings.database.pool_size,
-    max_overflow=settings.database.max_overflow,
+    # SQLite doesn't support pool_size and max_overflow in the same way as other databases
+    # These parameters are removed for SQLite compatibility
 )
 
 async_engine = create_async_engine(
     settings.database.url.replace("sqlite", "sqlite+aiosqlite"),
     echo=settings.database.echo,
-    pool_size=settings.database.pool_size,
-    max_overflow=settings.database.max_overflow,
+    # aiosqlite doesn't support pool_size and max_overflow
+    # These parameters are removed for aiosqlite compatibility
 )
 
 # Session factories
