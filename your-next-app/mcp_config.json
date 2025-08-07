@@ -1,0 +1,143 @@
+[
+
+{
+
+"name": "browserbase",
+
+"package": "@browserbasehq/mcp-browserbase",
+
+"description": "Cloud browser automation for LLMs: navigation, screenshots, parallel sessions",
+
+"type": "browser-automation",
+
+"endpoint": "https://registry.smithery.ai/@browserbasehq/mcp-browserbase"
+
+},
+
+{
+
+"name": "exa-search",
+
+"package": "exa",
+
+"description": "Embeddings-plus-traditional web search and crawling optimized for LLMs",
+
+"type": "web-search",
+
+"endpoint": "https://registry.smithery.ai/exa"
+
+},
+
+{
+
+"name": "desktop-commander",
+
+"package": "@wonderwhy-er/desktop-commander",
+
+"description": "Terminal command execution & file management with diff editing for automation",
+
+"type": "system-control",
+
+"endpoint": "https://registry.smithery.ai/@wonderwhy-er/desktop-commander"
+
+},
+
+{
+
+"name": "context7",
+
+"package": "@upstash/context7-mcp",
+
+"description": "Token-efficient, version-specific technical documentation & code examples",
+
+"type": "reference-docs",
+
+"endpoint": "https://registry.smithery.ai/@upstash/context7-mcp"
+
+},
+
+{
+
+"name": "mem0",
+
+"package": "@big-omega/mem0-mcp",
+
+"description": "Persistent, relevance-scored memory storage for contextual awareness",
+
+"type": "memory-management",
+
+"endpoint": "https://registry.smithery.ai/@big-omega/mem0-mcp"
+
+},
+
+{
+
+"name": "neo4j-memory",
+
+"package": "@knowall-ai/mcp-neo4j-agent-memory",
+
+"description": "Graph-based persistent memory: semantic relationships & multi-hop traversal",
+
+"type": "knowledge-graph",
+
+"endpoint": "https://registry.smithery.ai/@knowall-ai/mcp-neo4j-agent-memory"
+
+},
+
+{
+
+"name": "playwright-automation",
+
+"package": "@microsoft/playwright-mcp",
+
+"description": "Structured accessibility snapshots and browser automation without vision models",
+
+"type": "browser-automation",
+
+"endpoint": "https://registry.smithery.ai/@microsoft/playwright-mcp"
+
+},
+
+{
+
+"name": "supabase",
+
+"package": "@supabase-community/supabase-mcp",
+
+"description": "AI-driven integration with Supabase: table management & real-time queries",
+
+"type": "database",
+
+"endpoint": "https://registry.smithery.ai/@supabase-community/supabase-mcp"
+
+},
+
+{
+
+"name": "sequential-thinking",
+
+"package": "@xinzhongyouhai/mcp-sequentialthinking-tools",
+
+"description": "Dynamic, reflective multi-step problem solving via cognitive sequences",
+
+"type": "reasoning",
+
+"endpoint": "https://registry.smithery.ai/@xinzhongyouhai/mcp-sequentialthinking-tools"
+
+},
+
+{
+
+"name": "bright-data",
+
+"package": "@luminati-io/brightdata-mcp",
+
+"description": "Unblockable ethical web crawling & extraction with proxy rotation",
+
+"type": "web-scraping",
+
+"endpoint": "https://registry.smithery.ai/@luminati-io/brightdata-mcp"
+
+}
+
+]

@@ -14,9 +14,10 @@ project_root = str(Path(__file__).resolve().parent)
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from casebuilder.db.base import init_db, engine, async_engine
-from casebuilder.db.models import Base
+from casebuilder.db.base import init_db, async_engine
 from casebuilder.core.config import settings
+
+
 
 async def test_database_connection() -> None:
     """Test the database connection and table creation."""
@@ -33,7 +34,8 @@ async def test_database_connection() -> None:
             "SELECT name FROM sqlite_master WHERE type='table';"
         )
         tables = [row[0] for row in result.fetchall()]
-        print(f"Found tables: {', '.join(tables) if tables else 'No tables found'}")
+        table_list = ', '.join(tables) if tables else 'No tables found'
+        print(f"Found tables: {table_list}")
     
     print("\nDatabase test completed successfully!")
 

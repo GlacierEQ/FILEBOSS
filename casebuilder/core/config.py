@@ -1,79 +1,43 @@
-"""
-Application Configuration
+"""Application configuration settings."""
 
-This module handles configuration settings for the application.
-Uses pydantic_settings to manage environment variables and settings.
-"""
-import os
-from typing import List, Optional
-from pydantic import AnyHttpUrl, validator, PostgresDsn
+from typing import Any, List
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
-    # Application settings
+    """Application settings."""
+
     APP_NAME: str = "CaseBuilder"
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
     ENVIRONMENT: str = "development"
     SECRET_KEY: str = "change-this-in-production"
-    
-    # API settings
+
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "CaseBuilder API"
-    
-    # CORS settings - accept a comma-separated string or a list
+
     CORS_ORIGINS: List[str] = ["*"]
-    
-    @validator("CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v):
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        return v
-    
-    # Database settings
-    SQLITE_DB: str = "sqlite:///./casebuilder.db"
-    DATABASE_URI: Optional[str] = None
-    
-    @validator("DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: dict) -> str:
-        """Assemble the database connection string."""
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Any) -> List[str]:
+        """Parse CORS origins from string or list."""
         if isinstance(v, str):
-            return v
-        
-        # Use SQLite by default
-        return str(values.get("SQLITE_DB"))
-    
-    # File storage settings
-    UPLOAD_DIR: str = "uploads"
-    MAX_UPLOAD_SIZE: int = 1024 * 1024 * 100  # 100MB
-    ALLOWED_FILE_TYPES: List[str] = [
-        "application/pdf",  # PDF
-        "image/jpeg", "image/png", "image/gif",  # Images
-        "text/plain", "text/csv",  # Text files
-        "application/json", "application/xml",  # Data files
-        "application/zip", "application/x-rar-compressed",  # Archives
-        "application/msword",  # .doc
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # .docx
-    ]
-    
-    # Security settings
+            return [i.strip() for i in v.split(",")]
+        return v
+
+    DATABASE_URL: str = "sqlite+aiosqlite:///./casebuilder.db"
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     ALGORITHM: str = "HS256"
-    
-    # FileBoss settings
-    FILEBOSS_BASE_DIR: str = "/var/fileboss"
-    FILEBOSS_PROCESSING_TIMEOUT: int = 300  # 5 minutes
-    
+
     class Config:
+        """Pydantic configuration."""
+
         case_sensitive = True
         env_file = ".env"
-        env_file_encoding = 'utf-8'
 
-# Global settings instance
+
 settings = Settings()
-
-def get_settings() -> Settings:
-    """Get the settings instance."""
-    return settings

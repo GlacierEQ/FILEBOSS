@@ -1,261 +1,144 @@
-# SAFE BLOWTWARE REMOVER
-# This script safely removes common bloatware while keeping essential system components
-# Run as Administrator
+<#
+.SYNOPSIS
+    Safely removes common bloatware from a Windows system.
 
-$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "Please run this script as Administrator!" -ForegroundColor Red
-    exit 1
+.DESCRIPTION
+    This script identifies and uninstalls common bloatware applications while ensuring essential system components are preserved. It creates a system restore point before making changes and provides a summary of the uninstallation process.
+
+.NOTES
+    Author: Omni-Cognitive Operator
+    Version: 2.0
+    Requires: Administrator privileges
+#>
+
+function Test-IsAdmin {
+    $currentUser = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    return $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Create system restore point
-try {
-    Write-Host "Creating system restore point..." -ForegroundColor Cyan
-    Checkpoint-Computer -Description "Before Safe Bloatware Removal" -RestorePointType MODIFY_SETTINGS
-    Write-Host "  - System restore point created successfully" -ForegroundColor Green
-} catch {
-    Write-Host "  ! Could not create system restore point: $_" -ForegroundColor Red
-    $continue = Read-Host "Continue anyway? (Y/N)"
-    if ($continue -ne "Y") { exit }
+function New-SystemRestorePoint {
+    param(
+        [string]$Description = "Before Safe Bloatware Removal"
+    )
+    try {
+        Write-Host "Creating system restore point..." -ForegroundColor Cyan
+        Checkpoint-Computer -Description $Description -RestorePointType MODIFY_SETTINGS
+        Write-Host "  - System restore point created successfully." -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Host "  ! Could not create system restore point: $_" -ForegroundColor Red
+        return $false
+    }
 }
 
-# Common bloatware patterns to remove (case insensitive)
-$bloatwarePatterns = @(
-    # Common bloatware
-    "*Bonjour*",
-    "*CCleaner*",
-    "*iTunes*",
-    "*QuickTime*",
-    "*3D Vision*",
-    "*HP *",
-    "*Dell *",
-    "*Lenovo *",
-    "*Acer *",
-    "*ASUS *",
-    "*Samsung *",
-    "*McAfee*",
-    "*Norton *",
-    "*NVIDIA 3D*",
-    "*Java*Update*",
-    "*Java(TM) 6*",
-    "*Java(TM) 7*",
-    "*Java(TM) 8*",
-    "*Java Auto Updater*",
-    "*Adobe Reader*",
-    "*Acrobat Reader*",
-    "*Microsoft OneDrive*",
-    "*Microsoft Teams*",
-    "*Xbox*",
-    "*Candy Crush*",
-    "*Spotify*",
-    "*Netflix*",
-    "*Facebook*",
-    "*Instagram*",
-    "*Twitter*",
-    "*TikTok*",
-    "*McAfee*",
-    "*Norton*",
-    "*AVG*",
-    "*Avast*",
-    "*Bing*",
-    "*Cortana*",
-    "*Skype*",
-    "*OneDrive*",
-    "*Microsoft Edge*"
-)
-
-# Essential patterns to keep (never remove these)
-$essentialPatterns = @(
-    "*Windows*",
-    "*Microsoft Visual C++*",
-    "*.NET*Framework*",
-    "*NVIDIA*Driver*",
-    "*NVIDIA*Graphics*",
-    "*NVIDIA*PhysX*",
-    "*Intel*",
-    "*Realtek*",
-    "*AMD*",
-    "*Security*",
-    "*Defender*",
-    "*Update*",
-    "*Driver*",
-    "*Firmware*",
-    "*BIOS*",
-    "*Chipset*"
-)
-
-function Get-InstalledPrograms {
-    $uninstallKeys = @(
+function Get-InstalledSoftware {
+    $registryPaths = @(
         "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
         "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
     )
-    
-    $programs = @()
-    
-    foreach ($key in $uninstallKeys) {
-        $programs += Get-ItemProperty -Path $key -ErrorAction SilentlyContinue | 
-            Where-Object { $_.DisplayName -ne $null } |
-            Select-Object @{
-                Name = 'DisplayName'
-                Expression = { $_.DisplayName.Trim() }
-            }, 
-            @{
-                Name = 'UninstallString'
-                Expression = { if ($_.UninstallString) { $_.UninstallString.Trim() -replace '"', '' } else { $null } }
-            },
-            @{
-                Name = 'QuietUninstallString'
-                Expression = { if ($_.QuietUninstallString) { $_.QuietUninstallString.Trim() -replace '"', '' } else { $null } }
-            },
-            @{
-                Name = 'IsBloatware'
-                Expression = { $false }
-            }
-    }
-    
-    return $programs | Sort-Object -Property DisplayName -Unique
+
+    Get-ItemProperty -Path $registryPaths -ErrorAction SilentlyContinue | 
+        Where-Object { $_.DisplayName -and $_.UninstallString } |
+        Select-Object DisplayName, UninstallString, QuietUninstallString
 }
 
 function Test-IsBloatware {
-    param (
-        [string]$displayName
+    param(
+        [string]$DisplayName,
+        [string[]]$BloatwarePatterns,
+        [string[]]$EssentialPatterns
     )
-    
-    # Skip empty or system components
-    if ([string]::IsNullOrWhiteSpace($displayName)) {
-        return $false
+
+    foreach ($pattern in $EssentialPatterns) {
+        if ($DisplayName -like $pattern) { return $false }
     }
-    
-    # Check against essential patterns (never remove these)
-    foreach ($pattern in $essentialPatterns) {
-        if ($displayName -like $pattern) {
-            return $false
-        }
+
+    foreach ($pattern in $BloatwarePatterns) {
+        if ($DisplayName -like $pattern) { return $true }
     }
-    
-    # Check against bloatware patterns
-    foreach ($pattern in $bloatwarePatterns) {
-        if ($displayName -like $pattern) {
-            return $true
-        }
-    }
-    
+
     return $false
 }
 
-function Uninstall-Program {
-    param (
-        [string]$displayName,
-        [string]$uninstallString,
-        [string]$quietUninstallString
+function Remove-Software {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$DisplayName,
+        [Parameter(Mandatory=$true)]
+        [string]$UninstallString,
+        [string]$QuietUninstallString
     )
-    
-    Write-Host "`nUninstalling: $displayName" -ForegroundColor Cyan
-    
+
+    Write-Host "`nAttempting to uninstall: $DisplayName" -ForegroundColor Cyan
+    $uninstallCommand = $QuietUninstallString -or $UninstallString
+
     try {
-        $uninstallCmd = $null
-        $args = $null
-        
-        # Prefer quiet uninstall if available
-        if ($quietUninstallString) {
-            $uninstallString = $quietUninstallString
-        }
-        
-        if ($uninstallString -match '^msiexec') {
-            # MSI uninstall
-            $msiArgs = $uninstallString -replace '^.*msiexec\s*', ''
-            $uninstallCmd = "msiexec.exe"
-            $args = "/x $msiArgs /qn /norestart"
+        if ($uninstallCommand -match "msiexec") {
+            $guid = $uninstallCommand -replace ".*\{(.*)\}.*", '$1'
+            $arguments = "/x {$guid} /qn /norestart"
+            $command = "msiexec.exe"
         } else {
-            # Standard uninstall string
-            $parts = $uninstallString -split ' ' | Where-Object { $_ -ne '' }
-            $uninstallCmd = $parts[0]
-            $args = $uninstallString.Substring($uninstallCmd.Length).Trim()
-            
-            # Add silent uninstall parameters for common installers
-            if ($uninstallCmd -like "*setup.exe" -or $uninstallCmd -like "*unins*.exe") {
-                $args += " /SILENT /NORESTART"
-            }
+            $command = $uninstallCommand.Split(' ')[0]
+            $arguments = $uninstallCommand.Substring($command.Length).Trim() + " /S /SILENT /VERYSILENT /QUIET /NORESTART"
         }
-        
-        if (Test-Path $uninstallCmd) {
-            Write-Host "  Running: $uninstallCmd $args" -ForegroundColor DarkGray
-            $process = Start-Process -FilePath $uninstallCmd -ArgumentList $args -Wait -NoNewWindow -PassThru
-            
+
+        if (Test-Path $command) {
+            Write-Host "  Executing: $command $arguments" -ForegroundColor DarkGray
+            $process = Start-Process -FilePath $command -ArgumentList $arguments -Wait -PassThru -ErrorAction Stop
             if ($process.ExitCode -eq 0) {
-                Write-Host "  Successfully uninstalled: $displayName" -ForegroundColor Green
-                return $true
+                Write-Host "  Successfully uninstalled." -ForegroundColor Green
             } else {
-                Write-Host "  Uninstall completed with exit code: $($process.ExitCode)" -ForegroundColor Yellow
-                return $false
+                Write-Host "  Uninstalled with exit code: $($process.ExitCode). Manual removal may be required." -ForegroundColor Yellow
             }
         } else {
-            Write-Host "  Could not find uninstaller: $uninstallCmd" -ForegroundColor Red
-            return $false
+            Write-Host "  Uninstaller not found at path: $command" -ForegroundColor Red
         }
     } catch {
-        Write-Host "  Error uninstalling $displayName : $_" -ForegroundColor Red
-        return $false
+        Write-Host "  An error occurred during uninstallation: $_" -ForegroundColor Red
     }
 }
 
-# Main script execution
-Write-Host "=== SAFE BLOWTWARE REMOVER ===" -ForegroundColor Cyan
-Write-Host "This script will remove common bloatware while keeping essential system components.`n"
-
-# Get all installed programs
-Write-Host "Scanning installed programs..." -ForegroundColor Yellow
-$programs = Get-InstalledPrograms
-
-# Identify bloatware
-$bloatware = @()
-foreach ($program in $programs) {
-    if (Test-IsBloatware -displayName $program.DisplayName) {
-        $program.IsBloatware = $true
-        $bloatware += $program
+function Main {
+    if (-not (Test-IsAdmin)) {
+        Write-Warning "This script requires Administrator privileges. Please re-run as Administrator."
+        return
     }
-}
 
-# Show bloatware found
-if ($bloatware.Count -eq 0) {
-    Write-Host "No bloatware detected!" -ForegroundColor Green
-    exit
-}
-
-Write-Host "`nThe following bloatware was detected:" -ForegroundColor Yellow
-$bloatware | ForEach-Object { Write-Host ("- " + $_.DisplayName) -ForegroundColor Yellow }
-
-# Confirm before uninstalling
-$confirm = Read-Host "`nDo you want to uninstall these programs? (Y/N)"
-if ($confirm -ne "Y") {
-    Write-Host "Uninstallation cancelled." -ForegroundColor Yellow
-    exit
-}
-
-# Uninstall bloatware
-$successCount = 0
-$failCount = 0
-
-foreach ($app in $bloatware) {
-    if (Uninstall-Program -displayName $app.DisplayName -uninstallString $app.UninstallString -quietUninstallString $app.QuietUninstallString) {
-        $successCount++
-    } else {
-        $failCount++
+    if (-not (New-SystemRestorePoint)) {
+        $response = Read-Host "Failed to create a restore point. Continue at your own risk? (Y/N)"
+        if ($response -ne 'Y') { return }
     }
+
+    $bloatwarePatterns = @(
+        "*3D Viewer*", "*Cortana*", "*HP *", "*Dell *", "*Lenovo *", "*McAfee*", "*Norton*", 
+        "*OneDrive*", "*Skype*", "*Spotify*", "*Xbox*", "*Your Phone*", "*Mixed Reality Portal*"
+    )
+    $essentialPatterns = @(
+        "*Windows*", "*Microsoft Visual C++*", "*.NET*", "*NVIDIA*Driver*", "*Intel*Driver*", 
+        "*Realtek*", "*AMD*Driver*", "*Security*", "*Update*", "*Driver*"
+    )
+
+    Write-Host "Scanning for bloatware..." -ForegroundColor Yellow
+    $installedSoftware = Get-InstalledSoftware
+    $bloatwareToRemove = $installedSoftware | Where-Object { Test-IsBloatware -DisplayName $_.DisplayName -BloatwarePatterns $bloatwarePatterns -EssentialPatterns $essentialPatterns }
+
+    if ($bloatwareToRemove.Count -eq 0) {
+        Write-Host "No bloatware detected." -ForegroundColor Green
+        return
+    }
+
+    Write-Host "Detected the following bloatware:" -ForegroundColor Yellow
+    $bloatwareToRemove.DisplayName | ForEach-Object { Write-Host "- $_" }
+
+    $response = Read-Host "`nProceed with uninstallation? (Y/N)"
+    if ($response -ne 'Y') { return }
+
+    foreach ($app in $bloatwareToRemove) {
+        Remove-Software -DisplayName $app.DisplayName -UninstallString $app.UninstallString -QuietUninstallString $app.QuietUninstallString
+    }
+
+    Write-Host "`nBloatware removal process complete." -ForegroundColor Cyan
+    Write-Host "It is recommended to restart your computer."
 }
 
-# Show summary
-Write-Host "`n=== UNINSTALLATION SUMMARY ===" -ForegroundColor Cyan
-Write-Host "Successfully uninstalled: $successCount programs" -ForegroundColor Green
-if ($failCount -gt 0) {
-    Write-Host "Failed to uninstall: $failCount programs" -ForegroundColor Red
-}
-
-# Final recommendations
-Write-Host "`n=== RECOMMENDATIONS ===" -ForegroundColor Cyan
-Write-Host "1. Restart your computer to complete uninstallation"
-Write-Host "2. Run Windows Update to install any available updates"
-Write-Host "3. Consider using a disk cleanup tool to remove temporary files"
-
-Write-Host "`nPress any key to exit..."
-$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+Main

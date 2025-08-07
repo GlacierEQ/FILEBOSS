@@ -1,154 +1,94 @@
 {
-  "mcpServers": {
-    "CodeZap": {
-      "command": "uvx",
-      "args": ["codezap-mcp"],
-      "env": {
-        "CODEZAP_API_KEY": "19d81b78fd79aafe3af0888a4e3de6bcdfe6f925675449431a2f9f24fafb92c2",
-        "AUTO_EDIT_LEVEL": "aggressive",
-        "AUTO_FIX_LEVEL": "all"
-      },
-      "autoEdit": {
-        "enabled": true,
-        "autoUpdate": {
-          "dependencies": true,
-          "imports": true,
-          "apiEndpoints": true,
-          "checkInterval": 3600
-        },
-        "autoUpgrade": {
-          "codePatterns": true,
-          "apiCalls": true,
-          "deprecatedFeatures": true,
-          "suggestAlternatives": true
-        },
-        "autoExpand": {
-          "functions": true,
-          "classes": true,
-          "documentation": true,
-          "testCases": true
-        },
-        "autoFix": {
-          "syntaxErrors": true,
-          "codeStyle": true,
-          "performanceIssues": true,
-          "securityVulnerabilities": true,
-          "applyFixes": true,
-          "createBackups": true
-        },
-        "autoBuild": {
-          "onSave": true,
-          "onDependencyChange": true,
-          "incrementalBuilds": true,
-          "parallelBuilds": 4
-        },
-        "autoTest": {
-          "runTests": true,
-          "generateMissingTests": true,
-          "coverageThreshold": 80,
-          "failOnRegression": true
-        },
-        "aiAssist": {
-          "suggestRefactors": true,
-          "generateBoilerplate": true,
-          "optimizeCode": true,
-          "explainChanges": true
-        }
-      },
-      "features": {
-        "autoScanning": {
-          "enabled": true,
-          "filePatterns": ["**/*.{py,ps1,json,toml,md,yaml,yml}"],
-          "ignorePatterns": ["**/node_modules/**", "**/__pycache__/**", "**/.git/**"],
-          "scanInterval": 30000,
-          "maxFileSizeMB": 10
-        },
-        "indexing": {
-          "enabled": true,
-          "symbols": true,
-          "dependencies": true,
-          "imports": true,
-          "references": true,
-          "inMemoryCache": true,
-          "persistentStorage": true
-        },
-        "completion": {
-          "enabled": true,
-          "snippets": true,
-          "autoImport": true,
-          "documentation": true,
-          "typeInfo": true,
-          "signatureHelp": true,
-          "contextAware": true
-        },
-        "codeAnalysis": {
-          "enabled": true,
-          "linters": ["pylint", "pylance", "powershell"],
-          "formatters": ["black", "powershell-formatter"],
-          "onSave": true,
-          "onType": true
-        },
-        "projectIntelligence": {
-          "enabled": true,
-          "codebaseGraph": true,
-          "dependencyGraph": true,
-          "changelogGeneration": true,
-          "apiDocumentation": true
-        }
-      },
-      "commands": {
-        "scanProject": {
-          "command": "codezap",
-          "args": ["scan", "--deep"],
-          "description": "Perform deep scan of the project"
-        },
-        "rebuildIndex": {
-          "command": "codezap",
-          "args": ["index", "--rebuild"],
-          "description": "Rebuild the project index"
-        },
-        "analyzeDependencies": {
-          "command": "codezap",
-          "args": ["deps", "analyze"],
-          "description": "Analyze project dependencies"
-        },
-        "generateDocumentation": {
-          "command": "codezap",
-          "args": ["docs", "generate"],
-          "description": "Generate project documentation"
-        },
-        "codeReview": {
-          "command": "codezap",
-          "args": ["review", "--all"],
-          "description": "Perform automated code review"
-        },
-        "performanceProfile": {
-          "command": "codezap",
-          "args": ["profile", "--all"],
-          "description": "Profile project performance"
-        },
-        "securityScan": {
-          "command": "codezap",
-          "args": ["security", "scan"],
-          "description": "Run security vulnerability scan"
-        }
-      },
-      "advanced": {
-        "watchMode": true,
-        "incrementalUpdates": true,
-        "memoryLimitMB": 4096,
-        "workerThreads": 4,
-        "cacheTTL": 3600,
-        "telemetry": {
-          "enabled": true,
-          "anonymizeData": true
-        },
-        "experimental": {
-          "aiAssist": true,
-          "autoFix": true,
-          "predictiveAnalysis": true
-        }
-      }
+  "tools": [
+    {
+      "name": "browserbase",
+      "package": "@browserbasehq/mcp-browserbase",
+      "description": "Cloud browser automation for LLMs: navigation, screenshots, parallel sessions",
+      "type": "browser-automation"
+    },
+    {
+      "name": "exa-search",
+      "package": "exa",
+      "description": "Embeddings-plus-traditional web search and crawling optimized for LLMs",
+      "type": "web-search"
+    },
+    {
+      "name": "desktop-commander",
+      "package": "@wonderwhy-er/desktop-commander",
+      "description": "Terminal command execution & file management with diff editing for automation",
+      "type": "system-control"
+    },
+    {
+      "name": "context7",
+      "package": "@upstash/context7-mcp",
+      "description": "Token-efficient, version-specific technical documentation & code examples",
+      "type": "reference-docs"
+    },
+    {
+      "name": "mem0",
+      "package": "@big-omega/mem0-mcp",
+      "description": "Persistent, relevance-scored memory storage for contextual awareness",
+      "type": "memory-management"
+    },
+    {
+      "name": "neo4j-memory",
+      "package": "@knowall-ai/mcp-neo4j-agent-memory",
+      "description": "Graph-based persistent memory: semantic relationships & multi-hop traversal",
+      "type": "knowledge-graph"
+    },
+    {
+      "name": "playwright-automation",
+      "package": "@microsoft/playwright-mcp",
+      "description": "Structured accessibility snapshots and browser automation without vision models",
+      "type": "browser-automation"
+    },
+    {
+      "name": "supabase",
+      "package": "@supabase-community/supabase-mcp",
+      "description": "AI-driven integration with Supabase: table management & real-time queries",
+      "type": "database"
+    },
+    {
+      "name": "sequential-thinking",
+      "package": "@xinzhongyouhai/mcp-sequentialthinking-tools",
+      "description": "Dynamic, reflective multi-step problem solving via cognitive sequences",
+      "type": "reasoning"
+    },
+    {
+      "name": "bright-data",
+      "package": "@luminati-io/brightdata-mcp",
+      "description": "Unblockable ethical web crawling & extraction with proxy rotation",
+      "type": "web-scraping"
+    },
+    {
+      "name": "code-interpreter",
+      "package": "@qodo/code-interpreter-mcp",
+      "description": "Sandboxed Python environment for dynamic code execution and data analysis",
+      "type": "code-execution"
+    },
+    {
+      "name": "dependency-graph",
+      "package": "@mcp/dependency-graph",
+      "description": "Analyze and visualize project dependencies and inter-module relationships",
+      "type": "code-analysis"
+    },
+    {
+      "name": "security-sentinel",
+      "package": "@shielded/sentinel-mcp",
+      "description": "Automated vulnerability scanning and dependency security analysis",
+      "type": "security"
+    },
+    {
+      "name": "data-scientist",
+      "package": "@sciphi/datasci-mcp",
+      "description": "Integrates with Jupyter kernels for advanced data manipulation and visualization",
+      "type": "data-science"
+    },
+    {
+      "name": "api-architect",
+      "package": "@spec-driven/architect-mcp",
+      "description": "Design, mock, and test APIs using OpenAPI specifications",
+      "type": "api-development"
     }
-  }
+  ]
 }

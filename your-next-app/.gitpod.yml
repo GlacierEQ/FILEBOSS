@@ -1,0 +1,11 @@
+image:
+  file: .gitpod.Dockerfile
+tasks:
+  - name: Setup
+    init: pnpm install && npx prisma generate
+    command: docker compose up --build
+ports:
+  - port: 3000
+    onOpen: open-preview
+  - port: 5555
+    onOpen: open-browser

@@ -1,0 +1,23 @@
+{
+  "name": "windsurf-next-prisma",
+  "dockerFile": "Dockerfile",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "pnpm install && npx prisma generate",
+  "forwardPorts": [3000, 5555, 5432],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "dbaeumer.vscode-eslint",
+        "GitHub.copilot",
+        "qodo.qodo-extension",
+        "roo-code.roo-code"
+      ]
+    }
+  }
+}

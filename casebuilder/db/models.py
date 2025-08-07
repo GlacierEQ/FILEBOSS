@@ -2,9 +2,8 @@
 Database models for Mega CaseBuilder 3000.
 """
 import uuid
-from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
@@ -17,11 +16,20 @@ from sqlalchemy import (
     Text,
     JSON,
     Table,
+    Type,
+    TypeVar,
 )
+from sqlalchemy.orm import relationship, validates
+from sqlalchemy.sql import func
+
 # Using String for UUID storage in SQLite
 from sqlalchemy import String as UUIDString
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
-from sqlalchemy.sql import func
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Mapped, mapped_column
+
+# Type variables for generic return types
+T = TypeVar('T')
 
 from .base import Base
 
@@ -46,10 +54,16 @@ document_relationships = Table(
     "document_relationships",
     Base.metadata,
     Column(
-        "parent_document_id", UUID(as_uuid=True), ForeignKey("documents.id"), primary_key=True
+        "parent_document_id", 
+        String(36), 
+        ForeignKey("documents.id"), 
+        primary_key=True
     ),
     Column(
-        "child_document_id", UUID(as_uuid=True), ForeignKey("documents.id"), primary_key=True
+        "child_document_id", 
+        String(36), 
+        ForeignKey("documents.id"), 
+        primary_key=True
     ),
     Column("relationship_type", String(50), nullable=False, default="related"),
 )
@@ -75,7 +89,9 @@ class User(Base):
     documents = relationship("Document", back_populates="uploaded_by")
     events = relationship("TimelineEvent", back_populates="created_by")
     participant_in = relationship(
-        "Case", secondary=case_participants, back_populates="participants"
+        "Case", 
+        secondary=case_participants, 
+        back_populates="participants"
     )
 
     @validates("email")
@@ -121,12 +137,24 @@ class Case(Base):
     # Relationships
     owner = relationship("User", back_populates="cases")
     participants = relationship(
-        "User", secondary=case_participants, back_populates="participant_in"
+        "User", 
+        secondary=case_participants, 
+        back_populates="participant_in"
     )
     documents = relationship("Document", back_populates="case")
-    tags = relationship("Tag", secondary=case_tags, back_populates="cases")
-    timeline_events = relationship("TimelineEvent", back_populates="case")
-    evidence_items = relationship("Evidence", back_populates="case")
+    tags = relationship(
+        "Tag", 
+        secondary=case_tags, 
+        back_populates="cases"
+    )
+    timeline_events = relationship(
+        "TimelineEvent", 
+        back_populates="case"
+    )
+    evidence_items = relationship(
+        "Evidence", 
+        back_populates="case"
+    )
 
     def __repr__(self) -> str:
         return f"<Case {self.case_number or self.title}>"
@@ -230,7 +258,10 @@ class Evidence(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     evidence_type = Column(SQLAlchemyEnum(EvidenceType), nullable=False)
-    status = Column(SQLAlchemyEnum(EvidenceStatus), default=EvidenceStatus.PENDING_REVIEW)
+    status = Column(
+        SQLAlchemyEnum(EvidenceStatus), 
+        default=EvidenceStatus.PENDING_REVIEW
+    )
     exhibit_number = Column(String(50), nullable=True)
     chain_of_custody = Column(JSON, default=list)
     metadata_ = Column("metadata", JSON, default=dict)
@@ -274,7 +305,10 @@ class TimelineEvent(Base):
     id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    event_type = Column(SQLAlchemyEnum(TimelineEventType), nullable=False)
+    event_type = Column(
+        SQLAlchemyEnum(TimelineEventType), 
+        nullable=False
+    )
     event_date = Column(DateTime(timezone=True), nullable=False)
     end_date = Column(DateTime(timezone=True), nullable=True)
     is_important = Column(Boolean, default=False)

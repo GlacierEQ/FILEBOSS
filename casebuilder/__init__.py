@@ -1,5 +1,1 @@
-"""
-Mega CaseBuilder 3000 - Advanced Legal Case Management System
-"""
-
-__version__ = "0.1.0"
+# This file makes 'casebuilder' a Python package
