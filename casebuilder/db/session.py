@@ -4,7 +4,7 @@ Database Session Management
 This module handles database connections and session management.
 """
 import logging
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -12,8 +12,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     async_scoped_session,
 )
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.pool import NullPool
+from sqlalchemy.orm import declarative_base
 
 from ..core.config import settings
 
@@ -29,10 +28,13 @@ engine = create_async_engine(
     settings.DATABASE_URI,
     echo=settings.DEBUG,
     future=True,
-    pool_pre_ping=True,
-    pool_recycle=3600,
-    pool_size=10,
-    max_overflow=20,
+    # SQLite-specific settings
+    connect_args=(
+        {"check_same_thread": False} 
+        if "sqlite" in settings.DATABASE_URI 
+        else {}
+    )
+    # Note: SQLite doesn't support connection pooling like other databases
 )
 
 # Create session factory

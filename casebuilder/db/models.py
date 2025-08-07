@@ -18,7 +18,8 @@ from sqlalchemy import (
     JSON,
     Table,
 )
-from sqlalchemy.dialects.postgresql import UUID
+# Using String for UUID storage in SQLite
+from sqlalchemy import String as UUIDString
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.sql import func
 
@@ -28,16 +29,16 @@ from .base import Base
 case_participants = Table(
     "case_participants",
     Base.metadata,
-    Column("case_id", UUID(as_uuid=True), ForeignKey("cases.id"), primary_key=True),
-    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True),
+    Column("case_id", UUIDString(36), ForeignKey("cases.id"), primary_key=True),
+    Column("user_id", UUIDString(36), ForeignKey("users.id"), primary_key=True),
     Column("role", String(50), nullable=False, default="collaborator"),
 )
 
 case_tags = Table(
     "case_tags",
     Base.metadata,
-    Column("case_id", UUID(as_uuid=True), ForeignKey("cases.id"), primary_key=True),
-    Column("tag_id", UUID(as_uuid=True), ForeignKey("tags.id"), primary_key=True),
+    Column("case_id", UUIDString(36), ForeignKey("cases.id"), primary_key=True),
+    Column("tag_id", UUIDString(36), ForeignKey("tags.id"), primary_key=True),
 )
 
 
@@ -59,7 +60,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=True)
@@ -103,7 +104,7 @@ class Case(Base):
 
     __tablename__ = "cases"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     status = Column(SQLAlchemyEnum(CaseStatus), default=CaseStatus.DRAFT)
@@ -115,7 +116,7 @@ class Case(Base):
     closed_at = Column(DateTime(timezone=True), nullable=True)
     
     # Foreign keys
-    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    owner_id = Column(UUIDString(36), ForeignKey("users.id"), nullable=False)
     
     # Relationships
     owner = relationship("User", back_populates="cases")
@@ -161,7 +162,7 @@ class Document(Base):
 
     __tablename__ = "documents"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     file_path = Column(String(512), nullable=False)
@@ -176,8 +177,8 @@ class Document(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Foreign keys
-    case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
-    uploaded_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    case_id = Column(UUIDString(36), ForeignKey("cases.id"), nullable=False)
+    uploaded_by_id = Column(UUIDString(36), ForeignKey("users.id"), nullable=False)
     
     # Relationships
     case = relationship("Case", back_populates="documents")
@@ -225,7 +226,7 @@ class Evidence(Base):
 
     __tablename__ = "evidence"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     evidence_type = Column(SQLAlchemyEnum(EvidenceType), nullable=False)
@@ -237,8 +238,8 @@ class Evidence(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Foreign keys
-    case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=True)
+    case_id = Column(UUIDString(36), ForeignKey("cases.id"), nullable=False)
+    document_id = Column(UUIDString(36), ForeignKey("documents.id"), nullable=True)
     
     # Relationships
     case = relationship("Case", back_populates="evidence_items")
@@ -270,7 +271,7 @@ class TimelineEvent(Base):
 
     __tablename__ = "timeline_events"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     event_type = Column(SQLAlchemyEnum(TimelineEventType), nullable=False)
@@ -282,9 +283,9 @@ class TimelineEvent(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Foreign keys
-    case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
-    created_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    evidence_id = Column(UUID(as_uuid=True), ForeignKey("evidence.id"), nullable=True)
+    case_id = Column(UUIDString(36), ForeignKey("cases.id"), nullable=False)
+    created_by_id = Column(UUIDString(36), ForeignKey("users.id"), nullable=False)
+    evidence_id = Column(UUIDString(36), ForeignKey("evidence.id"), nullable=True)
     
     # Relationships
     case = relationship("Case", back_populates="timeline_events")
@@ -300,7 +301,7 @@ class Tag(Base):
 
     __tablename__ = "tags"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(50), nullable=False, unique=True, index=True)
     color = Column(String(7), nullable=True)  # Hex color code
     description = Column(Text, nullable=True)
