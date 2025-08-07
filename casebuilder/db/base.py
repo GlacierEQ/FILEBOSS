@@ -25,8 +25,12 @@ engine = create_engine(
     max_overflow=settings.database.max_overflow,
 )
 
+database_url = settings.database.url
+if database_url.startswith("sqlite") and "+aiosqlite" not in database_url:
+    database_url = database_url.replace("sqlite", "sqlite+aiosqlite", 1)
+
 async_engine = create_async_engine(
-    settings.database.url.replace("sqlite", "sqlite+aiosqlite"),
+    database_url,
     echo=settings.database.echo,
     pool_size=settings.database.pool_size,
     max_overflow=settings.database.max_overflow,
