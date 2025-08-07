@@ -25,11 +25,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["*"]
     
     # Database settings
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "casebuilder"
-    DATABASE_URI: Optional[PostgresDsn] = None
+    SQLITE_DB: str = "sqlite:///./casebuilder.db"
+    DATABASE_URI: Optional[str] = None
     
     @validator("DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: dict) -> str:
@@ -37,15 +34,8 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
         
-        return str(
-            PostgresDsn.build(
-                scheme="postgresql+asyncpg",
-                username=values.get("POSTGRES_USER"),
-                password=values.get("POSTGRES_PASSWORD"),
-                host=values.get("POSTGRES_SERVER"),
-                path=f"/{values.get('POSTGRES_DB') or ''}",
-            )
-        )
+        # Use SQLite by default
+        return str(values.get("SQLITE_DB"))
     
     # File storage settings
     UPLOAD_DIR: str = "uploads"
