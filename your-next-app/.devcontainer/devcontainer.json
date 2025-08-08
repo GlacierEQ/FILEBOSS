@@ -14,9 +14,7 @@
         "esbenp.prettier-vscode",
         "Prisma.prisma",
         "dbaeumer.vscode-eslint",
-        "GitHub.copilot",
-        "qodo.qodo-extension",
-        "roo-code.roo-code"
+        "GitHub.copilot"
       ]
     }
   }

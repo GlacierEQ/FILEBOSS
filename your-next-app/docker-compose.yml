@@ -19,7 +19,6 @@ services:
       DATABASE_URL: postgres://user:pass@db:5432/devdb
     depends_on: [ db ]
     volumes:
-      - /:/host-filesystem
       - .:/workspaces/your-next-app
     working_dir: /workspaces/your-next-app
   prisma-studio:
@@ -32,16 +31,7 @@ services:
       DATABASE_URL: postgres://user:pass@db:5432/devdb
     depends_on: [ db ]
     volumes:
-      - /:/host-filesystem
       - .:/workspaces/your-next-app
     working_dir: /workspaces/your-next-app
-ollama:
-    image: ollama/ollama
-    restart: always
-    ports: [ "11434:11434" ]
-    volumes: [ "ollamadata:/root/.ollama" ]
-    container_name: ollama
-
 volumes:
   pgdata:
-  ollamadata:
