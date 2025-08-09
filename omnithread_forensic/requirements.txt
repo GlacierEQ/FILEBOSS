@@ -1,0 +1,71 @@
+# Core Dependencies
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+python-magic>=0.4.27
+python-magic-bin>=0.4.14; sys_platform == 'win32'
+
+# Cloud Storage SDKs
+google-api-python-client>=2.0.0
+dropbox>=11.36.0
+boxsdk>=3.0.0
+boto3>=1.26.0
+msal>=1.20.0
+msal-extensions>=1.0.0
+
+# File Processing
+PyMuPDF>=1.22.0
+Pillow>=10.0.0
+python-pptx>=0.6.21
+python-docx>=0.8.11
+openpyxl>=3.1.2
+python-pptx>=0.6.21
+
+# OCR and Text Processing
+easyocr>=1.7.0
+pytesseract>=0.3.10
+spacy>=3.6.0
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl
+
+# Audio/Video Processing
+SpeechRecognition>=3.10.0
+pydub>=0.25.1
+moviepy>=1.0.3
+
+# Hashing and Security
+cryptography>=40.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# Database and Caching
+sqlalchemy>=2.0.0
+alembic>=1.11.1
+redis>=4.5.0
+
+# Testing and Development
+pytest>=7.3.1
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+black>=23.3.0
+mypy>=1.2.0
+flake8>=6.0.0
+
+# Async
+anyio>=3.6.2
+httpx>=0.24.0
+
+# Utilities
+tqdm>=4.65.0
+python-dateutil>=2.8.2
+pytz>=2023.3
+python-slugify>=8.0.0
+
+# Agent Framework
+langchain>=0.0.267
+openai>=0.27.8
