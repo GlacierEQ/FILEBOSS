@@ -1,0 +1,64 @@
+# SIGMA FILEBOSS - Unified Requirements
+# Core GUI Framework
+PyQt6>=6.5.0
+PyQt6-Qt6>=6.5.0
+
+# Database & ORM
+SQLAlchemy>=2.0.0
+alembic>=1.12.0
+psycopg2-binary>=2.9.0  # PostgreSQL adapter
+sqlite3  # Built-in, for development
+
+# FastAPI & Web Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.0
+python-multipart>=0.0.6
+
+# File Processing & Organization
+python-magic>=0.4.27
+Pillow>=10.0.0
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+openpyxl>=3.1.0
+
+# Audio Processing (WhisperX Integration)
+requests>=2.31.0
+pydub>=0.25.1
+mutagen>=1.47.0
+
+# OCR & Document Processing
+pytesseract>=0.3.10
+easyocr>=1.7.0
+
+# AI/ML Libraries
+torch>=2.1.0
+transformers>=4.35.0
+sentence-transformers>=2.2.2
+huggingface-hub>=0.17.0
+
+# Legal Document Processing
+nltk>=3.8.1
+spacy>=3.7.0
+dateparser>=1.1.8
+
+# Media & Multimedia
+opencv-python>=4.8.0
+moviepy>=1.0.3
+
+# Utilities & Helpers
+watchdog>=3.0.0  # File system monitoring
+tqdm>=4.66.0     # Progress bars
+click>=8.1.0     # CLI framework
+python-dotenv>=1.0.0  # Environment variables
+cryptography>=41.0.0  # Security
+
+# Development & Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.9.0
+flake8>=6.0.0
+
+# Optional Components (may not be available in all environments)
+# nexa-sdk  # For AI models - if available
+# pyannote.audio  # For speaker diarization - if available
