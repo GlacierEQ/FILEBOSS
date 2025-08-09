@@ -1,23 +1,27 @@
 version: '3.8'
 
 services:
+  # Main application service
   app:
-    build: .
-    container_name: casebuilder-app
-    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fileboss-app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+      - uploads:/app/uploads
+      - logs:/app/logs
     ports:
       - "8000:8000"
-    volumes:
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
-      - ./.env:/app/.env
+    env_file:
+      - .env
     depends_on:
-      - postgres
-      - redis
-    environment:
-      - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      - REDIS_URL=redis://redis:6379/0
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -25,25 +29,113 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - casebuilder-network
+      - fileboss-network
 
+  # PostgreSQL database
   postgres:
     image: postgres:14-alpine
-    container_name: casebuilder-postgres
-    restart: unless-stopped
+    container_name: fileboss-postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-casebuilder}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-fileboss}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-casebuilder}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fileboss}"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - casebuilder-network
+      - fileboss-network
+    restart: unless-stopped
+
+  # Redis for caching and async tasks
+  redis:
+    image: redis:7-alpine
+    container_name: fileboss-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - fileboss-network
+    restart: unless-stopped
+
+  # PGAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fileboss-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@fileboss.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - fileboss-network
+    restart: unless-stopped
+
+  # Celery worker for async tasks
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fileboss-worker
+    command: celery -A app.worker worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - fileboss-network
+    restart: unless-stopped
+
+  # Celery beat for scheduled tasks
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fileboss-beat
+    command: celery -A app.worker beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - fileboss-network
+    restart: unless-stopped
+
+# Networks
+networks:
+  fileboss-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+  uploads:
+  logs:
 
   redis:
     image: redis:7-alpine

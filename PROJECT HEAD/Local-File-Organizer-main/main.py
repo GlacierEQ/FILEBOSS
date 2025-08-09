@@ -1,11 +1,16 @@
 import os
 import time
+import argparse
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Any, Optional
 
 from file_utils import (
     display_directory_tree,
     collect_file_paths,
     separate_files_by_type,
-    read_file_data
+    read_file_data,
+    is_legal_document
 )
 
 from data_processing_common import (
@@ -15,16 +20,24 @@ from data_processing_common import (
     process_files_by_type,
 )
 
-from text_data_processing import (
-    process_text_files
+from text_data_processing import process_text_files
+from image_data_processing import process_image_files
+from output_filter import filter_specific_output
+
+# Import legal document processing
+from legal_processor import (
+    process_legal_document,
+    LegalDocument,
+    MotionTemplate
 )
 
-from image_data_processing import (
-    process_image_files
-)
-
-from output_filter import filter_specific_output  # Import the context manager
-from nexa.gguf import NexaVLMInference, NexaTextInference  # Import model classes
+# Import models if available
+try:
+    from nexa.gguf import NexaVLMInference, NexaTextInference
+    MODELS_AVAILABLE = True
+except ImportError:
+    MODELS_AVAILABLE = False
+    print("Note: Nexa models not available. Some features may be limited.")
 
 def ensure_nltk_data():
     """Ensure that NLTK data is downloaded efficiently and quietly."""
@@ -116,161 +129,122 @@ def get_yes_no(prompt):
 
 def get_mode_selection():
     """Prompt the user to select a mode."""
+    print("\nSelect processing mode:")
+    print("1. Automatic organization by type and date")
+    print("2. Manual organization with preview")
+    print("3. Process text files only")
+    print("4. Process image files only")
+    print("5. Process legal documents")
+    print("6. Exit")
+    
     while True:
-        print("Please choose the mode to organize your files:")
-        print("1. By Content")
-        print("2. By Date")
-        print("3. By Type")
-        response = input("Enter 1, 2, or 3 (or type '/exit' to exit): ").strip()
-        if response == '/exit':
-            print("Exiting program.")
-            exit()
-        elif response == '1':
-            return 'content'
-        elif response == '2':
-            return 'date'
-        elif response == '3':
-            return 'type'
-        else:
-            print("Invalid selection. Please enter 1, 2, or 3. To exit, type '/exit'.")
+        choice = input("\nEnter your choice (1-6): ").strip()
+        if choice in ['1', '2', '3', '4', '5', '6']:
+            return choice
+        print("Invalid choice. Please enter a number between 1 and 6.")
+
+def process_legal_documents(files: List[str], output_dir: str, dry_run: bool = False) -> Dict[str, Any]:
+    """Process legal documents and organize them appropriately.
+    
+    Args:
+        files: List of file paths to process
+        output_dir: Base output directory
+        dry_run: If True, only simulate the operations
+        
+    Returns:
+        Dictionary with processing results
+    """
+    results = {
+        'processed': 0,
+        'skipped': 0,
+        'errors': 0,
+        'documents': []
+    }
+    
+    # Create output directories if they don't exist
+    legal_dir = os.path.join(output_dir, "Legal")
+    os.makedirs(legal_dir, exist_ok=True)
+    
+    for file_path in files:
+        try:
+            # Check if file is a legal document
+            if not is_legal_document(file_path):
+                results['skipped'] += 1
+                continue
+                
+            # Process the legal document
+            doc = process_legal_document(file_path)
+            results['documents'].append(doc.to_dict())
+            
+            # Determine output path based on document type
+            doc_type_dir = os.path.join(legal_dir, doc.doc_type)
+            os.makedirs(doc_type_dir, exist_ok=True)
+            
+            # Generate output filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{doc.doc_type}_{timestamp}{os.path.splitext(file_path)[1]}"
+            output_path = os.path.join(doc_type_dir, filename)
+            
+            if not dry_run:
+                # Copy the file to the new location
+                import shutil
+                shutil.copy2(file_path, output_path)
+                
+            results['processed'] += 1
+            
+            print(f"Processed: {os.path.basename(file_path)} -> {output_path}")
+            
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}")
+            results['errors'] += 1
+    
+    return results
+
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description='FILEBOSS - File Organization System')
+    
+    # Main arguments
+    parser.add_argument('path', nargs='?', help='Directory path to organize')
+    parser.add_argument('-o', '--output', help='Output directory (default: <path>/organized)')
+    parser.add_argument('--mode', type=int, choices=range(1, 7), 
+                       help='Processing mode (1-6)')
+    
+    # Legal document options
+    legal_group = parser.add_argument_group('Legal Document Options')
+    legal_group.add_argument('--legal-only', action='store_true',
+                           help='Process only legal documents')
+    legal_group.add_argument('--generate-motion', action='store_true',
+                           help='Generate a motion from template')
+    legal_group.add_argument('--motion-type', 
+                           choices=['vacate', 'summary_judgment', 'dismiss'],
+                           help='Type of motion to generate')
+    
+    # General options
+    parser.add_argument('--dry-run', action='store_true',
+                       help='Simulate operations without making changes')
+    parser.add_argument('--yes', '-y', action='store_true',
+                       help='Auto-confirm all prompts')
+    
+    return parser.parse_args()
 
 def main():
-    # Ensure NLTK data is downloaded efficiently and quietly
     ensure_nltk_data()
-
-    # Start with dry run set to True
-    dry_run = True
-
-    # Display silent mode explanation before asking
-    print("-" * 50)
-    print("**NOTE: Silent mode logs all outputs to a text file instead of displaying them in the terminal.")
-    silent_mode = get_yes_no("Would you like to enable silent mode? (yes/no): ")
-    if silent_mode:
-        log_file = 'operation_log.txt'
-    else:
-        log_file = None
-
+    
+    # Parse command line arguments
+    args = parse_arguments()
+    
+    print("\n" + "="*50)
+    print("FILEBOSS - File Organization System")
+    print("="*50)
+    
+    # Get the directory to organize
     while True:
-        # Paths configuration
-        if not silent_mode:
-            print("-" * 50)
-
-        # Get input and output paths once per directory
-        input_path = input("Enter the path of the directory you want to organize: ").strip()
-        while not os.path.exists(input_path):
-            message = f"Input path {input_path} does not exist. Please enter a valid path."
-            if silent_mode:
-                with open(log_file, 'a') as f:
-                    f.write(message + '\n')
-            else:
-                print(message)
-            input_path = input("Enter the path of the directory you want to organize: ").strip()
-
-        # Confirm successful input path
-        message = f"Input path successfully uploaded: {input_path}"
-        if silent_mode:
-            with open(log_file, 'a') as f:
-                f.write(message + '\n')
-        else:
-            print(message)
-        if not silent_mode:
-            print("-" * 50)
-
-        # Default output path is a folder named "organized_folder" in the same directory as the input path
-        output_path = input("Enter the path to store organized files and folders (press Enter to use 'organized_folder' in the input directory): ").strip()
-        if not output_path:
-            # Get the parent directory of the input path and append 'organized_folder'
-            output_path = os.path.join(os.path.dirname(input_path), 'organized_folder')
-
-        # Confirm successful output path
-        message = f"Output path successfully set to: {output_path}"
-        if silent_mode:
-            with open(log_file, 'a') as f:
-                f.write(message + '\n')
-        else:
-            print(message)
-        if not silent_mode:
-            print("-" * 50)
-
-        # Start processing files
-        start_time = time.time()
-        file_paths = collect_file_paths(input_path)
-        end_time = time.time()
-
-        message = f"Time taken to load file paths: {end_time - start_time:.2f} seconds"
-        if silent_mode:
-            with open(log_file, 'a') as f:
-                f.write(message + '\n')
-        else:
-            print(message)
-        if not silent_mode:
-            print("-" * 50)
-            print("Directory tree before organizing:")
-            display_directory_tree(input_path)
-
-            print("*" * 50)
-
-        # Loop for selecting sorting methods
-        while True:
-            mode = get_mode_selection()
-
-            if mode == 'content':
-                # Proceed with content mode
-                # Initialize models once
-                if not silent_mode:
-                    print("Checking if the model is already downloaded. If not, downloading it now.")
-                initialize_models()
-
-                if not silent_mode:
-                    print("*" * 50)
-                    print("The file upload was successful. Processing may take a few minutes.")
-                    print("*" * 50)
-
-                # Prepare to collect link type statistics
-                link_type_counts = {'hardlink': 0, 'symlink': 0}
-
-                # Separate files by type
-                image_files, text_files = separate_files_by_type(file_paths)
-
-                # Prepare text tuples for processing
-                text_tuples = []
-                for fp in text_files:
-                    # Use read_file_data to read the file content
-                    text_content = read_file_data(fp)
-                    if text_content is None:
-                        message = f"Unsupported or unreadable text file format: {fp}"
-                        if silent_mode:
-                            with open(log_file, 'a') as f:
-                                f.write(message + '\n')
-                        else:
-                            print(message)
-                        continue  # Skip unsupported or unreadable files
-                    text_tuples.append((fp, text_content))
-
-                # Process files sequentially
-                data_images = process_image_files(image_files, image_inference, text_inference, silent=silent_mode, log_file=log_file)
-                data_texts = process_text_files(text_tuples, text_inference, silent=silent_mode, log_file=log_file)
-
-                # Prepare for copying and renaming
-                renamed_files = set()
-                processed_files = set()
-
-                # Combine all data
-                all_data = data_images + data_texts
-
-                # Compute the operations
-                operations = compute_operations(
-                    all_data,
-                    output_path,
-                    renamed_files,
-                    processed_files
-                )
-
-            elif mode == 'date':
-                # Process files by date
-                operations = process_files_by_date(file_paths, output_path, dry_run=False, silent=silent_mode, log_file=log_file)
-            elif mode == 'type':
-                # Process files by type
+        path = args.path
+        if not path:
+            path = input("\nEnter the directory path to organize (or 'q' to quit): ").strip()
+            if path.lower() == 'q':
+                print("Exiting...")
                 operations = process_files_by_type(file_paths, output_path, dry_run=False, silent=silent_mode, log_file=log_file)
             else:
                 print("Invalid mode selected.")

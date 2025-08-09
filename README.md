@@ -1,30 +1,31 @@
-# FILEBOSS - Digital Evidence Management System
+# 🚀 FILEBOSS - Advanced File Management System
 
-FILEBOSS is an advanced digital evidence management system designed for legal, investigative, and forensic professionals. It provides a robust platform for collecting, processing, organizing, and analyzing digital evidence while maintaining a secure chain of custody and comprehensive timeline of events.
+FILEBOSS is a powerful, scalable file management system built with FastAPI and modern Python. It provides a robust API for file operations, user management, and secure access control.
 
 ## ✨ Features
 
-- **Evidence Management**: Track and manage digital evidence with full audit trails and chain of custody
-- **Automated File Processing**: Extract metadata, generate hashes, and process various file types
-- **Timeline Integration**: Link evidence to timeline events for comprehensive case analysis
-- **Secure Access**: JWT authentication with role-based access control
-- **Containerized Deployment**: Easy deployment with Docker and Docker Compose
-- **CI/CD Pipeline**: Automated testing and deployment with GitHub Actions
-- **RESTful API**: Built with FastAPI for high performance and easy integration
-- **Database Migrations**: Alembic for database versioning and schema management
+- **RESTful API**: Built with FastAPI for high performance and automatic OpenAPI documentation
+- **Modern Python**: Type hints, async/await, and Pydantic models throughout
+- **Modular Architecture**: Clean separation of concerns with domain-driven design
+- **Authentication & Authorization**: JWT-based authentication with role-based access control
+- **File Processing**: Support for various file types with metadata extraction
+- **Database**: SQLAlchemy ORM with async support, PostgreSQL recommended
+- **Testing**: Comprehensive test suite with pytest and coverage reporting
+- **Containerized**: Ready for Docker and Kubernetes deployment
+- **CI/CD**: GitHub Actions for automated testing and deployment
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Docker 20.10+ and Docker Compose 2.0+
-- Python 3.10+ (for development)
-- PostgreSQL 14+ (included in Docker)
-- Redis 7+ (included in Docker)
+- Python 3.10+
+- PostgreSQL 14+ (or SQLite for development)
+- Redis 7+ (for caching and async tasks)
+- Docker 20.10+ and Docker Compose 2.0+ (optional)
 
 ## 🛠 Installation
 
-### With Docker (Recommended)
+### Local Development
 
 1. Clone the repository:
    ```bash
@@ -32,21 +33,136 @@ FILEBOSS is an advanced digital evidence management system designed for legal, i
    cd FILEBOSS
    ```
 
-2. Copy the example environment file and configure it:
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -e ".[dev,test]"
+   ```
+
+4. Configure environment variables:
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
-3. Start the application with Docker Compose:
+5. Initialize the database:
    ```bash
-   docker-compose up -d
+   alembic upgrade head
+   python -m app.db.init_db
+   ```
+
+6. Start the development server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+   The API will be available at `http://localhost:8000`
+   
+   Interactive API documentation:
+   - Swagger UI: `http://localhost:8000/docs`
+   - ReDoc: `http://localhost:8000/redoc`
+
+### With Docker
+
+1. Clone the repository and navigate to the project directory
+
+2. Copy and configure the environment file:
+   ```bash
+   cp .env.example .env
+   # Edit .env as needed
+   ```
+
+3. Build and start the services:
+   ```bash
+   docker-compose up -d --build
    ```
 
 4. Initialize the database:
    ```bash
-   docker-compose exec app python scripts/init_db.py
+   docker-compose exec app alembic upgrade head
+   docker-compose exec app python -m app.db.init_db
    ```
+
+The application will be available at `http://localhost:8000`
+
+## 🏗 Project Structure
+
+```
+FILEBOSS/
+├── app/                    # Application package
+│   ├── api/                # API routes and endpoints
+│   ├── core/               # Core functionality (config, security, etc.)
+│   ├── db/                 # Database models and migrations
+│   ├── schemas/            # Pydantic models for request/response validation
+│   ├── services/           # Business logic and service layer
+│   └── utils/              # Utility functions and helpers
+├── tests/                  # Test suite
+├── alembic/                # Database migrations
+├── .github/                # GitHub Actions workflows
+├── .env.example            # Example environment variables
+├── .gitignore
+├── docker-compose.yml      # Docker Compose configuration
+├── Dockerfile              # Production Dockerfile
+├── pyproject.toml          # Project configuration and dependencies
+└── README.md               # This file
+```
+
+## 🧪 Testing
+
+Run tests with coverage:
+```bash
+pytest --cov=app --cov-report=term-missing
+```
+
+Run specific test file:
+```bash
+pytest tests/path/to/test_file.py -v
+```
+
+## 🛠 Development
+
+### Code Style
+
+- Code formatting with Black and isort
+- Type checking with mypy
+- Linting with flake8 and pylint
+
+Pre-commit hooks are configured to run these checks before each commit.
+
+### Database Migrations
+
+Create a new migration:
+```bash
+alembic revision --autogenerate -m "description of changes"
+```
+
+Apply migrations:
+```bash
+alembic upgrade head
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📧 Contact
+
+Your Name - [@your_twitter](https://twitter.com/your_twitter) - your.email@example.com
+
+Project Link: [https://github.com/your-username/FILEBOSS](https://github.com/your-username/FILEBOSS)
 
 ### Local Development Setup
 
