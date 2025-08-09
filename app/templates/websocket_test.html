@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project_name }} - WebSocket Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .panel h2 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.connecting {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .message-log {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .message.sent {
+            background-color: #e3f2fd;
+        }
+        .message.received {
+            background-color: #e8f5e9;
+        }
+        .message.system {
+            background-color: #fff3e0;
+        }
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .flex-grow {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ project_name }} - WebSocket Test</h1>
+        
+        <div class="panel">
+            <h2>Connection</h2>
+            <div class="flex-row">
+                <input type="text" id="wsUrl" value="{{ websocket_url }}" class="flex-grow">
+                <button id="connectBtn">Connect</button>
+                <button id="disconnectBtn" disabled>Disconnect</button>
+            </div>
+            <div id="connectionStatus" class="status disconnected">Disconnected</div>
+        </div>
+        
+        <div class="panel">
+            <h2>Authentication</h2>
+            <div class="flex-row">
+                <input type="text" id="authToken" placeholder="JWT Token (optional)" class="flex-grow">
+                <button id="authBtn" disabled>Authenticate</button>
+            </div>
+            <div id="authStatus">Not authenticated</div>
+        </div>
+        
+        <div class="panel">
+            <h2>Channels</h2>
+            <div class="flex-row">
+                <input type="text" id="channelName" placeholder="Channel name" class="flex-grow">
+                <button id="subscribeBtn" disabled>Subscribe</button>
+                <button id="unsubscribeBtn" disabled>Unsubscribe</button>
+            </div>
+            <div id="channelsList">
+                <div>Subscribed channels: <span id="subscribedChannels">None</span></div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Send Message</h2>
+            <div class="flex-row">
+                <select id="messageType">
+                    <option value="message">Message</option>
+                    <option value="ping">Ping</option>
+                    <option value="custom">Custom JSON</option>
+                </select>
+                <input type="text" id="messageChannel" placeholder="Channel (optional)" class="flex-grow">
+            </div>
+            <textarea id="messageText" rows="3" placeholder="Message content"></textarea>
+            <div class="flex-row">
+                <button id="sendBtn" disabled>Send</button>
+                <button id="clearBtn">Clear Log</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Message Log</h2>
+            <div id="messageLog" class="message-log"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const wsUrlInput = document.getElementById('wsUrl');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const authTokenInput = document.getElementById('authToken');
+        const authBtn = document.getElementById('authBtn');
+        const authStatus = document.getElementById('authStatus');
+        const channelNameInput = document.getElementById('channelName');
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        const unsubscribeBtn = document.getElementById('unsubscribeBtn');
+        const subscribedChannelsSpan = document.getElementById('subscribedChannels');
+        const messageTypeSelect = document.getElementById('messageType');
+        const messageChannelInput = document.getElementById('messageChannel');
+        const messageTextArea = document.getElementById('messageText');
+        const sendBtn = document.getElementById('sendBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const messageLog = document.getElementById('messageLog');
+        
+        // State
+        let socket = null;
+        let isConnected = false;
+        let isAuthenticated = false;
+        let clientId = null;
+        const subscribedChannels = new Set();
+        
+        // Initialize
+        updateUI();
+        
+        // Event Listeners
+        connectBtn.addEventListener('click', connectWebSocket);
+        disconnectBtn.addEventListener('click', disconnectWebSocket);
+        authBtn.addEventListener('click', authenticate);
+        subscribeBtn.addEventListener('click', subscribeChannel);
+        unsubscribeBtn.addEventListener('click', unsubscribeChannel);
+        sendBtn.addEventListener('click', sendMessage);
+        clearBtn.addEventListener('click', clearLog);
+        
+        // WebSocket Functions
+        function connectWebSocket() {
+            const wsUrl = wsUrlInput.value.trim();
+            if (!wsUrl) {
+                logMessage('WebSocket URL is required', 'system');
+                return;
+            }
+            
+            try {
+                updateConnectionStatus('connecting', 'Connecting...');
+                
+                // Create WebSocket connection
+                socket = new WebSocket(wsUrl);
+                
+                // Connection opened
+                socket.addEventListener('open', (event) => {
+                    isConnected = true;
+                    updateConnectionStatus('connected', 'Connected');
+                    logMessage('Connected to WebSocket server', 'system');
+                    updateUI();
+                });
+                
+                // Listen for messages
+                socket.addEventListener('message', (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        logMessage(JSON.stringify(message, null, 2), 'received');
+                        
+                        // Handle specific message types
+                        if (message.type === 'welcome') {
+                            clientId = message.client_id;
+                            logMessage(`Client ID: ${clientId}`, 'system');
+                            
+                            // Try to authenticate if we have a token
+                            const token = authTokenInput.value.trim();
+                            if (token) {
+                                authenticate();
+                            }
+                        }
+                        else if (message.type === 'auth_success') {
+                            isAuthenticated = true;
+                            authStatus.textContent = `Authenticated as user ${message.user_id}`;
+                            logMessage(`Authentication successful for user ${message.user_id}`, 'system');
+                            updateUI();
+                        }
+                        else if (message.type === 'auth_error') {
+                            isAuthenticated = false;
+                            authStatus.textContent = `Authentication failed: ${message.message}`;
+                            logMessage(`Authentication error: ${message.message}`, 'error');
+                        }
+                        else if (message.type === 'subscribed') {
+                            subscribedChannels.add(message.channel);
+                            updateSubscribedChannels();
+                            logMessage(`Subscribed to channel: ${message.channel}`, 'system');
+                        }
+                        else if (message.type === 'unsubscribed') {
+                            subscribedChannels.delete(message.channel);
+                            updateSubscribedChannels();
+                            logMessage(`Unsubscribed from channel: ${message.channel}`, 'system');
+                        }
+                    } catch (e) {
+                        logMessage(`Error processing message: ${e}\n${event.data}`, 'error');
+                    }
+                });
+                
+                // Connection closed
+                socket.addEventListener('close', (event) => {
+                    isConnected = false;
+                    isAuthenticated = false;
+                    updateConnectionStatus('disconnected', 'Disconnected');
+                    logMessage('Disconnected from WebSocket server', 'system');
+                    updateUI();
+                });
+                
+                // Handle errors
+                socket.addEventListener('error', (event) => {
+                    updateConnectionStatus('disconnected', 'Connection error');
+                    logMessage('WebSocket error', 'error');
+                    console.error('WebSocket error:', event);
+                });
+                
+            } catch (error) {
+                updateConnectionStatus('disconnected', 'Connection failed');
+                logMessage(`Failed to connect: ${error}`, 'error');
+                console.error('WebSocket connection error:', error);
+            }
+        }
+        
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.close();
+                socket = null;
+                isConnected = false;
+                isAuthenticated = false;
+                clientId = null;
+                subscribedChannels.clear();
+                updateSubscribedChannels();
+                updateUI();
+                logMessage('Disconnected by user', 'system');
+            }
+        }
+        
+        function authenticate() {
+            if (!isConnected || !socket) {
+                logMessage('Not connected to WebSocket server', 'error');
+                return;
+            }
+            
+            const token = authTokenInput.value.trim();
+            if (!token) {
+                logMessage('Please enter an authentication token', 'error');
+                return;
+            }
+            
+            try {
+                const authMessage = {
+                    type: 'auth',
+                    data: { token },
+                    request_id: generateRequestId()
+                };
+                
+                socket.send(JSON.stringify(authMessage));
+                logMessage('Authentication request sent', 'system');
+                logMessage(JSON.stringify(authMessage, null, 2), 'sent');
+                
+            } catch (error) {
+                logMessage(`Failed to send authentication: ${error}`, 'error');
+            }
+        }
+        
+        function subscribeChannel() {
+            sendChannelCommand('subscribe');
+        }
+        
+        function unsubscribeChannel() {
+            sendChannelCommand('unsubscribe');
+        }
+        
+        function sendChannelCommand(command) {
+            if (!isConnected || !socket) {
+                logMessage('Not connected to WebSocket server', 'error');
+                return;
+            }
+            
+            const channel = channelNameInput.value.trim();
+            if (!channel) {
+                logMessage('Please enter a channel name', 'error');
+                return;
+            }
+            
+            try {
+                const message = {
+                    type: command,
+                    data: { channel },
+                    request_id: generateRequestId()
+                };
+                
+                socket.send(JSON.stringify(message));
+                logMessage(`${command.charAt(0).toUpperCase() + command.slice(1)} request sent to channel: ${channel}`, 'system');
+                logMessage(JSON.stringify(message, null, 2), 'sent');
+                
+            } catch (error) {
+                logMessage(`Failed to send ${command} command: ${error}`, 'error');
+            }
+        }
+        
+        function sendMessage() {
+            if (!isConnected || !socket) {
+                logMessage('Not connected to WebSocket server', 'error');
+                return;
+            }
+            
+            const messageType = messageTypeSelect.value;
+            const channel = messageChannelInput.value.trim() || null;
+            let messageText = messageTextArea.value.trim();
+            
+            if (messageType === 'custom') {
+                try {
+                    // Try to parse as JSON to validate
+                    JSON.parse(messageText);
+                } catch (e) {
+                    logMessage('Invalid JSON: ' + e.message, 'error');
+                    return;
+                }
+            }
+            
+            try {
+                let message;
+                
+                if (messageType === 'custom') {
+                    // Parse the JSON message
+                    message = JSON.parse(messageText);
+                } else if (messageType === 'ping') {
+                    message = {
+                        type: 'ping',
+                        request_id: generateRequestId()
+                    };
+                } else {
+                    // Regular message
+                    message = {
+                        type: 'message',
+                        data: {
+                            content: messageText,
+                            timestamp: new Date().toISOString()
+                        },
+                        request_id: generateRequestId()
+                    };
+                    
+                    if (channel) {
+                        message.data.channel = channel;
+                    }
+                }
+                
+                // Send the message
+                socket.send(JSON.stringify(message));
+                logMessage(JSON.stringify(message, null, 2), 'sent');
+                
+                // Clear the message input if not a custom message
+                if (messageType !== 'custom') {
+                    messageTextArea.value = '';
+                }
+                
+            } catch (error) {
+                logMessage(`Failed to send message: ${error}`, 'error');
+            }
+        }
+        
+        // UI Update Functions
+        function updateUI() {
+            // Connection buttons
+            connectBtn.disabled = isConnected;
+            disconnectBtn.disabled = !isConnected;
+            
+            // Authentication
+            authBtn.disabled = !isConnected;
+            
+            // Channel operations
+            subscribeBtn.disabled = !isConnected;
+            unsubscribeBtn.disabled = !isConnected || subscribedChannels.size === 0;
+            
+            // Message sending
+            sendBtn.disabled = !isConnected;
+        }
+        
+        function updateConnectionStatus(status, message) {
+            // Remove all status classes
+            connectionStatus.classList.remove('connected', 'disconnected', 'connecting');
+            
+            // Add the appropriate class and set the message
+            connectionStatus.classList.add(status);
+            connectionStatus.textContent = message;
+            
+            // Update connection state
+            isConnected = status === 'connected';
+        }
+        
+        function updateSubscribedChannels() {
+            if (subscribedChannels.size === 0) {
+                subscribedChannelsSpan.textContent = 'None';
+                subscribedChannelsSpan.style.fontStyle = 'italic';
+            } else {
+                subscribedChannelsSpan.textContent = Array.from(subscribedChannels).join(', ');
+                subscribedChannelsSpan.style.fontStyle = 'normal';
+            }
+            
+            // Update unsubscribe button state
+            unsubscribeBtn.disabled = subscribedChannels.size === 0;
+        }
+        
+        // Utility Functions
+        function logMessage(message, type = 'system') {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            
+            const timestamp = new Date().toISOString().substr(11, 12);
+            const typePrefix = type === 'sent' ? 'SENT' : 
+                             type === 'received' ? 'RECV' : 
+                             type === 'error' ? 'ERROR' : 'SYS';
+            
+            messageElement.textContent = `[${timestamp}] [${typePrefix}] ${message}`;
+            messageLog.appendChild(messageElement);
+            
+            // Auto-scroll to bottom
+            messageLog.scrollTop = messageLog.scrollHeight;
+        }
+        
+        function clearLog() {
+            messageLog.innerHTML = '';
+            logMessage('Log cleared', 'system');
+        }
+        
+        function generateRequestId() {
+            return 'req_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Handle window beforeunload
+        window.addEventListener('beforeunload', () => {
+            if (socket) {
+                socket.close();
+            }
+        });
+        
+        // Enable Ctrl+Enter to send message
+        messageTextArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

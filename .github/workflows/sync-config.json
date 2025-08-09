@@ -1,0 +1,22 @@
+{
+  "repositories": [
+    {
+      "name": "fileboss-core",
+      "url": "https://github.com/your-username/fileboss-core.git",
+      "branch": "main"
+    },
+    {
+      "name": "fileboss-ui",
+      "url": "https://github.com/your-username/fileboss-ui.git",
+      "branch": "main"
+    },
+    {
+      "name": "fileboss-cli",
+      "url": "https://github.com/your-username/fileboss-cli.git",
+      "branch": "main"
+    }
+  ],
+  "exclude_workflows": ["sync.yml"],
+  "default_branch": "main",
+  "commit_message": "chore: update GitHub Actions workflows"
+}

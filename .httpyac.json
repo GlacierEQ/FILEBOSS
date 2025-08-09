@@ -1,0 +1,36 @@
+{
+  "$schema": "https://httpyac.github.io/schema/v5.0.0/config.json",
+  "envDirName": "env",
+  "environmentFolder": "./tests/api/env",
+  "defaultEnvironment": "local",
+  "log": {
+    "level": "info",
+    "maxSize": 1048576,
+    "maxFiles": 5
+  },
+  "cookieJarEnabled": true,
+  "request": {
+    "timeout": 30000,
+    "proxy": "${env.HTTP_PROXY}",
+    "https": {
+      "rejectUnauthorized": false
+    }
+  },
+  "test": {
+    "timeout": 5000,
+    "continueOnError": false
+  },
+  "preview": {
+    "default": "text",
+    "maxSize": 1048576
+  },
+  "editor": {
+    "fontSize": 14,
+    "fontFamily": "'Fira Code', 'Consolas', 'Courier New', monospace",
+    "wordWrap": "on"
+  },
+  "variables": {
+    "baseUrl": "http://localhost:8000",
+    "apiVersion": "v1"
+  }
+}

@@ -1,0 +1,70 @@
+### List all files
+# @name list_files
+GET {{baseUrl}}/api/v1/files
+Authorization: Bearer {{@env.API_TOKEN}}
+Accept: application/json
+
+> {%
+  client.test("Request executed successfully", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+    client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json'");
+    client.assert(Array.isArray(response.body), "Response is not an array");
+  });
+%}
+
+### Upload a file
+# @name upload_file
+POST {{baseUrl}}/api/v1/files
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: Bearer {{@env.API_TOKEN}}
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+This is a test file
+--boundary--
+
+> {%
+  client.test("File uploaded successfully", function() {
+    client.assert(response.status === 201, "Expected status 201");
+    client.assert(response.body.id, "No file ID in response");
+    client.global.set("file_id", response.body.id);
+  });
+%}
+
+### Get file metadata
+# @name get_file_metadata
+GET {{baseUrl}}/api/v1/files/{{file_id}}
+Authorization: Bearer {{@env.API_TOKEN}}
+Accept: application/json
+
+> {%
+  client.test("File metadata retrieved", function() {
+    client.assert(response.status === 200, "Expected status 200");
+    client.assert(response.body.id === client.global.get("file_id"), "File ID mismatch");
+  });
+%}
+
+### Download file
+# @name download_file
+GET {{baseUrl}}/api/v1/files/{{file_id}}/download
+Authorization: Bearer {{@env.API_TOKEN}}
+
+> {%
+  client.test("File downloaded successfully", function() {
+    client.assert(response.status === 200, "Expected status 200");
+    client.assert(response.body, "No file content in response");
+  });
+%}
+
+### Delete file
+# @name delete_file
+DELETE {{baseUrl}}/api/v1/files/{{file_id}}
+Authorization: Bearer {{@env.API_TOKEN}}
+
+> {%
+  client.test("File deleted successfully", function() {
+    client.assert(response.status === 204, "Expected status 204");
+  });
+%}
