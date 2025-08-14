@@ -12,3 +12,6 @@ aiosqlite
 
 # For handling file uploads and form data
 python-multipart
+
+# For running the test client
+httpx

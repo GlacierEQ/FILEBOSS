@@ -2,10 +2,19 @@
 
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from casebuilder.db.base import get_async_db
+from casebuilder.models import Evidence, EvidenceRead
 
 router = APIRouter()
 
@@ -25,39 +34,32 @@ class EvidenceService:
         description: Optional[str] = None,
         tags: Optional[List[str]] = None,
         created_by: int,
-    ) -> Dict[str, Any]:
+    ) -> Evidence:
         """Create a new evidence record."""
-        return {
-            "id": 1,
-            "filename": file.filename,
-            "case_id": case_id,
-            "description": description or file.filename,
-            "tags": tags or [],
-            "created_by": created_by,
-            "status": "uploaded",
-        }
+        db_evidence = Evidence(
+            filename=file.filename,
+            description=description or file.filename,
+            case_id=case_id,
+        )
+        self.db.add(db_evidence)
+        await self.db.commit()
+        await self.db.refresh(db_evidence)
+        return db_evidence
 
-    async def get_evidence(self, evidence_id: int) -> Optional[Dict[str, Any]]:
+    async def get_evidence(self, evidence_id: int) -> Optional[Evidence]:
         """Get evidence by ID."""
-        if evidence_id == 1:
-            return {
-                "id": 1,
-                "filename": "example.pdf",
-                "case_id": "case_001",
-                "description": "Sample evidence",
-                "tags": ["document"],
-                "created_by": 1,
-                "status": "uploaded",
-            }
-        return None
+        return await self.db.get(Evidence, evidence_id)
 
     async def update_evidence(
         self, evidence_id: int, updates: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[Evidence]:
         """Update evidence record."""
         evidence = await self.get_evidence(evidence_id)
         if evidence:
-            evidence.update(updates)
+            for key, value in updates.items():
+                setattr(evidence, key, value)
+            await self.db.commit()
+            await self.db.refresh(evidence)
             return evidence
         return None
 
@@ -69,14 +71,18 @@ def get_evidence_service(
     return EvidenceService(db)
 
 
-@router.post("/upload/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload/",
+    response_model=EvidenceRead,
+    status_code=status.HTTP_201_CREATED,
+)
 async def upload_evidence(
     file: UploadFile = File(...),
-    case_id: str = "default_case",
-    description: Optional[str] = None,
-    tags: Optional[List[str]] = None,
+    case_id: str = Form("default_case"),
+    description: Optional[str] = Form(None),
+    tags: Optional[List[str]] = Form(None),
     evidence_service: EvidenceService = Depends(get_evidence_service),
-) -> Dict[str, Any]:
+) -> Evidence:
     """Upload a new evidence file."""
     try:
         evidence = await evidence_service.create_evidence(
@@ -94,11 +100,11 @@ async def upload_evidence(
         ) from e
 
 
-@router.get("/{evidence_id}")
+@router.get("/{evidence_id}", response_model=EvidenceRead)
 async def get_evidence(
     evidence_id: int,
     evidence_service: EvidenceService = Depends(get_evidence_service),
-) -> Dict[str, Any]:
+) -> Evidence:
     """Get evidence by ID."""
     evidence = await evidence_service.get_evidence(evidence_id)
     if not evidence:
@@ -109,12 +115,12 @@ async def get_evidence(
     return evidence
 
 
-@router.put("/{evidence_id}")
+@router.put("/{evidence_id}", response_model=EvidenceRead)
 async def update_evidence(
     evidence_id: int,
     updates: Dict[str, Any],
     evidence_service: EvidenceService = Depends(get_evidence_service),
-) -> Dict[str, Any]:
+) -> Evidence:
     """Update evidence record."""
     evidence = await evidence_service.update_evidence(evidence_id, updates)
     if not evidence:
