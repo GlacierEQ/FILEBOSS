@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 # Import the database engine and models from our new structure
-from casebuilder.database import engine, Base, get_db
+from casebuilder.db.base import engine, Base
 from casebuilder.cascade_integration import cascade
 # Import the API router
 from casebuilder.api import router

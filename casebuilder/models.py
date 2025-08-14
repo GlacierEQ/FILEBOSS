@@ -7,7 +7,7 @@ from typing import Optional
 from datetime import datetime
 
 # Import the Base from our database setup
-from .database import Base
+from .db.base import Base
 
 # --- SQLAlchemy Model ---
 # This defines the `evidence` table in our database

@@ -16,9 +16,10 @@ sys.path.insert(0, str(project_root))
 try:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
-    from casebuilder.api.endpoints.evidence import router
+    from sqlalchemy import text
+    from casebuilder.api import router
     from casebuilder.core.config import settings
-    from casebuilder.db.base import get_async_db, engine
+    from casebuilder.db.base import get_async_db, engine, Base
 except ImportError as e:
     print(f"❌ Import Error: {e}")
     print("Installing required dependencies...")
@@ -114,11 +115,59 @@ class SystemVerifier:
             print(f"❌ Error handling test failed: {e}")
             return False
 
+    def test_api_crud_flow(self) -> bool:
+        """Test the full CRUD flow of the API."""
+        try:
+            # 1. CREATE (Upload)
+            test_content = b"this is a test file for the crud flow"
+            response = self.client.post(
+                "/api/v1/evidence/upload/",
+                files={"file": ("crud_test.txt", test_content, "text/plain")},
+                data={"case_id": "crud_case", "description": "CRUD test file"}
+            )
+            if response.status_code != 201:
+                print(f"❌ CRUD Create failed: {response.status_code}")
+                return False
+
+            created_evidence = response.json()
+            evidence_id = created_evidence["id"]
+
+            # 2. READ (Get)
+            response = self.client.get(f"/api/v1/evidence/{evidence_id}")
+            if response.status_code != 200:
+                print(f"❌ CRUD Read failed: {response.status_code}")
+                return False
+
+            read_evidence = response.json()
+            if read_evidence["description"] != "CRUD test file":
+                print(f"❌ CRUD Read data mismatch")
+                return False
+
+            # 3. UPDATE
+            response = self.client.put(
+                f"/api/v1/evidence/{evidence_id}",
+                json={"description": "Updated CRUD test file"}
+            )
+            if response.status_code != 200:
+                print(f"❌ CRUD Update failed: {response.status_code}")
+                return False
+
+            updated_evidence = response.json()
+            if updated_evidence["description"] != "Updated CRUD test file":
+                print(f"❌ CRUD Update data mismatch")
+                return False
+
+            print("✅ API CRUD flow functional")
+            return True
+        except Exception as e:
+            print(f"❌ API CRUD flow test failed: {e}")
+            return False
+
     async def test_database_connection(self) -> bool:
         """Test database connection."""
         try:
             async with engine.begin() as conn:
-                result = await conn.execute("SELECT 1")
+                result = await conn.execute(text("SELECT 1"))
                 assert result.scalar() == 1
             print("✅ Database connection successful")
             return True
@@ -176,6 +225,7 @@ class SystemVerifier:
             "imports": self.test_imports(),
             "configuration": self.test_configuration(),
             "api_endpoints": self.test_api_endpoints(),
+            "api_crud_flow": self.test_api_crud_flow(),
             "error_handling": self.test_error_handling(),
             "database_connection": await self.test_database_connection(),
             "type_annotations": self.test_type_annotations(),
@@ -208,8 +258,14 @@ class SystemVerifier:
 
 async def main():
     """Main verification function."""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     verifier = SystemVerifier()
     results = await verifier.run_all_tests()
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
     
     # Return appropriate exit code
     all_passed = all(results.values())
