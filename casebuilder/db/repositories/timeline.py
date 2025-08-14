@@ -9,8 +9,8 @@ from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from ....schemas.timeline import TimelineEventCreate, TimelineEventUpdate
-from ...models import TimelineEvent, TimelineEventType, Case, User, Evidence
+from casebuilder.schemas.timeline import TimelineEventCreate, TimelineEventUpdate
+from ..models import TimelineEvent, TimelineEventType, Case, User, Evidence
 from .base import BaseRepository, BaseRepositoryAsync, BaseRepositorySync
 
 

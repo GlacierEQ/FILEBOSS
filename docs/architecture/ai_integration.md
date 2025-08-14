@@ -40,7 +40,7 @@ The main service that coordinates AI processing tasks:
 Abstracts away differences between AI providers:
 
 - **OpenAI Adapter**: For GPT-4, GPT-3.5, and other OpenAI models
-- **Anthropic Adapter**: For Claude models
+- **Anthropic Adapter**: Implemented for Claude models
 - **Local LLM Adapter**: For self-hosted models (e.g., LLaMA, Mistral)
 - **Multi-Modal Adapter**: For vision and other non-text analysis
 

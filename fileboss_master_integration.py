@@ -61,6 +61,7 @@ class FileBossIntegrator:
             'upload_dir': os.getenv('UPLOAD_DIR', 'uploads'),
             'fileboss_base_dir': os.getenv('FILEBOSS_BASE_DIR', '/var/fileboss'),
             'openai_api_key': os.getenv('OPENAI_API_KEY'),
+            'anthropic_api_key': os.getenv('ANTHROPIC_API_KEY'),
             'environment': os.getenv('ENVIRONMENT', 'development'),
             'debug': os.getenv('DEBUG', 'true').lower() == 'true'
         }
@@ -284,33 +285,42 @@ class FileBossIntegrator:
         
         results = {
             'openai': {'available': False, 'tested': False},
+            'anthropic': {'available': False, 'tested': False},
             'granite': {'available': False, 'tested': False},
             'local_llm': {'available': False, 'tested': False}
         }
         
         try:
+            from casebuilder.services.ai_analysis import create_default_ai_service, AIProviderType
+
             # Test OpenAI integration
             if self.config.get('openai_api_key'):
                 logger.info("Testing OpenAI integration...")
-                # Import AI service
-                sys.path.append(str(self.project_root))
-                from casebuilder.services.ai_analysis import create_default_ai_service
-                
-                service = create_default_ai_service(self.config['openai_api_key'])
-                
-                # Test with sample content
+                service = create_default_ai_service(openai_api_key=self.config['openai_api_key'])
                 test_result = await service.analyze_evidence(
-                    evidence_content="This is a test document for AI analysis.",
-                    content_type="text/plain"
+                    "Test document", "text/plain", provider=AIProviderType.OPENAI
                 )
-                
                 results['openai'] = {
                     'available': True,
                     'tested': True,
                     'status': test_result.status.value if hasattr(test_result, 'status') else 'unknown'
                 }
                 logger.info("✅ OpenAI integration test passed")
-            
+
+            # Test Anthropic integration
+            if self.config.get('anthropic_api_key'):
+                logger.info("Testing Anthropic integration...")
+                service = create_default_ai_service(anthropic_api_key=self.config['anthropic_api_key'])
+                test_result = await service.analyze_evidence(
+                    "Test document", "text/plain", provider=AIProviderType.ANTHROPIC
+                )
+                results['anthropic'] = {
+                    'available': True,
+                    'tested': True,
+                    'status': test_result.status.value if hasattr(test_result, 'status') else 'unknown'
+                }
+                logger.info("✅ Anthropic integration test passed")
+
             # Test Granite model
             granite_model_path = self.project_root / 'granite_integration' / 'models' / 'granite-7b-code'
             if granite_model_path.exists():

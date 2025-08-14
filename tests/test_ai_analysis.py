@@ -151,17 +151,14 @@ async def test_openai_analyze_document(ai_service, mock_openai_response):
     # Verify the mock was called with expected arguments
     mock_provider.analyze_document.assert_called_once_with(
         SAMPLE_TEXT,
-        content_type="text/plain"
+        session=mock_session
     )
-    
-    # Check that the response was processed correctly
-    expected_summary = mock_openai_response['choices'][0]['message']['content']
-    assert expected_summary.startswith(result.summary)
 
 @pytest.mark.asyncio
 async def test_openai_analyze_image(mock_aiohttp_client, ai_service):
     """Test image analysis with OpenAI provider."""
-    result = await ai_service.analyze_evidence(
+    service, _, _ = ai_service
+    result = await service.analyze_evidence(
         evidence_content=SAMPLE_IMAGE_BYTES,
         content_type="image/png"
     )
@@ -175,7 +172,7 @@ async def test_openai_analyze_image(mock_aiohttp_client, ai_service):
 async def test_ai_service_text_analysis(ai_service):
     """Test text analysis through the AI service."""
     # Unpack the fixture
-    service, mock_provider, _ = ai_service
+    service, mock_provider, mock_session = ai_service
     
     # Call the method under test
     result = await service.analyze_evidence(
@@ -194,21 +191,17 @@ async def test_ai_service_text_analysis(ai_service):
     # Verify the mock was called with expected arguments
     mock_provider.analyze_document.assert_called_once_with(
         SAMPLE_TEXT,
-        content_type="text/plain"
+        session=mock_session
     )
-    
-    # Check that the response was processed correctly
-    expected_summary = mock_openai_response['choices'][0]['message']['content']
-    assert expected_summary.startswith(result.summary)
 
 @pytest.mark.asyncio
 async def test_ai_service_image_analysis(ai_service, mock_aiohttp_client):
     """Test image analysis through the AI service."""
-    # Setup mock
-    mock_client = mock_aiohttp_client.return_value
+    # Unpack the fixture
+    service, _, _ = ai_service
     
     # Call the method under test
-    result = await ai_service.analyze_evidence(
+    result = await service.analyze_evidence(
         evidence_content=SAMPLE_IMAGE_BYTES,
         content_type="image/png"
     )

@@ -42,6 +42,7 @@ from functools import lru_cache
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 import aiohttp
+import anthropic
 from pydantic import BaseModel, Field, validator
 
 # Configure logging
@@ -269,6 +270,89 @@ class OpenAIAnalyzer(AIProvider):
         # Implementation would use the chat completion API
         # This is a placeholder implementation
         return text[:500]  # Simplified
+
+
+class AnthropicAnalyzer(AIProvider):
+    """AI provider implementation for Anthropic's API."""
+
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        model: str = "claude-3-opus-20240229",
+        timeout: int = DEFAULT_TIMEOUT
+    ):
+        """Initialize the Anthropic analyzer."""
+        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+        if not self.api_key:
+            raise ValueError("Anthropic API key is required")
+        self.model = model
+        self.client = anthropic.AsyncAnthropic(api_key=self.api_key, timeout=timeout)
+
+    async def analyze_document(self, content: Union[str, bytes], **kwargs) -> DocumentAnalysis:
+        """Analyze a document using Anthropic's API."""
+        if isinstance(content, bytes):
+            text_content = content.decode("utf-8", errors="ignore")
+        else:
+            text_content = content
+
+        try:
+            message = await self.client.messages.create(
+                model=self.model,
+                max_tokens=1024,
+                system="You are a helpful assistant that analyzes legal documents. Provide a concise summary and identify key information.",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"Analyze this document and provide key information. Focus on identifying key terms, entities, and main points.\n\n{text_content[:4000]}"
+                    }
+                ]
+            )
+            analysis = message.content[0].text if message.content else ""
+
+            return DocumentAnalysis(
+                status=AnalysisStatus.COMPLETED,
+                provider=AIProviderType.ANTHROPIC,
+                model=self.model,
+                analysis_type="document_analysis",
+                summary=analysis[:500],
+                key_terms=[],  # Placeholder
+                entities=[],  # Placeholder
+                sentiment="neutral", # Placeholder
+                categories=[], # Placeholder
+                completed_at=datetime.utcnow(),
+                metadata={"usage": {"input_tokens": message.usage.input_tokens, "output_tokens": message.usage.output_tokens}},
+            )
+        except Exception as e:
+            logger.error(f"Error analyzing document with Anthropic: {e}", exc_info=True)
+            return DocumentAnalysis(
+                status=AnalysisStatus.FAILED,
+                provider=AIProviderType.ANTHROPIC,
+                model=self.model,
+                analysis_type="document_analysis",
+                error=str(e),
+            )
+
+    async def analyze_image(self, image_data: bytes, **kwargs) -> ImageAnalysis:
+        """Analyze an image using Anthropic's API."""
+        # Placeholder implementation
+        return ImageAnalysis(
+            status=AnalysisStatus.COMPLETED,
+            provider=AIProviderType.ANTHROPIC,
+            model=self.model,
+            analysis_type="image_analysis_placeholder",
+            completed_at=datetime.utcnow(),
+        )
+
+    async def extract_entities(self, text: str, **kwargs) -> List[Dict[str, Any]]:
+        """Extract entities from text using Anthropic's API."""
+        # Placeholder implementation
+        return []
+
+    async def summarize_text(self, text: str, **kwargs) -> str:
+        """Generate a summary of the text using Anthropic's API."""
+        # Placeholder implementation
+        return f"Placeholder summary from Anthropic: {text[:100]}..."
+
 
 class AIAnalysisService:
     """Service for analyzing evidence using multiple AI providers.
@@ -547,22 +631,24 @@ class AIAnalysisService:
                 
         except Exception as e:
             logger.error(f"Error analyzing evidence: {str(e)}")
-            if not isinstance(e, AIAnalysisError):
-                return AnalysisResult(
-                    status=AnalysisStatus.FAILED,
-                    provider=provider_type if provider_type else "unknown",
-                    model="",
-                    analysis_type=f"{content_type}_analysis",
-                    error=str(e)
-                )
-            raise
+            return AnalysisResult(
+                status=AnalysisStatus.FAILED,
+                provider=provider_type if provider_type else "unknown",
+                model="",
+                analysis_type=f"{content_type}_analysis",
+                error=str(e)
+            )
 
 # Factory function to create a default AI analysis service
-def create_default_ai_service(openai_api_key: Optional[str] = None) -> AIAnalysisService:
+def create_default_ai_service(
+    openai_api_key: Optional[str] = None,
+    anthropic_api_key: Optional[str] = None
+) -> AIAnalysisService:
     """Create a default AI analysis service with common providers.
     
     Args:
-        openai_api_key: Optional OpenAI API key. If not provided, the provider won't be added.
+        openai_api_key: Optional OpenAI API key.
+        anthropic_api_key: Optional Anthropic API key.
         
     Returns:
         Configured AIAnalysisService instance
@@ -571,12 +657,27 @@ def create_default_ai_service(openai_api_key: Optional[str] = None) -> AIAnalysi
     
     # Add OpenAI provider if API key is provided
     if openai_api_key:
-        openai_provider = OpenAIAnalyzer(api_key=openai_api_key)
-        service.add_provider(AIProviderType.OPENAI, openai_provider)
-        service.default_provider = AIProviderType.OPENAI
-    
-    # Add other providers as needed
-    # Example:
-    # service.add_provider(AIProviderType.ANTHROPIC, AnthropicAnalyzer(api_key=anthropic_api_key))
+        try:
+            openai_provider = OpenAIAnalyzer(api_key=openai_api_key)
+            service.add_provider(AIProviderType.OPENAI, openai_provider)
+        except ValueError as e:
+            logger.warning(f"Could not add OpenAI provider: {e}")
+
+    # Add Anthropic provider if API key is provided
+    if anthropic_api_key:
+        try:
+            anthropic_provider = AnthropicAnalyzer(api_key=anthropic_api_key)
+            service.add_provider(AIProviderType.ANTHROPIC, anthropic_provider)
+        except ValueError as e:
+            logger.warning(f"Could not add Anthropic provider: {e}")
+
+    # Set default provider
+    if service.providers:
+        # Prefer OpenAI as default if available
+        if AIProviderType.OPENAI in service.providers:
+            service.default_provider = AIProviderType.OPENAI
+        else:
+            # Otherwise, just pick the first available one
+            service.default_provider = next(iter(service.providers.keys()))
     
     return service

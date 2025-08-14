@@ -50,6 +50,9 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/yourusername/megacasebuilder"
 
+[tool.setuptools]
+packages = ["casebuilder"]
+
 [tool.black]
 line-length = 100
 target-version = ['py310']
