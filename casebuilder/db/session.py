@@ -25,16 +25,11 @@ Base = declarative_base()
 
 # Create async engine
 engine = create_async_engine(
-    settings.DATABASE_URI,
+    settings.DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
-    # SQLite-specific settings
-    connect_args=(
-        {"check_same_thread": False} 
-        if "sqlite" in settings.DATABASE_URI 
-        else {}
-    )
-    # Note: SQLite doesn't support connection pooling like other databases
+    pool_size=20,
+    max_overflow=0
 )
 
 # Create session factory

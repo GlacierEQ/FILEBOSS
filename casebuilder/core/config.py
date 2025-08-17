@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
     ENVIRONMENT: str = "development"
-    SECRET_KEY: str = "change-this-in-production"
+    SECRET_KEY: str
 
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "CaseBuilder API"
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
             return [i.strip() for i in v.split(",")]
         return v
 
-    DATABASE_URL: str = "sqlite+aiosqlite:///./casebuilder.db"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost/casebuilder"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     ALGORITHM: str = "HS256"
