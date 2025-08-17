@@ -94,18 +94,26 @@ async def upload_evidence(
         ) from e
 
 
+from casebuilder.core.cache import cache
+
 @router.get("/{evidence_id}")
 async def get_evidence(
     evidence_id: int,
     evidence_service: EvidenceService = Depends(get_evidence_service),
 ) -> Dict[str, Any]:
     """Get evidence by ID."""
+    cached_evidence = await cache.get(f"evidence_{evidence_id}")
+    if cached_evidence:
+        return cached_evidence
+
     evidence = await evidence_service.get_evidence(evidence_id)
     if not evidence:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Evidence not found",
         )
+
+    await cache.set(f"evidence_{evidence_id}", evidence, ttl=300)
     return evidence
 
 

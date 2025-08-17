@@ -12,3 +12,15 @@ aiosqlite
 
 # For handling file uploads and form data
 python-multipart
+
+# For handling file uploads and form data
+python-multipart
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
+# AI Clients
+aiohttp
+anthropic

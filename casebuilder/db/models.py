@@ -3,7 +3,7 @@ Database models for Mega CaseBuilder 3000.
 """
 import uuid
 from enum import Enum
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional, TYPE_CHECKING, TypeVar
 
 from sqlalchemy import (
     Boolean,
@@ -16,8 +16,7 @@ from sqlalchemy import (
     Text,
     JSON,
     Table,
-    Type,
-    TypeVar,
+    types,
 )
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func

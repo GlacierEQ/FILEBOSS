@@ -9,8 +9,8 @@ from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from ....schemas.evidence import EvidenceCreate, EvidenceUpdate
-from ...models import Evidence, EvidenceStatus, EvidenceType, Case, Document, Tag
+from casebuilder.schemas.evidence import EvidenceCreate, EvidenceUpdate
+from ..models import Evidence, EvidenceStatus, EvidenceType, Case, Document, Tag
 from .base import BaseRepository, BaseRepositoryAsync, BaseRepositorySync
 
 
