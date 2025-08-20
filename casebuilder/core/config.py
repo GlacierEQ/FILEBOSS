@@ -29,23 +29,12 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "casebuilder"
-    DATABASE_URI: Optional[PostgresDsn] = None
+    DATABASE_URL: str = "sqlite:///./fileboss.db"
     
-    @validator("DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: dict) -> str:
-        """Assemble the database connection string."""
-        if isinstance(v, str):
-            return v
-        
-        return str(
-            PostgresDsn.build(
-                scheme="postgresql+asyncpg",
-                username=values.get("POSTGRES_USER"),
-                password=values.get("POSTGRES_PASSWORD"),
-                host=values.get("POSTGRES_SERVER"),
-                path=f"/{values.get('POSTGRES_DB') or ''}",
-            )
-        )
+    # Server settings
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    WORKERS: int = 1
     
     # File storage settings
     UPLOAD_DIR: str = "uploads"
