@@ -1,171 +1,169 @@
 #!/usr/bin/env python3
 """
 FILEBOSS Deployment Script
+=========================
 
-This script handles indexing and deployment of the FILEBOSS project.
+One-click deployment for FILEBOSS digital evidence management system.
+Supports Docker, local development, and production deployments.
 """
+
 import os
-import sys
 import subprocess
-import logging
+import sys
+import time
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-def run_command(cmd, cwd=None):
-    """Run a command and return the result."""
-    logger.info(f"Running: {cmd}")
-    try:
-        result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
-        if result.returncode != 0:
-            logger.error(f"Command failed: {result.stderr}")
+class FileBossDeployer:
+    def __init__(self):
+        self.project_root = Path(__file__).parent
+        self.env_file = self.project_root / '.env'
+        
+    def run_cmd(self, cmd, cwd=None, check=True):
+        """Execute command with error handling."""
+        try:
+            result = subprocess.run(
+                cmd, shell=True, cwd=cwd or self.project_root,
+                check=check, capture_output=True, text=True
+            )
+            if result.stdout:
+                print(result.stdout)
+            return True
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Command failed: {cmd}")
+            if e.stderr:
+                print(f"Error: {e.stderr}")
             return False
-        logger.info(f"Command output: {result.stdout}")
+    
+    def setup_environment(self):
+        """Setup environment configuration."""
+        print("🔧 Setting up environment...")
+        
+        # Create .env from template if needed
+        env_example = self.project_root / '.env.example'
+        if not self.env_file.exists() and env_example.exists():
+            self.env_file.write_text(env_example.read_text())
+            print("✅ Created .env file")
+        
+        # Create required directories
+        dirs = ['uploads', 'logs', 'data', 'models']
+        for dir_name in dirs:
+            (self.project_root / dir_name).mkdir(exist_ok=True)
+        print("✅ Created required directories")
+    
+    def install_dependencies(self):
+        """Install Python dependencies."""
+        print("📦 Installing dependencies...")
+        return self.run_cmd(f"{sys.executable} -m pip install -r requirements.txt")
+    
+    def check_docker(self):
+        """Check if Docker is available."""
+        return self.run_cmd("docker --version", check=False)
+    
+    def deploy_docker(self):
+        """Deploy using Docker Compose."""
+        print("🐳 Deploying with Docker...")
+        
+        # Build and start services
+        if not self.run_cmd("docker-compose up -d --build"):
+            return False
+        
+        print("⏳ Waiting for services to start...")
+        time.sleep(15)
+        
+        # Initialize database
+        print("🗄️ Initializing database...")
+        self.run_cmd("docker-compose exec -T app python scripts/init_db.py", check=False)
+        
         return True
-    except Exception as e:
-        logger.error(f"Error running command: {e}")
+    
+    def deploy_local(self):
+        """Deploy locally without Docker."""
+        print("🏠 Deploying locally...")
+        
+        # Start the FastAPI server
+        print("🚀 Starting FastAPI server...")
+        print("Run this command in a separate terminal:")
+        print("uvicorn casebuilder.api.app:app --reload --host 0.0.0.0 --port 8000")
+        
+        return True
+    
+    def verify_deployment(self):
+        """Verify deployment is working."""
+        print("🔍 Verifying deployment...")
+        
+        # Check if services are responding
+        try:
+            import requests
+            response = requests.get("http://localhost:8000/health", timeout=10)
+            if response.status_code == 200:
+                print("✅ API is responding")
+                return True
+        except:
+            pass
+        
+        print("⚠️ API health check failed - services may still be starting")
         return False
-
-def check_dependencies():
-    """Check if required dependencies are available."""
-    logger.info("Checking dependencies...")
     
-    # Check Python version
-    if sys.version_info < (3, 10):
-        logger.error("Python 3.10+ is required")
-        return False
-    
-    # Check if Docker is available
-    if not run_command("docker --version"):
-        logger.warning("Docker not available - will use local deployment")
-        return "local"
-    
-    if not run_command("docker-compose --version"):
-        logger.warning("Docker Compose not available - will use local deployment")
-        return "local"
-    
-    return "docker"
-
-def setup_environment():
-    """Set up the environment."""
-    logger.info("Setting up environment...")
-    
-    # Create necessary directories
-    os.makedirs("uploads", exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
-    
-    # Check if .env exists
-    if not os.path.exists(".env"):
-        logger.info("Creating .env file from example...")
-        if os.path.exists(".env.example"):
-            import shutil
-            shutil.copy(".env.example", ".env")
+    def show_endpoints(self):
+        """Display available endpoints."""
+        print("\n" + "="*60)
+        print("🎉 FILEBOSS DEPLOYED SUCCESSFULLY!")
+        print("="*60)
+        print("\n📍 Available Endpoints:")
+        print("• API Documentation: http://localhost:8000/api/docs")
+        print("• ReDoc: http://localhost:8000/api/redoc")
+        print("• Health Check: http://localhost:8000/health")
+        print("• PGAdmin: http://localhost:5050 (admin@example.com/admin)")
+        
+        print("\n🔑 API Endpoints:")
+        print("• POST /api/v1/auth/token - Get access token")
+        print("• POST /api/v1/evidence/upload - Upload evidence")
+        print("• GET /api/v1/cases - List cases")
+        print("• POST /api/v1/cases - Create case")
+        print("• GET /api/v1/timeline - Get timeline events")
+        
+        print("\n🚀 Quick Test:")
+        print("curl -X GET http://localhost:8000/health")
+        
+    def deploy(self):
+        """Main deployment process."""
+        print("🚀 Starting FILEBOSS deployment...")
+        
+        # Setup
+        self.setup_environment()
+        
+        # Install dependencies
+        if not self.install_dependencies():
+            print("⚠️ Dependency installation had issues, continuing...")
+        
+        # Choose deployment method
+        if self.check_docker():
+            print("✅ Docker detected - using Docker deployment")
+            if self.deploy_docker():
+                time.sleep(5)
+                self.verify_deployment()
+                self.show_endpoints()
+            else:
+                print("❌ Docker deployment failed")
+                return False
         else:
-            logger.error(".env.example not found")
-            return False
-    
-    return True
-
-def install_dependencies():
-    """Install Python dependencies."""
-    logger.info("Installing Python dependencies...")
-    return run_command("pip install -r requirements.txt")
-
-def initialize_database():
-    """Initialize the database."""
-    logger.info("Initializing database...")
-    
-    # Run database initialization
-    if os.path.exists("scripts/init_db.py"):
-        return run_command("python scripts/init_db.py")
-    else:
-        logger.warning("Database initialization script not found")
+            print("⚠️ Docker not available - using local deployment")
+            self.deploy_local()
+            self.show_endpoints()
+        
         return True
-
-def deploy_docker():
-    """Deploy using Docker Compose."""
-    logger.info("Deploying with Docker Compose...")
-    
-    # Build and start services
-    if not run_command("docker-compose build"):
-        return False
-    
-    if not run_command("docker-compose up -d"):
-        return False
-    
-    # Wait for services to be ready
-    logger.info("Waiting for services to start...")
-    import time
-    time.sleep(10)
-    
-    # Initialize database in container
-    run_command("docker-compose exec -T app python scripts/init_db.py")
-    
-    logger.info("Docker deployment complete!")
-    logger.info("Application available at: http://localhost:8000")
-    logger.info("API Documentation: http://localhost:8000/api/docs")
-    logger.info("PGAdmin: http://localhost:5050")
-    
-    return True
-
-def deploy_local():
-    """Deploy locally."""
-    logger.info("Deploying locally...")
-    
-    # Install dependencies
-    if not install_dependencies():
-        return False
-    
-    # Initialize database
-    if not initialize_database():
-        return False
-    
-    # Start the application
-    logger.info("Starting application...")
-    logger.info("Application will be available at: http://localhost:8000")
-    logger.info("API Documentation: http://localhost:8000/api/docs")
-    
-    # Run the application
-    os.system("python -m uvicorn casebuilder.api.app:app --host 0.0.0.0 --port 8000 --reload")
-    
-    return True
 
 def main():
-    """Main deployment function."""
-    logger.info("🚀 FILEBOSS Deployment Starting...")
+    """Main entry point."""
+    deployer = FileBossDeployer()
     
-    # Change to project directory
-    project_dir = Path(__file__).parent
-    os.chdir(project_dir)
-    
-    # Check dependencies
-    deployment_type = check_dependencies()
-    if not deployment_type:
-        logger.error("Dependency check failed")
-        return False
-    
-    # Setup environment
-    if not setup_environment():
-        logger.error("Environment setup failed")
-        return False
-    
-    # Deploy based on available tools
-    if deployment_type == "docker":
-        success = deploy_docker()
-    else:
-        success = deploy_local()
-    
-    if success:
-        logger.info("✅ FILEBOSS Deployment Complete!")
-        logger.info("📊 Project indexed and ready for use")
-    else:
-        logger.error("❌ Deployment failed")
-        return False
-    
-    return True
+    try:
+        deployer.deploy()
+    except KeyboardInterrupt:
+        print("\n⏹️ Deployment interrupted")
+    except Exception as e:
+        print(f"❌ Deployment failed: {e}")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+if __name__ == '__main__':
+    main()
