@@ -226,18 +226,7 @@ pytest tests/test_evidence_processing.py -v
 ### Docker Compose (Development/Staging)
 
 ```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Run database migrations
-docker-compose exec app alembic upgrade head
-
-# Initialize database
-docker-compose exec app python scripts/init_db.py
-```
+#
 
 ### Production Deployment
 
@@ -360,3 +349,15 @@ Closes #123
 ## 📞 Support
 
 For support, please open an issue in the GitHub issue tracker.
+ Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Run database migrations
+docker-compose exec app alembic upgrade head
+
+# Initialize database
+docker-compose exec app python scripts/init_db.py
+```
