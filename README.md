@@ -12,6 +12,7 @@ FILEBOSS is an advanced digital evidence management system designed for legal, i
 - **CI/CD Pipeline**: Automated testing and deployment with GitHub Actions
 - **RESTful API**: Built with FastAPI for high performance and easy integration
 - **Database Migrations**: Alembic for database versioning and schema management
+- **Persistent WebSockets**: Long‑lived connections with automatic reconnection
 
 ## 🚀 Quick Start
 

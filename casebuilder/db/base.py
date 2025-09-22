@@ -25,8 +25,13 @@ engine = create_engine(
     max_overflow=settings.database.max_overflow,
 )
 
+# Ensure the async URL uses the aiosqlite driver only once
+async_db_url = settings.database.url
+if async_db_url.startswith("sqlite") and "aiosqlite" not in async_db_url:
+    async_db_url = async_db_url.replace("sqlite", "sqlite+aiosqlite", 1)
+
 async_engine = create_async_engine(
-    settings.database.url.replace("sqlite", "sqlite+aiosqlite"),
+    async_db_url,
     echo=settings.database.echo,
     pool_size=settings.database.pool_size,
     max_overflow=settings.database.max_overflow,

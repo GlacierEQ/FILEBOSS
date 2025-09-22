@@ -9,7 +9,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload
 
-from ....db.base import Base
+from ..base import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -277,11 +277,10 @@ class BaseRepositoryAsync(BaseRepository[ModelType, CreateSchemaType, UpdateSche
     
     async def get_multi_with_related(
         self,
-        *,
+        *relationships: str,
         skip: int = 0,
         limit: int = 100,
-        *relationships: str,
-        **filters
+        **filters: Any,
     ) -> List[ModelType]:
         """
         Get multiple records with related models loaded and optional filtering.

@@ -40,3 +40,5 @@ pylint>=2.17.2
 mkdocs>=1.4.2
 mkdocs-material>=9.1.0
 mkdocstrings[python]>=0.21.0
+websockets>=12.0
+aiohttp>=3.9.0

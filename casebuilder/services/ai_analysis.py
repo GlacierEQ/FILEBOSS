@@ -44,6 +44,8 @@ from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 import aiohttp
 from pydantic import BaseModel, Field, validator
 
+from ..utils import utc_now
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -80,7 +82,7 @@ class AnalysisResult(BaseModel):
     provider: str = Field(..., description="AI provider used for analysis")
     model: str = Field(..., description="Model used for analysis")
     analysis_type: str = Field(..., description="Type of analysis performed")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="When the analysis was created")
+    created_at: datetime = Field(default_factory=utc_now, description="When the analysis was created")
     completed_at: Optional[datetime] = Field(None, description="When the analysis was completed")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
     error: Optional[str] = Field(None, description="Error message if analysis failed")
@@ -229,7 +231,7 @@ class OpenAIAnalyzer(AIProvider):
                 entities=[{"type": "PERSON", "text": "Test Author"}],  # Mock entities
                 sentiment="neutral",
                 categories=["legal", "test"],
-                completed_at=datetime.utcnow(),
+                completed_at=utc_now(),
                 metadata={
                     "model": self.model,
                     "usage": response.get("usage", {})
@@ -255,7 +257,7 @@ class OpenAIAnalyzer(AIProvider):
             provider=AIProviderType.OPENAI,
             model="gpt-4-vision-preview",
             analysis_type="image_analysis",
-            completed_at=datetime.utcnow()
+            completed_at=utc_now()
         )
     
     async def extract_entities(self, text: str, **kwargs) -> List[Dict[str, Any]]:

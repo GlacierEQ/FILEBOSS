@@ -1,7 +1,6 @@
 """
 Evidence repository implementation.
 """
-from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
@@ -9,8 +8,9 @@ from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from ....schemas.evidence import EvidenceCreate, EvidenceUpdate
-from ...models import Evidence, EvidenceStatus, EvidenceType, Case, Document, Tag
+from ...schemas.evidence import EvidenceCreate, EvidenceUpdate
+from ...utils import utc_now
+from ..models import Evidence, EvidenceStatus, EvidenceType, Case, Document, Tag
 from .base import BaseRepository, BaseRepositoryAsync, BaseRepositorySync
 
 
@@ -301,7 +301,7 @@ class EvidenceRepositoryAsync(EvidenceRepository, BaseRepositoryAsync[Evidence, 
         
         # Add the new event with timestamp and user
         event.update({
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': utc_now().isoformat(),
             'user_id': user_id
         })
         

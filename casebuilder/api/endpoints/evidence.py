@@ -11,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ....db.session import get_db
 from ....models import Evidence, EvidenceType, EvidenceStatus
-from ....schemas.evidence import EvidenceCreate, EvidenceUpdate, EvidenceInDB
-from ....schemas.timeline import TimelineEventCreate
+from ...schemas.evidence import EvidenceCreate, EvidenceUpdate, EvidenceInDB
+from ...schemas.timeline import TimelineEventCreate
 from ....services.evidence_processing import EvidenceProcessingService
 from ....core.security import get_current_active_user
 

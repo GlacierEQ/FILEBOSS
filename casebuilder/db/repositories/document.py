@@ -9,8 +9,8 @@ from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from ....schemas.document import DocumentCreate, DocumentUpdate
-from ...models import Document, DocumentStatus, DocumentType, Case, User, Tag
+from ...schemas.document import DocumentCreate, DocumentUpdate
+from ..models import Document, DocumentStatus, DocumentType, Case, User, Tag
 from .base import BaseRepository, BaseRepositoryAsync, BaseRepositorySync
 
 

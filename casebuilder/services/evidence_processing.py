@@ -14,7 +14,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db.repositories.evidence import EvidenceRepositoryAsync
 from ..db.repositories.timeline import TimelineEventRepositoryAsync
-from ..models import Evidence, TimelineEvent, TimelineEventType, EvidenceType, EvidenceStatus
+from ..db.models import (
+    Evidence,
+    TimelineEvent,
+    TimelineEventType,
+    EvidenceType,
+    EvidenceStatus,
+)
+from ..utils import utc_now
 from .fileboss_integration import FileBossIntegrator, FileMetadata
 
 logger = logging.getLogger(__name__)
@@ -90,7 +97,7 @@ class EvidenceProcessingService:
                     "metadata": {
                         "original_path": str(file_meta.path),
                         "file_metadata": file_meta.metadata,
-                        "processing_timestamp": datetime.utcnow().isoformat()
+                        "processing_timestamp": utc_now().isoformat()
                     },
                     "tags": tags or [],
                     "created_by": created_by
@@ -117,7 +124,7 @@ class EvidenceProcessingService:
                     "event_type": TimelineEventType.EVIDENCE_ADDED,
                     "title": f"New Evidence Added: {file_meta.name}",
                     "description": f"Evidence file processed and added to case",
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": utc_now(),
                     "created_by": created_by,
                     "metadata": {
                         "evidence_id": str(evidence.id),
@@ -223,7 +230,7 @@ class EvidenceProcessingService:
             "event_type": TimelineEventType.EVIDENCE_STATUS_CHANGED,
             "title": f"Evidence Status Updated: {evidence.title}",
             "description": f"Status changed to {new_status.value}",
-            "timestamp": datetime.utcnow(),
+            "timestamp": utc_now(),
             "created_by": user_id,
             "metadata": {
                 "evidence_id": str(evidence.id),

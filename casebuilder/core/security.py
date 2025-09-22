@@ -13,6 +13,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from ..core.config import settings
+from ..utils import utc_now
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -46,10 +47,11 @@ def create_access_token(
     """
     to_encode = data.copy()
     
+    now = utc_now()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = now + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = now + timedelta(minutes=15)
     
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(

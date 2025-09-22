@@ -8,8 +8,8 @@ from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from ....schemas.case import CaseCreate, CaseUpdate
-from ...models import Case, CaseStatus, User
+from ...schemas.case import CaseCreate, CaseUpdate
+from ..models import Case, CaseStatus, User
 from .base import BaseRepository, BaseRepositoryAsync, BaseRepositorySync
 
 

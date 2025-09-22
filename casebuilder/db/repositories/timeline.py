@@ -9,8 +9,9 @@ from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
 
-from ....schemas.timeline import TimelineEventCreate, TimelineEventUpdate
-from ...models import TimelineEvent, TimelineEventType, Case, User, Evidence
+from ...schemas.timeline import TimelineEventCreate, TimelineEventUpdate
+from ...utils import utc_now
+from ..models import TimelineEvent, TimelineEventType, Case, User, Evidence
 from .base import BaseRepository, BaseRepositoryAsync, BaseRepositorySync
 
 
@@ -133,10 +134,10 @@ class TimelineEventRepository(BaseRepository[TimelineEvent, TimelineEventCreate,
         Returns:
             List[TimelineEvent]: List of upcoming timeline events
         """
+        from datetime import timedelta
         from sqlalchemy import select
-        from datetime import datetime, timedelta
         
-        now = datetime.utcnow()
+        now = utc_now()
         end_date = now + timedelta(days=days_ahead)
         
         query = (

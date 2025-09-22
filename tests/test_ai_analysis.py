@@ -3,21 +3,23 @@ Tests for the AI Analysis Service.
 """
 import asyncio
 import os
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
-from datetime import datetime
+
+import pytest
 
 import pytest_asyncio
 from pydantic import HttpUrl
 
 from casebuilder.services.ai_analysis import (
     AIAnalysisService,
+    AIAnalysisError,
     AIProviderType,
     OpenAIAnalyzer,
     AnalysisStatus,
     DocumentAnalysis,
     ImageAnalysis
 )
+from casebuilder.utils import utc_now
 
 # Sample test data
 SAMPLE_TEXT = """
@@ -97,7 +99,7 @@ async def ai_service():
             entities=[{"type": "PERSON", "text": "Test User"}],
             sentiment="neutral",
             categories=["test"],
-            completed_at=datetime.utcnow()
+            completed_at=utc_now()
         )
         
         # Setup image analysis response
@@ -112,7 +114,7 @@ async def ai_service():
             ],
             text="Test image description",
             labels=[{"test": 0.95}, {"document": 0.85}],
-            completed_at=datetime.utcnow()
+            completed_at=utc_now()
         )
         
         # Setup the mock provider
@@ -151,17 +153,17 @@ async def test_openai_analyze_document(ai_service, mock_openai_response):
     # Verify the mock was called with expected arguments
     mock_provider.analyze_document.assert_called_once_with(
         SAMPLE_TEXT,
-        content_type="text/plain"
+        session=mock_session
     )
     
-    # Check that the response was processed correctly
-    expected_summary = mock_openai_response['choices'][0]['message']['content']
-    assert expected_summary.startswith(result.summary)
+    # The result summary should match the mocked response
+    assert result.summary == "Test summary"
 
 @pytest.mark.asyncio
 async def test_openai_analyze_image(mock_aiohttp_client, ai_service):
     """Test image analysis with OpenAI provider."""
-    result = await ai_service.analyze_evidence(
+    service, _, _ = ai_service
+    result = await service.analyze_evidence(
         evidence_content=SAMPLE_IMAGE_BYTES,
         content_type="image/png"
     )
@@ -175,7 +177,7 @@ async def test_openai_analyze_image(mock_aiohttp_client, ai_service):
 async def test_ai_service_text_analysis(ai_service):
     """Test text analysis through the AI service."""
     # Unpack the fixture
-    service, mock_provider, _ = ai_service
+    service, mock_provider, mock_session = ai_service
     
     # Call the method under test
     result = await service.analyze_evidence(
@@ -191,24 +193,18 @@ async def test_ai_service_text_analysis(ai_service):
     assert result.summary == "Test summary"
     assert result.key_terms == ["test", "document"]
     
-    # Verify the mock was called with expected arguments
     mock_provider.analyze_document.assert_called_once_with(
         SAMPLE_TEXT,
-        content_type="text/plain"
+        session=mock_session
     )
-    
-    # Check that the response was processed correctly
-    expected_summary = mock_openai_response['choices'][0]['message']['content']
-    assert expected_summary.startswith(result.summary)
+
+    # The result summary should match the mocked response
+    assert result.summary == "Test summary"
 
 @pytest.mark.asyncio
 async def test_ai_service_image_analysis(ai_service, mock_aiohttp_client):
-    """Test image analysis through the AI service."""
-    # Setup mock
-    mock_client = mock_aiohttp_client.return_value
-    
-    # Call the method under test
-    result = await ai_service.analyze_evidence(
+    service, _, _ = ai_service
+    result = await service.analyze_evidence(
         evidence_content=SAMPLE_IMAGE_BYTES,
         content_type="image/png"
     )
@@ -233,36 +229,31 @@ async def test_ai_service_invalid_provider():
 @pytest.mark.asyncio
 async def test_ai_service_invalid_content_type(ai_service):
     """Test that an error is handled for invalid content types."""
-    service, mock_provider, _ = ai_service
+    service, mock_provider, mock_session = ai_service
     
     # Mock the provider to raise an error for invalid content type
     mock_provider.analyze_document.side_effect = ValueError("Unsupported content type")
     
-    result = await service.analyze_evidence(
-        evidence_content=b"test",
-        content_type="invalid/type"
-    )
-    assert result.status == AnalysisStatus.FAILED
-    assert "Unsupported content type" in str(result.error)
+    with pytest.raises(AIAnalysisError):
+        await service.analyze_evidence(
+            evidence_content=b"test",
+            content_type="invalid/type",
+        )
 
 @pytest.mark.asyncio
 async def test_ai_service_error_handling(ai_service):
     """Test error handling in the AI service."""
-    service, mock_provider, _ = ai_service
+    service, mock_provider, mock_session = ai_service
     
     # Setup the mock to raise an error
     test_error = Exception("Test error")
     mock_provider.analyze_document.side_effect = test_error
     
-    # Call the method that should handle the error
-    result = await service.analyze_evidence(
-        evidence_content=SAMPLE_TEXT,
-        content_type="text/plain"
-    )
-    
-    # Verify the error was handled correctly
-    assert result.status == AnalysisStatus.FAILED
-    assert "Test error" in str(result.error)
+    with pytest.raises(AIAnalysisError):
+        await service.analyze_evidence(
+            evidence_content=SAMPLE_TEXT,
+            content_type="text/plain",
+        )
     
     # Test with non-existent provider - should return error result, not raise
     result = await service.analyze_evidence(
@@ -318,7 +309,7 @@ async def test_ai_service_caching():
         model="gpt-4-turbo",
         analysis_type="document_analysis",
         summary="Cached summary",
-        completed_at=datetime.utcnow()
+        completed_at=utc_now()
     )
 
     service._providers[AIProviderType.OPENAI] = mock_provider
