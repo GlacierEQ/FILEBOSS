@@ -10,7 +10,7 @@ openai==1.9.0
 # Text processing and tokenization
 tiktoken==0.7.0
 tokenizers==0.15.0
-transformers==4.36.2
+transformers==4.53.0
 
 # Streamlit UI
 streamlit==1.30.0
