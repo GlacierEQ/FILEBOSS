@@ -9,6 +9,7 @@ uvicorn[standard]
 # Database ORM and async driver
 sqlalchemy
 aiosqlite
+aiohttp>=3.9.0
 
 # For handling file uploads and form data
 python-multipart

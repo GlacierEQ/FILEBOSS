@@ -1,9 +1,10 @@
 """
 Database models for Mega CaseBuilder 3000.
 """
+
 import uuid
 from enum import Enum
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
 
 from sqlalchemy import (
     Boolean,
@@ -16,9 +17,8 @@ from sqlalchemy import (
     Text,
     JSON,
     Table,
-    Type,
-    TypeVar,
 )
+from sqlalchemy.ext.mutable import MutableDict, MutableList
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Mapped, mapped_column
 
 # Type variables for generic return types
-T = TypeVar('T')
+T = TypeVar("T")
 
 from .base import Base
 
@@ -53,19 +53,17 @@ case_tags = Table(
 document_relationships = Table(
     "document_relationships",
     Base.metadata,
-    Column(
-        "parent_document_id", 
-        String(36), 
-        ForeignKey("documents.id"), 
-        primary_key=True
-    ),
-    Column(
-        "child_document_id", 
-        String(36), 
-        ForeignKey("documents.id"), 
-        primary_key=True
-    ),
+    Column("parent_document_id", String(36), ForeignKey("documents.id"), primary_key=True),
+    Column("child_document_id", String(36), ForeignKey("documents.id"), primary_key=True),
     Column("relationship_type", String(50), nullable=False, default="related"),
+)
+
+
+timeline_event_evidence = Table(
+    "timeline_event_evidence",
+    Base.metadata,
+    Column("timeline_event_id", UUIDString(36), ForeignKey("timeline_events.id"), primary_key=True),
+    Column("evidence_id", UUIDString(36), ForeignKey("evidence.id"), primary_key=True),
 )
 
 
@@ -89,10 +87,9 @@ class User(Base):
     documents = relationship("Document", back_populates="uploaded_by")
     events = relationship("TimelineEvent", back_populates="created_by")
     participant_in = relationship(
-        "Case", 
-        secondary=case_participants, 
-        back_populates="participants"
+        "Case", secondary=case_participants, back_populates="participants"
     )
+    created_evidence = relationship("Evidence", back_populates="created_by")
 
     @validates("email")
     def validate_email(self, key: str, email: str) -> str:
@@ -137,24 +134,12 @@ class Case(Base):
     # Relationships
     owner = relationship("User", back_populates="cases")
     participants = relationship(
-        "User", 
-        secondary=case_participants, 
-        back_populates="participant_in"
+        "User", secondary=case_participants, back_populates="participant_in"
     )
     documents = relationship("Document", back_populates="case")
-    tags = relationship(
-        "Tag", 
-        secondary=case_tags, 
-        back_populates="cases"
-    )
-    timeline_events = relationship(
-        "TimelineEvent", 
-        back_populates="case"
-    )
-    evidence_items = relationship(
-        "Evidence", 
-        back_populates="case"
-    )
+    tags = relationship("Tag", secondary=case_tags, back_populates="cases")
+    timeline_events = relationship("TimelineEvent", back_populates="case")
+    evidence_items = relationship("Evidence", back_populates="case")
 
     def __repr__(self) -> str:
         return f"<Case {self.case_number or self.title}>"
@@ -242,6 +227,7 @@ class EvidenceStatus(str, Enum):
     """Evidence status enumeration."""
 
     PENDING_REVIEW = "pending_review"
+    UNDER_REVIEW = "under_review"
     ADMITTED = "admitted"
     EXCLUDED = "excluded"
     OBJECTED = "objected"
@@ -258,13 +244,16 @@ class Evidence(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     evidence_type = Column(SQLAlchemyEnum(EvidenceType), nullable=False)
-    status = Column(
-        SQLAlchemyEnum(EvidenceStatus), 
-        default=EvidenceStatus.PENDING_REVIEW
-    )
+    status = Column(SQLAlchemyEnum(EvidenceStatus), default=EvidenceStatus.PENDING_REVIEW)
     exhibit_number = Column(String(50), nullable=True)
-    chain_of_custody = Column(JSON, default=list)
-    metadata_ = Column("metadata", JSON, default=dict)
+    chain_of_custody = Column(MutableList.as_mutable(JSON), default=list)
+    metadata_ = Column("metadata", MutableDict.as_mutable(JSON), default=dict)
+    file_path = Column(String(512), nullable=True)
+    file_name = Column(String(255), nullable=True)
+    file_size = Column(Integer, nullable=True)
+    file_type = Column(String(100), nullable=True)
+    tags = Column(MutableList.as_mutable(JSON), default=list)
+    created_by_id = Column(UUIDString(36), ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -275,7 +264,14 @@ class Evidence(Base):
     # Relationships
     case = relationship("Case", back_populates="evidence_items")
     document = relationship("Document", back_populates="evidence")
-    timeline_events = relationship("TimelineEvent", back_populates="evidence")
+    created_by = relationship(
+        "User", back_populates="created_evidence", foreign_keys=[created_by_id]
+    )
+    timeline_events = relationship(
+        "TimelineEvent",
+        secondary=timeline_event_evidence,
+        back_populates="evidence",
+    )
 
     def __repr__(self) -> str:
         return f"<Evidence {self.title} ({self.evidence_type})>"
@@ -290,6 +286,9 @@ class TimelineEventType(str, Enum):
     DISCOVERY = "discovery"
     COMMUNICATION = "communication"
     EVIDENCE_SUBMISSION = "evidence_submission"
+    EVIDENCE_ADDED = "evidence_added"
+    EVIDENCE_STATUS_CHANGED = "evidence_status_changed"
+    INVESTIGATION_NOTE = "investigation_note"
     DEADLINE = "deadline"
     HEARING = "hearing"
     TRIAL = "trial"
@@ -305,14 +304,11 @@ class TimelineEvent(Base):
     id = Column(UUIDString(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    event_type = Column(
-        SQLAlchemyEnum(TimelineEventType), 
-        nullable=False
-    )
+    event_type = Column(SQLAlchemyEnum(TimelineEventType), nullable=False)
     event_date = Column(DateTime(timezone=True), nullable=False)
     end_date = Column(DateTime(timezone=True), nullable=True)
     is_important = Column(Boolean, default=False)
-    metadata_ = Column("metadata", JSON, default=dict)
+    metadata_ = Column("metadata", MutableDict.as_mutable(JSON), default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -324,7 +320,12 @@ class TimelineEvent(Base):
     # Relationships
     case = relationship("Case", back_populates="timeline_events")
     created_by = relationship("User", back_populates="events")
-    evidence = relationship("Evidence", back_populates="timeline_events")
+    primary_evidence = relationship("Evidence", foreign_keys=[evidence_id])
+    evidence = relationship(
+        "Evidence",
+        secondary=timeline_event_evidence,
+        back_populates="timeline_events",
+    )
 
     def __repr__(self) -> str:
         return f"<TimelineEvent {self.title} ({self.event_type})>"
