@@ -25,3 +25,6 @@ jobs:
       run: |
         python -m py_compile FILEBOSS_STANDALONE.py
         echo "🚀 FILEBOSS E2B ready!"
+      run: |
+        python -m py_compile FILEBOSS_STANDALONE.py
+        echo "🚀 FILEBOSS E2B ready!"
