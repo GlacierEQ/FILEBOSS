@@ -1,6 +1,0 @@
-2025-05-30 12:44:01 - root - INFO - ==================================================
-2025-05-30 12:44:01 - root - INFO - File Automation Tool - Starting
-2025-05-30 12:44:01 - root - INFO - ==================================================
-2025-05-30 12:44:01 - root - INFO - Log level: INFO
-2025-05-30 12:44:01 - root - INFO - Log file: logs/file_automation_20250530_124401.log
-2025-05-30 12:44:01 - root - ERROR - Input directory is required for file processing

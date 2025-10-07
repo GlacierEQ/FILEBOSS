@@ -1,3 +1,0 @@
-# Example
-
-Foo bar baz

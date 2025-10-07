@@ -1,2 +1,0 @@
-ALTER TABLE links DROP COLUMN IF EXISTS can_edit;
-ALTER TABLE links DROP COLUMN IF EXISTS can_comment;

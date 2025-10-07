@@ -1,9 +1,0 @@
-.search-results .inline-edit a,
-.search-results .inline-edit a span {
-    cursor: text;
-    color: inherit;
-}
-
-.v-small-dialog__content {
-    padding: 0;
-}

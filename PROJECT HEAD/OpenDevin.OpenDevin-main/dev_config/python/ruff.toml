@@ -1,3 +1,0 @@
-exclude = [
-    "agenthub/monologue_agent/regression/",
-]

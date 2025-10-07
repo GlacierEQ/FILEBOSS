@@ -1,1 +1,0 @@
-RENAME TABLE IF EXISTS `accounts` TO `services`;

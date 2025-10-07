@@ -1,87 +1,33 @@
-# Python Virtual Environments
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 .venv/
 venv/
 env/
 ENV/
-.env/
-
-# Python Cache and Compiled Files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-*.whl
-
-# Testing and Coverage
 .coverage
-.coverage.*
-htmlcov/
-.tox/
+*.egg-info/
 .pytest_cache/
-.cache/
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
 
-# IDE and Editor Files
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-.project
-.pydevproject
 
-# OS Generated Files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs and Temporary Files
-*.log
+# Logs & DB
 logs/
-temp/
-tmp/
-*.tmp
-
-# Database Files
-*.sqlite
-*.sqlite3
-*.db
+*.log
 test_models.db
 
-# Environment Files
-.env
-.env.local
-.env.production
-.env.staging
-
-# Docker
-docker-compose.override.yml
-
-# MCP and AI Tools
-copilot-messages.log
-.codersinflow
-
-# Project Specific - Keep existing
-.project/attachments/
-.project/*.sqlite
-.project/*.sqlite-wal
-.project/*.sqlite-shm
-.project/complete_drafts.txt
-
-# Node modules
+# Deployment
+.e2b/
+.e2b_cache/
 node_modules/
-
-# System files
-.DS_Store
+dist/
+build/

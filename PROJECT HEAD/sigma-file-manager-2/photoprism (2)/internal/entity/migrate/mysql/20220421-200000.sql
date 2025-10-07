@@ -1,1 +1,0 @@
-CREATE OR REPLACE INDEX idx_files_missing_root ON files (file_missing, file_root);

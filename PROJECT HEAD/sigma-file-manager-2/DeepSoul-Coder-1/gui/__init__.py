@@ -1,3 +1,0 @@
-"""
-DeepSeek-Coder GUI package
-"""

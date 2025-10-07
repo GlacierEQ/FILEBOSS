@@ -1,3 +1,0 @@
-@echo off
-echo Starting PhotoPrism Sorting Department...
-python integration/photoprism/photoprism_sorter.py

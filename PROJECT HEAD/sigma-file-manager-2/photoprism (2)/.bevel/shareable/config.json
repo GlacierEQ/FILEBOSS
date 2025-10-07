@@ -1,9 +1,0 @@
-{
-  "selectedLLM": "LOCAL",
-  "model": "https://huggingface.co/unsloth/gemma-3-4b-it-GGUF/blob/main/gemma-3-4b-it-Q4_K_M.gguf",
-  "temperature": 0,
-  "topP": 0.9,
-  "maxTokens": 512,
-  "repeatPenalty": 1.2,
-  "contextWindow": 8192
-}

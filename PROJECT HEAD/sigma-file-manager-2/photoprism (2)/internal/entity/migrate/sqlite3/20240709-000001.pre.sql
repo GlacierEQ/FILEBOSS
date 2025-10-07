@@ -1,1 +1,0 @@
-ALTER TABLE auth_sessions RENAME COLUMN auth_domain TO auth_issuer;

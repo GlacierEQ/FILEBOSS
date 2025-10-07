@@ -1,4 +1,0 @@
-services:
-  photoprism:
-    build: .
-    image: photoprism/photoprism:develop

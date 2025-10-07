@@ -1,1 +1,0 @@
-TRUNCATE auth_sessions;

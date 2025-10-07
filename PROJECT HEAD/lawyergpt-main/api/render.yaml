@@ -1,9 +1,0 @@
-services:
-  - name: my-golang-fileupload-api
-    type: web
-    env: docker
-    buildCommand: docker build -t my-app .
-    startCommand: docker run -e DB_URL=${DB_URL} my-app
-envVars:
-  - key: DB_URL
-  - sync: false

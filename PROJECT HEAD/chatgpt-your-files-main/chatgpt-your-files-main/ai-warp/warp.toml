@@ -1,4 +1,0 @@
-[project]
-name = "ai-warp-cli"
-version = "0.1.0"
-description = "AI-powered Warp CLI with Supabase integration and Ollama for local LLM inference"
