@@ -1,0 +1,29 @@
+{
+  "name": "FILEBOSS - CaseBuilder",
+  "description": "Professional file management and case building system with FastAPI backend",
+  "website": "https://github.com/GlacierEQ/FILEBOSS",
+  "repository": "https://github.com/GlacierEQ/FILEBOSS",
+  "keywords": ["fastapi", "python", "file-management", "legal", "case-builder", "evidence"],
+  "stack": "container",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [],
+  "env": {
+    "ENVIRONMENT": {
+      "value": "production"
+    },
+    "DEBUG": {
+      "value": "false"
+    },
+    "SECRET_KEY": {
+      "generator": "secret"
+    }
+  },
+  "scripts": {
+    "postdeploy": "python -c \"print('FILEBOSS deployed successfully!')\""
+  }
+}
