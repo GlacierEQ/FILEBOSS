@@ -18,11 +18,12 @@ def test_android_component():
         content = f.read()
         assert "FILEBOSS" in content
         assert len(content) > 1000
+        assert "React" in content
     print("✅ Android component validated!")
 
-def test_repository_health():
-    """Test repository is clean"""
+def test_repository_cleanup():
+    """Test that problematic files are removed"""
     bad_paths = [".venv", "venv", "__pycache__", ".coverage", "PROJECT HEAD"]
     for path in bad_paths:
         assert not os.path.exists(path), f"Bad path {path} still exists"
-    print("✅ Repository health: EXCELLENT!")
+    print("✅ Repository cleanup validated!")

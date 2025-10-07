@@ -20,7 +20,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Logs & DB
+# Logs
 logs/
 *.log
 test_models.db
