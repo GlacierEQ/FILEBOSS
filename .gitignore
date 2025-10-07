@@ -1,22 +1,87 @@
-# Sync .project/sourceTexts/ folder (source text files)
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+.env/
 
-# Don't sync user-specific SQLite databases
+# Python Cache and Compiled Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Testing and Coverage
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.pytest_cache/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and Temporary Files
+*.log
+logs/
+temp/
+tmp/
+*.tmp
+
+# Database Files
+*.sqlite
+*.sqlite3
+*.db
+test_models.db
+
+# Environment Files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Docker
+docker-compose.override.yml
+
+# MCP and AI Tools
+copilot-messages.log
+.codersinflow
+
+# Project Specific - Keep existing
+.project/attachments/
 .project/*.sqlite
-
-# Don't sync SQLite auxiliary files
 .project/*.sqlite-wal
 .project/*.sqlite-shm
-
-# Don't sync user-specific files
 .project/complete_drafts.txt
-copilot-messages.log
+
+# Node modules
+node_modules/
 
 # System files
 .DS_Store
-.project/attachments/
-
-# Coders in Flow
-.codersinflow
-.vscode
-node_modules
-.env
