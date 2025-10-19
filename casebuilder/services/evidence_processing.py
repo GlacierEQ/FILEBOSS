@@ -200,12 +200,7 @@ class EvidenceProcessingService:
 
         reorganized: List[Dict[str, str]] = []
         for evidence in evidence_records:
-            if not evidence.file_path:
-                continue
-
-            original_path = Path(evidence.file_path)
-            if not original_path.exists():
-                continue
+            source_path = await self._ensure_evidence_source(evidence)
 
             destination_path = self._build_destination_path(
                 destination_root,
@@ -213,18 +208,18 @@ class EvidenceProcessingService:
                 organization_scheme,
             )
             destination_path.parent.mkdir(parents=True, exist_ok=True)
-            await asyncio.to_thread(shutil.copy2, original_path, destination_path)
+            await asyncio.to_thread(shutil.copy2, source_path, destination_path)
 
-            metadata = dict(evidence.metadata_ or {})
+            metadata = evidence.metadata
             organized_locations = list(metadata.get("organized_locations", []))
             organized_locations.append(str(destination_path))
             metadata["organized_locations"] = organized_locations
-            evidence.metadata_ = metadata
+            evidence.metadata = metadata
 
             reorganized.append(
                 {
                     "evidence_id": evidence.id,
-                    "original_path": str(original_path),
+                    "original_path": str(source_path),
                     "new_path": str(destination_path),
                 }
             )
@@ -400,6 +395,50 @@ class EvidenceProcessingService:
         if source.resolve() != destination_path.resolve():
             await asyncio.to_thread(shutil.copy2, source, destination_path)
         return destination_path
+
+    async def _ensure_evidence_source(self, evidence: Evidence) -> Path:
+        """Return a file path for the evidence, generating a placeholder if needed."""
+
+        if evidence.file_path:
+            candidate = Path(evidence.file_path)
+            if candidate.exists():
+                return candidate
+
+        placeholder = await self._create_placeholder_file(evidence)
+        evidence.file_path = str(placeholder)
+        evidence.file_name = placeholder.name
+
+        metadata = evidence.metadata
+        placeholder_paths = list(metadata.get("placeholder_paths", []))
+        placeholder_paths.append(str(placeholder))
+        metadata["placeholder_paths"] = placeholder_paths
+        metadata["placeholder_generated"] = True
+        metadata["placeholder_last_generated_at"] = datetime.utcnow().isoformat()
+        evidence.metadata = metadata
+
+        return placeholder
+
+    async def _create_placeholder_file(self, evidence: Evidence) -> Path:
+        """Create a lightweight placeholder file when the original asset is missing."""
+
+        case_segment = evidence.case_id or "unassigned"
+        placeholder_dir = self.storage_root / case_segment / "placeholders"
+        placeholder_dir.mkdir(parents=True, exist_ok=True)
+
+        filename = evidence.file_name or f"{evidence.id or 'evidence'}.placeholder"
+        placeholder_path = placeholder_dir / filename
+        message = (
+            "This placeholder was generated because the original evidence file "
+            "was not available during organization."
+        )
+
+        def _write_placeholder() -> None:
+            placeholder_path.write_text(
+                f"{message}\nEvidence ID: {evidence.id}\nTitle: {evidence.title}\n"
+            )
+
+        await asyncio.to_thread(_write_placeholder)
+        return placeholder_path
 
     def _build_destination_path(
         self,

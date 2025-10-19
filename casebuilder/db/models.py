@@ -4,7 +4,7 @@ Database models for Mega CaseBuilder 3000.
 
 import uuid
 from enum import Enum
-from typing import Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
 
 from sqlalchemy import (
     Boolean,
@@ -347,3 +347,20 @@ class Tag(Base):
 
     def __repr__(self) -> str:
         return f"<Tag {self.name}>"
+
+
+def _metadata_property() -> property:
+    """Create a property mapping to the JSON metadata column."""
+
+    def _get(instance: Any) -> Dict[str, Any]:
+        return dict(getattr(instance, "metadata_", {}) or {})
+
+    def _set(instance: Any, value: Optional[Dict[str, Any]]) -> None:
+        setattr(instance, "metadata_", value or {})
+
+    return property(_get, _set)
+
+
+Document.metadata = _metadata_property()
+Evidence.metadata = _metadata_property()
+TimelineEvent.metadata = _metadata_property()

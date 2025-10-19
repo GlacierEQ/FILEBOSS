@@ -1,6 +1,7 @@
 """
 Base repository class with common CRUD operations.
 """
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
@@ -32,7 +33,8 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType], ABC
     @property
     def is_async(self) -> bool:
         """Check if the repository is using an async session."""
-        return hasattr(self.db_session, "execute")
+
+        return isinstance(self.db_session, AsyncSession)
 
     async def get(self, id: Any, **kwargs) -> Optional[ModelType]:
         """
@@ -59,13 +61,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType], ABC
 
         return result.scalar_one_or_none()
 
-    async def get_multi(
-        self,
-        *,
-        skip: int = 0,
-        limit: int = 100,
-        **filters
-    ) -> List[ModelType]:
+    async def get_multi(self, *, skip: int = 0, limit: int = 100, **filters) -> List[ModelType]:
         """
         Get multiple records with optional filtering and pagination.
 
@@ -105,8 +101,14 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType], ABC
         Returns:
             ModelType: The created record
         """
-        obj_in_data = obj_in.dict(exclude_unset=True)
+        if isinstance(obj_in, BaseModel):
+            obj_in_data = obj_in.dict(exclude_unset=True)
+        elif isinstance(obj_in, dict):
+            obj_in_data = dict(obj_in)
+        else:
+            raise TypeError("obj_in must be a Pydantic BaseModel or mapping-compatible dictionary")
         obj_in_data.update(kwargs)
+        obj_in_data = self._normalize_input_data(obj_in_data)
 
         if self.is_async:
             # For async, we need to create the instance and add it to the session
@@ -123,11 +125,28 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType], ABC
 
         return db_obj
 
+    def _normalize_input_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize incoming field names to match model columns."""
+
+        normalized: Dict[str, Any] = {}
+        column_names = set(self.model.__table__.columns.keys())
+
+        for key, value in data.items():
+            target_key = key
+            metadata_alias = key == "metadata" and "metadata_" in column_names
+            related_fk_alias = f"{key}_id" in column_names and key not in column_names
+
+            if metadata_alias:
+                target_key = "metadata_"
+            elif related_fk_alias:
+                target_key = f"{key}_id"
+
+            normalized[target_key] = value
+
+        return normalized
+
     async def update(
-        self,
-        *,
-        db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        self, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
         """
         Update a record.
@@ -257,10 +276,7 @@ class BaseRepositoryAsync(BaseRepository[ModelType, CreateSchemaType, UpdateSche
         super().__init__(model, db_session)
 
     async def get_with_related(
-        self,
-        id: Any,
-        *relationships: str,
-        **filters
+        self, id: Any, *relationships: str, **filters
     ) -> Optional[ModelType]:
         """
         Get a record by ID with related models loaded.
@@ -290,11 +306,7 @@ class BaseRepositoryAsync(BaseRepository[ModelType, CreateSchemaType, UpdateSche
         return result.unique().scalar_one_or_none()
 
     async def get_multi_with_related(
-        self,
-        skip: int = 0,
-        limit: int = 100,
-        relationships: Optional[List[str]] = None,
-        **filters
+        self, skip: int = 0, limit: int = 100, relationships: Optional[List[str]] = None, **filters
     ) -> List[ModelType]:
         """
         Get multiple records with related models loaded and optional filtering.
