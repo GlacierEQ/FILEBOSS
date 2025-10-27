@@ -1,58 +1,40 @@
-version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: casebuilder
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
+  db:
+    image: postgres:16
     environment:
-      - ENVIRONMENT=production
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
-      # Database configuration
-      - DATABASE_URL=sqlite+aiosqlite:////data/casebuilder.db
-      # Security (update these in production!)
-      - SECRET_KEY=change-this-in-production
-      # CORS (restrict in production)
-      - CORS_ORIGINS=["*"]
-      # Logging
-      - LOG_LEVEL=INFO
-    volumes:
-      - app_data:/app/data
-      # Mount for development (uncomment when needed)
-      # - .:/app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports: ["5432:5432"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    # Uncomment if you add Redis for caching
-    # depends_on:
-    #   - redis
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Uncomment and configure if you need Redis for caching
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: casebuilder-redis
-  #   restart: unless-stopped
-  #   volumes:
-  #     - redis_data:/data
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 3
-
-volumes:
-  app_data:
-  # redis_data:
+      test: ['CMD-SHELL','pg_isready -U $$POSTGRES_USER']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports: ["9000:9000", "9001:9001"]
+  api:
+    build: .
+    depends_on: [db, redis, minio]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+    ports: ["8000:8000"]
+    command: bash -lc "alembic upgrade head && uvicorn app:app --host 0.0.0.0 --port 8000"
+  web:
+    build: ./your-next-app
+    depends_on: [api]
+    ports: ["3000:3000"]
+    environment:
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE}

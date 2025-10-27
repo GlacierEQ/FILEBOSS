@@ -1,0 +1,4 @@
+# Default gitleaks config (minimal)
+title = "gitleaks config"
+[extend]
+path = "detect-secrets.toml"
