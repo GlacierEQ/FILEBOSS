@@ -1,0 +1,81 @@
+# MCP CI/CD Observability Integration - GitHub Actions Snippet
+# Integrate logging, metrics, and tracing into your GitHub Actions workflow.
+
+name: CI/CD with MCP Observability
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure Observability Environment Variables
+        run: |
+          echo "LOG_LEVEL=${{ env.APP_ENV == 'production' && 'INFO' || 'DEBUG' }}" >> $GITHUB_ENV
+          echo "LOG_SERVICE_NAME=github-actions-ci" >> $GITHUB_ENV
+          echo "TRACING_ENABLED=True" >> $GITHUB_ENV
+          echo "TRACING_SERVICE_NAME=github-actions-ci-tracer" >> $GITHUB_ENV
+          # Assume LOG_COLLECTOR_URL, TRACING_COLLECTOR_HOST are set as GitHub Secrets
+
+      - name: Run Tests with Tracing and Logging
+        env:
+          # Pass sensitive variables from GitHub Secrets
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          EXTERNAL_API_KEY: ${{ secrets.EXTERNAL_API_KEY }}
+          # Observability variables from GITHUB_ENV
+          LOG_LEVEL: ${{ env.LOG_LEVEL }}
+          LOG_SERVICE_NAME: ${{ env.LOG_SERVICE_NAME }}
+          TRACING_ENABLED: ${{ env.TRACING_ENABLED }}
+          TRACING_SERVICE_NAME: ${{ env.TRACING_SERVICE_NAME }}
+          TRACING_COLLECTOR_HOST: ${{ secrets.TRACING_COLLECTOR_HOST }} # Example secret
+        run: |
+          # Example: Run tests and capture output
+          pytest tests/ --junitxml=test-results.xml | tee test-output.log
+          
+          # Example: Simulate sending custom metrics (replace with actual client calls)
+          echo "build_time_seconds 120" > build_metrics.txt
+          echo "test_pass_rate 0.95" >> build_metrics.txt
+
+      - name: Upload Test Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.xml
+
+      - name: Upload Build Logs Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: test-output.log
+
+      - name: Upload Custom Metrics Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-metrics
+          path: build_metrics.txt
+
+      - name: Report Build Status to External System (e.g., Slack, Linear)
+        # This step would use an action like slackapi/slack-github-action
+        # or a custom script to send a verbose notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          echo "Sending verbose build status notification..."
+          # Example: curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build status for ${{ github.sha }}: ${{ job.status }}\", \"attachments\": [{\"text\":\"More details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}' ${{ secrets.SLACK_WEBHOOK_URL }}
+          echo "Build status reported."

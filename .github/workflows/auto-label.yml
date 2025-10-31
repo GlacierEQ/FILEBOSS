@@ -1,0 +1,88 @@
+name: Auto Label Issues and PRs
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  label:
+    name: Auto Label
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Label Issues
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = (issue.body || '').toLowerCase();
+            const title = issue.title.toLowerCase();
+            
+            const labels = [];
+            
+            // Auto-label based on content
+            if (body.includes('bug') || title.includes('bug')) labels.push('bug');
+            if (body.includes('feature') || title.includes('feature')) labels.push('enhancement');
+            if (body.includes('documentation') || title.includes('docs')) labels.push('documentation');
+            if (body.includes('security') || title.includes('security')) labels.push('security');
+            if (body.includes('performance') || title.includes('performance')) labels.push('performance');
+            if (body.includes('question') || title.includes('question')) labels.push('question');
+            if (body.includes('help') || title.includes('help')) labels.push('help wanted');
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }
+
+      - name: Label PRs by Size
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const additions = pr.additions;
+            const deletions = pr.deletions;
+            const total = additions + deletions;
+            
+            let sizeLabel;
+            if (total < 10) sizeLabel = 'size/XS';
+            else if (total < 50) sizeLabel = 'size/S';
+            else if (total < 200) sizeLabel = 'size/M';
+            else if (total < 500) sizeLabel = 'size/L';
+            else sizeLabel = 'size/XL';
+            
+            // Remove old size labels
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number
+            });
+            
+            for (const label of labels) {
+              if (label.name.startsWith('size/')) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: label.name
+                });
+              }
+            }
+            
+            // Add new size label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: [sizeLabel]
+            });
