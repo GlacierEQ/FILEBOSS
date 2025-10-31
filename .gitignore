@@ -31,3 +31,8 @@ test_models.db
 node_modules/
 dist/
 build/
+
+# MCP Ecosystem
+.env
+.mcp/*.json
+.mcp/*.yaml
