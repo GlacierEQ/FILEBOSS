@@ -1,0 +1,530 @@
+name: APEX Media Pipeline - E2B A2A MCP Orchestration
+
+on:
+  push:
+    paths:
+      - 'media_intake/**'
+      - 'evidence/**'
+      - 'uploads/**'
+  workflow_dispatch:
+    inputs:
+      media_path:
+        description: 'Path to media file for processing'
+        required: true
+      case_id:
+        description: 'Case ID for evidence tracking'
+        required: false
+      priority:
+        description: 'Processing priority (low/normal/high/critical)'
+        required: false
+        default: 'normal'
+
+env:
+  E2B_API_KEY: ${{ secrets.E2B_API_KEY }}
+  MEM0_API_KEY: ${{ secrets.MEM0_API_KEY }}
+  MEM0_ORG_ID: ${{ secrets.MEM0_ORG_ID }}
+  MEMORY_PLUGIN_PRIMARY: ${{ secrets.MEMORY_PLUGIN_PRIMARY }}
+  MEMORY_PLUGIN_SPECIALIZED: ${{ secrets.MEMORY_PLUGIN_SPECIALIZED }}
+  NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+  NOTION_CHATS_DB: ${{ secrets.NOTION_CHATS_DATABASE_ID }}
+  NOTION_PLATFORMS_DB: ${{ secrets.NOTION_PLATFORMS_DATABASE_ID }}
+  SUPERMEMORY_API_KEY: ${{ secrets.SUPERMEMORY_API_KEY }}
+  GOOGLE_DRIVE_API_KEY: ${{ secrets.GOOGLE_DRIVE_API_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  media-intake:
+    name: Media Intake & Queue
+    runs-on: ubuntu-latest
+    outputs:
+      job_id: ${{ steps.queue.outputs.job_id }}
+      media_type: ${{ steps.detect.outputs.media_type }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install e2b httpx mem0ai notion-client google-api-python-client
+          
+      - name: Detect Media Type
+        id: detect
+        run: |
+          python - <<EOF
+          import os
+          import json
+          from pathlib import Path
+          
+          media_path = "${{ github.event.inputs.media_path || 'media_intake/' }}"
+          
+          # Detect media types
+          audio_exts = {'.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac'}
+          video_exts = {'.mp4', '.mov', '.avi', '.mkv', '.webm'}
+          doc_exts = {'.pdf', '.docx', '.txt', '.md'}
+          
+          detected = {
+              'audio': [],
+              'video': [],
+              'documents': []
+          }
+          
+          for file in Path(media_path).rglob('*'):
+              if file.is_file():
+                  ext = file.suffix.lower()
+                  if ext in audio_exts:
+                      detected['audio'].append(str(file))
+                  elif ext in video_exts:
+                      detected['video'].append(str(file))
+                  elif ext in doc_exts:
+                      detected['documents'].append(str(file))
+          
+          print(f"::set-output name=media_type::audio" if detected['audio'] else "::set-output name=media_type::mixed")
+          print(f"::set-output name=detected::{json.dumps(detected)}")
+          EOF
+          
+      - name: Queue Jobs in E2B
+        id: queue
+        run: |
+          python - <<EOF
+          import os
+          import json
+          from e2b import Sandbox
+          
+          sandbox = Sandbox(api_key=os.environ['E2B_API_KEY'])
+          
+          job_manifest = {
+              "job_id": "${{ github.run_id }}-${{ github.run_number }}",
+              "timestamp": "${{ github.event.head_commit.timestamp }}",
+              "priority": "${{ github.event.inputs.priority || 'normal' }}",
+              "case_id": "${{ github.event.inputs.case_id }}",
+              "media_type": "${{ steps.detect.outputs.media_type }}",
+              "files": ${{ steps.detect.outputs.detected }},
+              "workflow": "apex-media-pipeline",
+              "operator": "APEX-Auto"
+          }
+          
+          # Store in sandbox filesystem
+          sandbox.filesystem.write("/apex/queue/job_manifest.json", json.dumps(job_manifest, indent=2))
+          
+          print(f"::set-output name=job_id::{job_manifest['job_id']}")
+          
+          sandbox.close()
+          EOF
+
+  whisperx-transcription:
+    name: WhisperX GPU Transcription
+    needs: media-intake
+    if: contains(needs.media-intake.outputs.media_type, 'audio') || contains(needs.media-intake.outputs.media_type, 'video')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python with GPU Support
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install WhisperX
+        run: |
+          pip install git+https://github.com/m-bain/whisperX.git
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          
+      - name: Execute WhisperX in E2B Sandbox
+        id: transcribe
+        run: |
+          python - <<EOF
+          import os
+          import json
+          from e2b import Sandbox
+          
+          sandbox = Sandbox(api_key=os.environ['E2B_API_KEY'])
+          
+          # Read job manifest
+          manifest = json.loads(sandbox.filesystem.read("/apex/queue/job_manifest.json"))
+          
+          # WhisperX transcription script
+          transcription_script = """
+          import whisperx
+          import json
+          from pathlib import Path
+          
+          device = "cpu"  # Use cuda if GPU available in E2B
+          batch_size = 16
+          compute_type = "float32"
+          
+          results = {}
+          
+          for audio_file in manifest['files']['audio']:
+              # Load model
+              model = whisperx.load_model("large-v2", device, compute_type=compute_type)
+              
+              # Transcribe
+              audio = whisperx.load_audio(audio_file)
+              result = model.transcribe(audio, batch_size=batch_size)
+              
+              # Align whisper output
+              model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
+              result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
+              
+              # Diarization
+              diarize_model = whisperx.DiarizationPipeline(device=device)
+              diarize_segments = diarize_model(audio)
+              result = whisperx.assign_word_speakers(diarize_segments, result)
+              
+              results[audio_file] = {
+                  "transcription": result,
+                  "metadata": {
+                      "language": result["language"],
+                      "duration": len(audio) / 16000,
+                      "speakers": len(set([seg.get('speaker') for seg in result["segments"] if 'speaker' in seg]))
+                  }
+              }
+          
+          # Save results
+          Path("/apex/transcriptions").mkdir(parents=True, exist_ok=True)
+          with open(f"/apex/transcriptions/{manifest['job_id']}.json", "w") as f:
+              json.dump(results, f, indent=2)
+          """
+          
+          # Execute in sandbox
+          proc = sandbox.process.start(f"python -c '{transcription_script}'")
+          proc.wait()
+          
+          # Retrieve results
+          transcription_data = sandbox.filesystem.read(f"/apex/transcriptions/{manifest['job_id']}.json")
+          
+          print(f"::set-output name=transcriptions::{transcription_data}")
+          
+          sandbox.close()
+          EOF
+          
+      - name: Export to Google Drive
+        if: success()
+        run: |
+          python - <<EOF
+          import os
+          import json
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+          from google.oauth2.credentials import Credentials
+          
+          # Initialize Drive API
+          creds = Credentials.from_authorized_user_info({
+              "token": os.environ['GOOGLE_DRIVE_API_KEY']
+          })
+          service = build('drive', 'v3', credentials=creds)
+          
+          transcriptions = json.loads('${{ steps.transcribe.outputs.transcriptions }}')
+          
+          # Upload to Drive
+          for audio_file, data in transcriptions.items():
+              file_metadata = {
+                  'name': f"transcription_{os.path.basename(audio_file)}.json",
+                  'parents': ['apex_transcriptions']  # Folder ID
+              }
+              
+              media = MediaFileUpload(
+                  json.dumps(data, indent=2),
+                  mimetype='application/json'
+              )
+              
+              file = service.files().create(
+                  body=file_metadata,
+                  media_body=media,
+                  fields='id,webViewLink'
+              ).execute()
+              
+              print(f"Uploaded: {file.get('webViewLink')}")
+          EOF
+
+  memory-triad-storage:
+    name: Store in Memory Triad
+    needs: [media-intake, whisperx-transcription]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install httpx mem0ai
+          
+      - name: Store in Memory Plugin (Primary)
+        run: |
+          python - <<EOF
+          import os
+          import json
+          import httpx
+          
+          transcriptions = json.loads('${{ needs.whisperx-transcription.outputs.transcriptions }}')
+          
+          async def store_memory_plugin():
+              async with httpx.AsyncClient() as client:
+                  for file, data in transcriptions.items():
+                      payload = {
+                          "content": data['transcription']['text'],
+                          "metadata": {
+                              "source": file,
+                              "job_id": "${{ needs.media-intake.outputs.job_id }}",
+                              "case_id": "${{ github.event.inputs.case_id }}",
+                              "type": "transcription",
+                              **data['metadata']
+                          }
+                      }
+                      
+                      response = await client.post(
+                          "https://www.memoryplugin.com/api/memories",
+                          headers={"Authorization": f"Bearer {os.environ['MEMORY_PLUGIN_PRIMARY']}"},
+                          json=payload
+                      )
+                      
+                      print(f"Memory Plugin Primary: {response.json()}")
+          
+          import asyncio
+          asyncio.run(store_memory_plugin())
+          EOF
+          
+      - name: Store in Mem0
+        run: |
+          python - <<EOF
+          import os
+          import json
+          from mem0 import MemoryClient
+          
+          client = MemoryClient(api_key=os.environ['MEM0_API_KEY'])
+          transcriptions = json.loads('${{ needs.whisperx-transcription.outputs.transcriptions }}')
+          
+          for file, data in transcriptions.items():
+              messages = [
+                  {
+                      "role": "user",
+                      "content": f"Transcription from {file}: {data['transcription']['text']}"
+                  }
+              ]
+              
+              result = client.add(
+                  messages=messages,
+                  user_id="casey@hi-classhomeservices.com",
+                  org_id=os.environ['MEM0_ORG_ID'],
+                  metadata={
+                      "job_id": "${{ needs.media-intake.outputs.job_id }}",
+                      "case_id": "${{ github.event.inputs.case_id }}",
+                      "source_file": file,
+                      **data['metadata']
+                  }
+              )
+              
+              print(f"Mem0 Storage: {result}")
+          EOF
+          
+      - name: Store in Supermemory
+        run: |
+          python - <<EOF
+          import os
+          import json
+          import httpx
+          
+          transcriptions = json.loads('${{ needs.whisperx-transcription.outputs.transcriptions }}')
+          
+          async def store_supermemory():
+              async with httpx.AsyncClient() as client:
+                  for file, data in transcriptions.items():
+                      payload = {
+                          "content": data['transcription']['text'],
+                          "metadata": {
+                              "source": file,
+                              "job_id": "${{ needs.media-intake.outputs.job_id }}",
+                              "type": "audio_transcription"
+                          }
+                      }
+                      
+                      response = await client.post(
+                          "https://api.supermemory.ai/mcp/store",
+                          headers={"Authorization": f"Bearer {os.environ['SUPERMEMORY_API_KEY']}"},
+                          json=payload
+                      )
+                      
+                      print(f"Supermemory: {response.json()}")
+          
+          import asyncio
+          asyncio.run(store_supermemory())
+          EOF
+
+  notion-sync:
+    name: Sync to Notion
+    needs: [media-intake, whisperx-transcription, memory-triad-storage]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Notion SDK
+        run: pip install notion-client
+        
+      - name: Create Notion Evidence Pages
+        run: |
+          python - <<EOF
+          import os
+          import json
+          from notion_client import Client
+          
+          notion = Client(auth=os.environ['NOTION_TOKEN'])
+          transcriptions = json.loads('${{ needs.whisperx-transcription.outputs.transcriptions }}')
+          
+          for file, data in transcriptions.items():
+              # Create page in Chats database
+              page = notion.pages.create(
+                  parent={"database_id": os.environ['NOTION_CHATS_DB']},
+                  properties={
+                      "Name": {
+                          "title": [
+                              {
+                                  "text": {
+                                      "content": f"Transcription: {os.path.basename(file)}"
+                                  }
+                              }
+                          ]
+                      },
+                      "Case ID": {
+                          "rich_text": [
+                              {
+                                  "text": {
+                                      "content": "${{ github.event.inputs.case_id }}"
+                                  }
+                              }
+                          ]
+                      },
+                      "Job ID": {
+                          "rich_text": [
+                              {
+                                  "text": {
+                                      "content": "${{ needs.media-intake.outputs.job_id }}"
+                                  }
+                              }
+                          ]
+                      }
+                  },
+                  children=[
+                      {
+                          "object": "block",
+                          "type": "heading_2",
+                          "heading_2": {
+                              "rich_text": [{"type": "text", "text": {"content": "Transcription"}}]
+                          }
+                      },
+                      {
+                          "object": "block",
+                          "type": "paragraph",
+                          "paragraph": {
+                              "rich_text": [
+                                  {
+                                      "type": "text",
+                                      "text": {"content": data['transcription']['text'][:2000]}
+                                  }
+                              ]
+                          }
+                      },
+                      {
+                          "object": "block",
+                          "type": "heading_2",
+                          "heading_2": {
+                              "rich_text": [{"type": "text", "text": {"content": "Metadata"}}]
+                          }
+                      },
+                      {
+                          "object": "block",
+                          "type": "code",
+                          "code": {
+                              "language": "json",
+                              "rich_text": [
+                                  {
+                                      "type": "text",
+                                      "text": {"content": json.dumps(data['metadata'], indent=2)}
+                                  }
+                              ]
+                          }
+                      }
+                  ]
+              )
+              
+              print(f"Created Notion page: {page['url']}")
+          EOF
+
+  audit-log:
+    name: Create Audit Trail
+    needs: [media-intake, whisperx-transcription, memory-triad-storage, notion-sync]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Generate Audit Report
+        run: |
+          cat > audit_report.json <<EOF
+          {
+            "pipeline_run": {
+              "job_id": "${{ needs.media-intake.outputs.job_id }}",
+              "run_id": "${{ github.run_id }}",
+              "run_number": "${{ github.run_number }}",
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "trigger": "${{ github.event_name }}",
+              "case_id": "${{ github.event.inputs.case_id }}",
+              "priority": "${{ github.event.inputs.priority }}"
+            },
+            "stages": {
+              "media_intake": {
+                "status": "${{ needs.media-intake.result }}",
+                "media_type": "${{ needs.media-intake.outputs.media_type }}"
+              },
+              "transcription": {
+                "status": "${{ needs.whisperx-transcription.result }}"
+              },
+              "memory_storage": {
+                "status": "${{ needs.memory-triad-storage.result }}"
+              },
+              "notion_sync": {
+                "status": "${{ needs.notion-sync.result }}"
+              }
+            },
+            "reproducibility": {
+              "commit_sha": "${{ github.sha }}",
+              "workflow_file": ".github/workflows/apex-media-pipeline.yml",
+              "runner": "${{ runner.os }}",
+              "python_version": "3.11"
+            }
+          }
+          EOF
+          
+      - name: Commit Audit Log to Repository
+        run: |
+          git config user.name "APEX Pipeline Bot"
+          git config user.email "apex@glaciereq.ai"
+          
+          mkdir -p audit_logs
+          cp audit_report.json audit_logs/run_${{ github.run_number }}_$(date +%Y%m%d_%H%M%S).json
+          
+          git add audit_logs/
+          git commit -m "📊 Audit log for pipeline run ${{ github.run_number }}"
+          git push
