@@ -1,98 +1,133 @@
 #!/usr/bin/env python3
-"""
-Supermemory Context Offloader
-Aggressive context offloading to eliminate token exhaustion
-"""
+"""Supermemory offloader with pooled sessions and resilient retries."""
 
 import asyncio
-import aiohttp
 import hashlib
 import json
+import os
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+import aiohttp
 
 
 class SupermemoryContextOffloader:
-    """Offload all context to Supermemory cloud to save local tokens"""
-    
-    def __init__(self):
-        self.api_key = "sm_tdpNTGLMbKRFCDjruaivZr_MhyVWbyEkrOhqKYpCWxiZyojMYMjqmlKiHtLUtcFsFybJujCmwxZJYpjZQIqvtNw"
-        self.base_url = "https://api.supermemory.ai/v1"
+    """Offload context to Supermemory cloud and return lightweight handles."""
+
+    def __init__(
+        self,
+        *,
+        api_key: Optional[str] = None,
+        base_url: str = "https://api.supermemory.ai/v1",
+        max_connections: int = 50,
+        request_timeout: int = 30,
+        max_retries: int = 3,
+    ) -> None:
+        self.api_key = api_key or os.getenv("SUPERMEMORY_API_KEY")
+        self.base_url = base_url.rstrip("/")
         self.offload_threshold = 1000  # characters
-        
+        self._timeout = aiohttp.ClientTimeout(total=request_timeout)
+        self._session: Optional[aiohttp.ClientSession] = None
+        self._connector_limit = max_connections
+        self._max_retries = max_retries
+
+    async def _get_session(self) -> aiohttp.ClientSession:
+        """Get or create a pooled HTTP session for low-latency calls."""
+
+        if self._session is None or self._session.closed:
+            self._session = aiohttp.ClientSession(
+                timeout=self._timeout,
+                connector=aiohttp.TCPConnector(
+                    limit=self._connector_limit, ttl_dns_cache=300
+                ),
+            )
+        return self._session
+
     def generate_ref_id(self, data: Any) -> str:
-        """Generate lightweight reference ID"""
+        """Generate a deterministic lightweight reference ID."""
+
         data_str = json.dumps(data, sort_keys=True)
         return hashlib.sha256(data_str.encode()).hexdigest()[:16]
-    
-    async def offload_immediately(self, context_data: Dict) -> Dict:
-        """
-        Offload context to cloud IMMEDIATELY after generation
-        Returns only lightweight reference
-        """
-        ref_id = self.generate_ref_id(context_data)
-        
-        async with aiohttp.ClientSession() as session:
+
+    async def _request(self, method: str, path: str, *, payload: Optional[Dict] = None) -> Dict:
+        if not self.api_key:
+            raise RuntimeError("SUPERMEMORY_API_KEY is required for offloading")
+
+        session = await self._get_session()
+        url = f"{self.base_url}{path}"
+        last_error: Optional[Exception] = None
+
+        for attempt in range(self._max_retries):
             try:
-                async with session.post(
-                    f'{self.base_url}/memory/store',
+                async with session.request(
+                    method,
+                    url,
                     headers={
-                        'Authorization': f'Bearer {self.api_key}',
-                        'Content-Type': 'application/json'
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
                     },
-                    json={
-                        'context_id': ref_id,
-                        'data': context_data,
-                        'timestamp': datetime.now().isoformat(),
-                        'priority': 'high',
-                        'retention': 'permanent',
-                        'metadata': {
-                            'source': 'browser_automation',
-                            'type': context_data.get('type', 'general')
-                        }
-                    },
-                    timeout=aiohttp.ClientTimeout(total=30)
+                    json=payload,
                 ) as response:
-                    if response.status == 200:
-                        result = await response.json()
-                    else:
-                        result = {'error': await response.text()}
-                        
-            except Exception as e:
-                result = {'error': str(e)}
-        
-        return {
-            'ref_id': ref_id,
-            'stored': True,
-            'size_saved': len(json.dumps(context_data)),
-            'cloud_location': result.get('storage_id'),
-            'status': result
-        }
-    
-    async def retrieve_on_demand(self, ref_id: str) -> Optional[Dict]:
-        """
-        Retrieve from cloud only when absolutely needed
-        Implements lazy loading pattern
-        """
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.get(
-                    f'{self.base_url}/memory/retrieve/{ref_id}',
-                    headers={'Authorization': f'Bearer {self.api_key}'},
-                    timeout=aiohttp.ClientTimeout(total=30)
-                ) as response:
-                    if response.status == 200:
+                    if 200 <= response.status < 300:
                         return await response.json()
-                    else:
-                        return None
-            except Exception as e:
-                print(f"Error retrieving {ref_id}: {e}")
-                return None
-    
+                    last_error = RuntimeError(
+                        f"Unexpected status {response.status}: {await response.text()}"
+                    )
+            except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+                last_error = exc
+
+            if attempt < self._max_retries - 1:
+                await asyncio.sleep(0.5 * (attempt + 1))
+
+        raise RuntimeError(f"Supermemory request failed: {last_error}")
+
+    async def offload_immediately(self, context_data: Dict) -> Dict:
+        """Offload context immediately and return a reference handle."""
+
+        ref_id = self.generate_ref_id(context_data)
+        payload = {
+            "context_id": ref_id,
+            "data": context_data,
+            "timestamp": datetime.now().isoformat(),
+            "priority": "high",
+            "retention": "permanent",
+            "metadata": {
+                "source": "browser_automation",
+                "type": context_data.get("type", "general"),
+            },
+        }
+
+        result = await self._request("POST", "/memory/store", payload=payload)
+
+        return {
+            "ref_id": ref_id,
+            "stored": True,
+            "size_saved": len(json.dumps(context_data)),
+            "cloud_location": result.get("storage_id"),
+            "status": result,
+        }
+
+    async def retrieve_on_demand(self, ref_id: str) -> Optional[Dict]:
+        """Retrieve previously offloaded context."""
+
+        try:
+            return await self._request("GET", f"/memory/retrieve/{ref_id}")
+        except Exception as exc:  # noqa: BLE001 - surfaced for observability
+            print(f"Error retrieving {ref_id}: {exc}")
+            return None
+
     async def batch_offload(self, data_list: list) -> list:
-        """Offload multiple contexts in parallel"""
+        """Offload multiple contexts in parallel."""
+
         tasks = [self.offload_immediately(data) for data in data_list]
         return await asyncio.gather(*tasks)
+
+    async def close(self) -> None:
+        """Release pooled HTTP resources."""
+
+        if self._session and not self._session.closed:
+            await self._session.close()
+            self._session = None
 
 
 # Global instance for easy access
@@ -102,6 +137,10 @@ offloader = SupermemoryContextOffloader()
 if __name__ == "__main__":
     # Test the offloader
     async def test():
+        if not offloader.api_key:
+            print("SUPERMEMORY_API_KEY not set; skipping live offload test.")
+            return
+
         test_data = {
             'type': 'test',
             'content': 'This is test data to verify offloading works',
