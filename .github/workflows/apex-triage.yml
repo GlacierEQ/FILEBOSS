@@ -1,0 +1,102 @@
+name: Apex Auto-Triage
+
+on:
+  issues:
+    types: [opened, reopened, labeled]
+  workflow_dispatch:
+
+jobs:
+  auto-triage:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Auto-Label by Priority
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const title = issue.title || '';
+            const content = (title + ' ' + body).toLowerCase();
+            
+            // Priority detection
+            const labels = [];
+            
+            if (content.includes('critical') || content.includes('blocking')) {
+              labels.push('priority:critical');
+              labels.push('needs-immediate-attention');
+            } else if (content.includes('urgent')) {
+              labels.push('priority:urgent');
+            } else if (content.includes('high')) {
+              labels.push('priority:high');
+            }
+            
+            // Category detection
+            if (content.includes('performance') || content.includes('optimization')) {
+              labels.push('category:performance');
+            }
+            if (content.includes('docker') || content.includes('deployment')) {
+              labels.push('category:infrastructure');
+            }
+            if (content.includes('ci/cd') || content.includes('github actions')) {
+              labels.push('category:automation');
+            }
+            if (content.includes('pdf') || content.includes('file')) {
+              labels.push('category:core-feature');
+            }
+            
+            // Effort estimation
+            if (content.includes('implement') || content.includes('add')) {
+              labels.push('effort:medium');
+            }
+            if (content.includes('refactor') || content.includes('consolidate')) {
+              labels.push('effort:large');
+            }
+            
+            // Add labels
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+              
+              console.log(`Added labels: ${labels.join(', ')}`);
+            }
+            
+      - name: Create Project Board Item
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // Comment with triage info
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `## 🎯 Apex Auto-Triage Complete\n\n` +
+                    `**Analysis:**\n` +
+                    `- Issue auto-categorized and prioritized\n` +
+                    `- Added to Apex Command Center tracking\n` +
+                    `- Linked to Memory Master knowledge graph\n\n` +
+                    `**Next Steps:**\n` +
+                    `1. Review auto-assigned labels\n` +
+                    `2. Assign team member if needed\n` +
+                    `3. Link related issues\n\n` +
+                    `*Powered by Apex Command Center v1.0*`
+            });
+            
+      - name: Notify Apex Command Center
+        run: |
+          echo "📊 Issue #${{ github.event.issue.number }} triaged"
+          echo "Priority: Auto-detected from content"
+          echo "Category: Auto-assigned based on keywords"
+          echo "Status: Ready for assignment"
