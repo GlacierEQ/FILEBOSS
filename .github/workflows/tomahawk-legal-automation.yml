@@ -1,0 +1,162 @@
+name: 🔥 TOMAHAWK LEGAL AUTOMATION - CASE 1FDV-23-0001009
+
+on:
+  push:
+    paths: ['evidence/**', 'motions/**', 'filings/**']
+  schedule:
+    - cron: '0 */4 * * *'  # Every 4 hours - relentless monitoring
+  workflow_dispatch:  # Manual trigger for immediate execution
+
+env:
+  CASE_NUMBER: "1FDV-23-0001009"
+  JURISDICTION: "Hawaii Family Court First Circuit"
+  CHILD_NAME: "Kekoa"
+  LINEAR_TEAM: "FIR"
+
+jobs:
+  pdf-evidence-extraction:
+    name: 💠 Extract Legal Evidence from PDFs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install OCR Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr poppler-utils
+          pip install PyPDF2 pdf2image pytesseract pandas
+          
+      - name: Extract Evidence Metadata
+        run: |
+          python automation/pdf_evidence_extractor.py \
+            --case-number $CASE_NUMBER \
+            --output evidence/extracted_$(date +%Y%m%d).json
+            
+      - name: Generate Timeline
+        run: |
+          python automation/timeline_generator.py \
+            --input evidence/extracted_*.json \
+            --output timelines/case_timeline_$(date +%Y%m%d).md
+
+  judicial-bias-tracker:
+    name: ⚡ Document Judicial Bias Patterns
+    runs-on: ubuntu-latest
+    needs: pdf-evidence-extraction
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Analyze Court Orders
+        run: |
+          python automation/judicial_bias_analyzer.py \
+            --orders-dir evidence/court_orders/ \
+            --output reports/bias_analysis_$(date +%Y%m%d).json
+            
+      - name: Cross-Reference Precedents
+        run: |
+          python automation/precedent_matcher.py \
+            --analysis reports/bias_analysis_*.json \
+            --output reports/precedent_violations.md
+
+  motion-generator:
+    name: 💥 Auto-Generate Legal Motions
+    runs-on: ubuntu-latest
+    needs: [pdf-evidence-extraction, judicial-bias-tracker]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate Motion Drafts
+        run: |
+          python automation/motion_generator.py \
+            --template templates/motion_parental_alienation.tex \
+            --evidence evidence/extracted_*.json \
+            --output motions/draft_$(date +%Y%m%d).tex
+            
+      - name: Compile LaTeX to PDF
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: motions/draft_*.tex
+          
+  linear-sync:
+    name: 🎯 Sync Issues to Linear
+    runs-on: ubuntu-latest
+    needs: motion-generator
+    steps:
+      - name: Create Linear Issues
+        uses: linear/action@v1
+        with:
+          api-key: ${{ secrets.LINEAR_API_KEY }}
+          team-id: ${{ env.LINEAR_TEAM }}
+          title: "📋 Evidence Update - ${{ github.sha }}"
+          description: |
+            **Automated Evidence Processing Complete**
+            - Case: ${{ env.CASE_NUMBER }}
+            - Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            - Files Processed: See attached artifacts
+            
+  notion-database-update:
+    name: 📊 Update Notion Evidence Database
+    runs-on: ubuntu-latest
+    needs: linear-sync
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Sync to Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: |
+          python automation/notion_sync.py \
+            --database-id ${{ secrets.NOTION_DB_ID }} \
+            --evidence-dir evidence/ \
+            --case-number $CASE_NUMBER
+            
+  asana-task-creation:
+    name: ✅ Create Asana Tracking Tasks
+    runs-on: ubuntu-latest
+    needs: notion-database-update
+    steps:
+      - name: Create Asana Tasks
+        env:
+          ASANA_TOKEN: ${{ secrets.ASANA_TOKEN }}
+        run: |
+          python automation/asana_task_creator.py \
+            --project-id ${{ secrets.ASANA_PROJECT_ID }} \
+            --motions motions/draft_*.tex \
+            --evidence evidence/extracted_*.json
+
+  deploy-to-production:
+    name: 🚀 Deploy Automation Agents
+    runs-on: ubuntu-latest
+    needs: [motion-generator, linear-sync, notion-database-update, asana-task-creation]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy Evidence Monitor
+        run: |
+          docker-compose -f docker/evidence-monitor.yml up -d
+          
+      - name: Activate Deep Soul Protocol
+        run: |
+          python automation/deep_soul_activator.py \
+            --mode OMNIPOTENT_GALAXY_NETWORK \
+            --case $CASE_NUMBER \
+            --priority CRITICAL_CHILD_PROTECTION
+            
+      - name: Generate Status Report
+        run: |
+          echo "## 🔥 TOMAHAWK AUTOMATION STATUS" > status.md
+          echo "**Case:** $CASE_NUMBER" >> status.md
+          echo "**Timestamp:** $(date -u)" >> status.md
+          echo "**Status:** OPERATIONAL - All systems armed" >> status.md
+          
+      - name: Commit Automation Results
+        run: |
+          git config user.name "Tomahawk Automation"
+          git config user.email "glacier.equilibrium@gmail.com"
+          git add evidence/ motions/ reports/ timelines/
+          git commit -m "🔥 AUTO: Evidence processing complete - $(date +%Y%m%d-%H%M%S)"
+          git push
